@@ -1,0 +1,12 @@
+<template>
+
+    <!-- ToDo: Multiple -->
+    <select md-select="label.bind: settings.DisplayName; disabled.bind: readOnly" 
+        value.bind="value & validate:rules"
+        md-validate="true">
+        <option 
+            repeat.for="option of settings.Options" 
+            value.bind="option.Value"
+            selected.bind="value === option.Value || !value && option.Selected">${option.Text}</option>
+    </select>
+</template>

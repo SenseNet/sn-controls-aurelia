@@ -1,0 +1,13 @@
+<template>
+    <!-- https://quilljs.com/ -->
+    <require from='quill/dist/quill.core.css'></require>
+    <require from='quill/dist/quill.snow.css'></require>
+    <require from='./RichText.css'></require>
+    <div ref='containerRef' class="richtext-wrapper input-field ${isSelected ? 'selected' : ''} ${(isSelected || textValue && textValue.length) ? 'active' : ''}">
+        <label class="${(isSelected || textValue && textValue.length) || readOnly ? 'active' : ''}">${settings.DisplayName}</label>
+        <div class="${readOnly ? 'hidden' : ''}" ref='quillElementRef' class="quillEditor">
+        </div>
+
+        <div if.bind="readOnly" innerhtml.bind="value" class="richTextView"></div>
+    </div>
+</template>

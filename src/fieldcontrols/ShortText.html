@@ -1,0 +1,8 @@
+<template>
+  <md-input 
+    md-label.bind="settings.DisplayName"
+    md-value.bind="value & validate:rules"
+    md-placeholder.bind="settings.Description ? settings.Description : ''"
+    md-validate="true"
+    md-disabled.bind="readOnly"></md-input>
+</template>

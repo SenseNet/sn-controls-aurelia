@@ -1,0 +1,69 @@
+.tree-wrapper {
+    user-select: none;
+
+    .tree-wrapper {
+        margin-left: 15px;
+        white-space: nowrap;
+    }
+
+    icon {
+
+        cursor: pointer;
+
+        opacity: .4;
+
+        &.selected {
+            opacity: .6;
+        }
+    }
+
+    overflow: hidden;
+
+    .tree-item-name {
+        cursor: pointer;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        display: block;
+        clear: none;
+        width: calc(100% - 60px);
+        float: right;
+
+        &.selected {
+            font-weight: bolder;
+        }
+
+        md-progress {
+            position: absolute;
+            opacity: 0;
+            filter: blur(3px);
+            transition: all 0.3s ease-in;
+            transition-delay: 0s;
+            margin-left: 15px;
+
+            &.loading {
+                transition-delay: 1s;
+                opacity: 1;
+                filter: none;
+                transition: opacity linear 0.6s, blur linear 0.3s;
+            }
+        }
+    }
+
+    i.expand-icon {
+        &.loading {
+            opacity: .6;
+        }
+
+        &.no-children {
+            opacity: .3;
+        }
+
+        cursor: pointer;
+        transition: transform 400ms cubic-bezier(0.6, -0.28, 0.735, 0.045);
+
+        &.collapsed {
+            transform: rotate(-180deg);
+        }
+    }
+}
