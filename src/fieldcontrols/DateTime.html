@@ -1,0 +1,21 @@
+<template>
+    <require from="./DateTime.css"></require>
+    <div class="datetime-wrapper" ref="dpWrapper">
+        <div class="date-container ${showTime ? 'half-width' : ''}">
+            <label>${settings.DisplayName}</label>
+            <input 
+                md-datepicker="container.bind: dpWrapper; value.bind: valueDate & validate:rules; options.bind:advancedOptions"
+                disabled.bind="readOnly"
+                type="datetime"
+                class="std-icon-fixup"
+                md-validate="true"
+                placeholder.bind="settings.Description ? settings.Description : 'Pick a date'"/>
+        </div>
+        <div class="time-container half-width">
+            <md-input 
+                md-type="time" 
+                md-value.bind="valueTime & validate:rules"
+                md-disabled.bind="readOnly"></md-input><br />
+        </div>
+    </div>
+</template>

@@ -1,0 +1,5 @@
+<template>
+    <div class="content-view-wrapper" if.bind="control != undefined && content != undefined">
+        <compose view-model.bind="resolveControlName(control)" model.bind="{content: content, schema: schema, actionName: actionName}"></compose>
+    </div>
+</template>

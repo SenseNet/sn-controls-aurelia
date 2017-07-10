@@ -1,0 +1,12 @@
+<template>
+    <label>${settings.DisplayName}</label>
+    <md-input 
+            md-type='number' 
+            md-step='1'
+            md-value.bind="value"
+            md-min.bind="settings.MinValue"
+            md-max.bind="settings.MaxValue"
+            md-disabled.bind="readOnly">
+        <i md-prefix class="material-icons">%</i>
+    </md-input>
+</template>
