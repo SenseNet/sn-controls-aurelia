@@ -1,5 +1,7 @@
 # sn-controls-aurelia
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/SenseNet/sn-controls-aurelia.svg)](https://greenkeeper.io/)
+
 [![Gitter chat](https://img.shields.io/gitter/room/SenseNet/SN7ClientAPI.svg?style=flat)](https://gitter.im/SenseNet/SN7ClientAPI)
 [![License](https://img.shields.io/github/license/SenseNet/sn-controls-aurelia.svg?style=flat)](https://github.com/SenseNet/sn-controls-aurelia/LICENSE.txt)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg?style=flat)](http://commitizen.github.io/cz-cli/)
