@@ -100,7 +100,7 @@
     "aurelia-validation": "^1.0.0",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
-    "materialize-css": "^0.99.0",
+    "materialize-css": "^0.100.0",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
     "node-sass": "^4.5.3",
