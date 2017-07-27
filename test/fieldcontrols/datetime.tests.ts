@@ -1,11 +1,7 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { bootstrap } from 'aurelia-bootstrapper';
-import { ComponentTestBase } from '../component-test.base';
-import { ContentView } from '../../src/viewcontrols';
-import { ContentTypes, ActionName, FieldSettings, Retrier } from 'sn-client-js';
+import { ContentTypes, FieldSettings } from 'sn-client-js';
 import { DateTime } from '../../src/fieldcontrols';
-import { ValidationController, ValidateBindingBehavior } from 'aurelia-validation';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
 
 @suite('DateTime field component')
@@ -94,9 +90,9 @@ export class DateTimeTests extends FieldControlBaseTest<DateTime> {
             compulsory: true,
             name: 'DueDate'
         });
-        viewModel.content = new ContentTypes.Task({
+        viewModel.content = this.mockRepo.CreateContent({
             DueDate: '2017-01-01T09:00:00.000Z'
-        }, this.mockRepo);
+        } , ContentTypes.Task);
         viewModel.value = '2017-01-01T09:00:00.000Z';
         viewModel.localeService.Timezone = 'Europe/Budapest';
 

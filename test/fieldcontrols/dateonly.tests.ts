@@ -1,11 +1,8 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { bootstrap } from 'aurelia-bootstrapper';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
-import { ContentView } from '../../src/viewcontrols';
-import { ContentTypes, ActionName, FieldSettings, Retrier } from 'sn-client-js';
+import { ContentTypes, FieldSettings } from 'sn-client-js';
 import { DateOnly } from '../../src/fieldcontrols';
-import { ValidationController, ValidateBindingBehavior } from 'aurelia-validation';
 
 @suite('DateField component')
 export class DateFieldTests extends FieldControlBaseTest<DateOnly> {

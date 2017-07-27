@@ -1,8 +1,6 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-
 import { ControlNameResolver } from '../../src/helpers/ControlNameResolver'
-import { ContentTypes } from 'sn-client-js';
 
 @suite('ControlNameResolver Tests')
 export class HelperTests {

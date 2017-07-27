@@ -1,13 +1,26 @@
-import { FieldSettings, Content, Resources, Retrier } from 'sn-client-js';
-import { bindable, computedFrom, customElement } from 'aurelia-framework';
+/**
+ * @module FieldControls
+ * 
+ */ /** */
 
-import { AureliaClientFieldConfig } from '../AureliaClientFieldConfig';
+import { FieldSettings } from 'sn-client-js';
+import { customElement } from 'aurelia-framework';
+
 import { FieldBaseControl } from './FieldBaseControl';
-import { ValidationRules, FluentRules } from 'aurelia-validation';
+import { ValidationRules } from 'aurelia-validation';
 
 import { Quill as QuillType } from 'quill';
 
 const Quill = require('quill') as QuillType;
+
+/**
+ * Field control for formatted long text using Quill Editor.
+ * Usage:
+ * 
+ * ``` html
+ * <rich-text content.bind="content" settings.bind="myLongTextFieldSetting"></rich-text>
+ * ```
+ */
 
 @customElement('rich-text')
 export class RichText extends FieldBaseControl<string, FieldSettings.LongTextFieldSetting> {
@@ -19,13 +32,13 @@ export class RichText extends FieldBaseControl<string, FieldSettings.LongTextFie
     isSelected: boolean = false;
     textValue: string;
     get rules(): any {
-        const parentRules = super.rules || [];
+        const parentRules = super.rules;
         let thisRules = ValidationRules
             .ensure('value')
             .minLength(this.settings.MinLength || 0)
-            .maxLength(this.settings.MaxLength || Infinity);
+            .maxLength(this.settings.MaxLength || Infinity).rules || [];
 
-        return [...(parentRules ? parentRules : []), ...(thisRules.rules ? thisRules.rules : [])];
+        return [...parentRules, ...thisRules];
     }
 
     public onQuillSelectionChange(range, oldRange, source) {

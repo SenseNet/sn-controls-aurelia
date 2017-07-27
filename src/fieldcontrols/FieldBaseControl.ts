@@ -1,11 +1,17 @@
-import { AureliaClientFieldConfig } from '../AureliaClientFieldConfig';
+/**
+ * @module FieldControls
+ * 
+ */ /** */
+
 import { AureliaBaseControl } from '../AureliaBaseControl';
 import { Content, FieldSettings, ActionName } from 'sn-client-js';
 
-import { ValidationController, ValidationRules } from 'aurelia-validation';
-import { MaterializeFormValidationRenderer } from 'aurelia-materialize-bridge';
+import { ValidationController, ValidationRules, FluentRuleCustomizer } from 'aurelia-validation';
 import { computedFrom, bindable } from 'aurelia-framework';
 
+/**
+ * Base class for field controls. Contains basic binding, activation and validation logic.
+ */
 export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.FieldSetting>
         extends AureliaBaseControl {
     @bindable
@@ -22,12 +28,12 @@ export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.Fiel
     }
 
     @computedFrom('content', 'settings', 'actionName')
-    public get rules(): any{
+    public get rules(): FluentRuleCustomizer<any, any>[]{
         let rules: any = ValidationRules;
         if (this.settings && this.settings.Compulsory){
             rules = rules.ensure('value').required();
         }
-        return rules.rules;
+        return rules.rules || [];
     }
 
     
@@ -38,8 +44,6 @@ export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.Fiel
     set value(newValue: TValueType){
         this.content[this.settings.Name] = newValue;
     }
-
-    isDirty: boolean;
     settings: TConfigType;
     activate(model: {settings: TConfigType, content: Content, controller: ValidationController, actionName: ActionName}){
         this.content = model.content;

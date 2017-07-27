@@ -39,6 +39,8 @@ Options.relativeToDir = Path.join(process.cwd(), 'dist', 'src');
 import 'reflect-metadata';
 import 'quill';
 
+export * from './aurelia-control-mapper.tests';
+
 export * from './viewcontrols';
 export * from './fieldcontrols';
 export * from './helpers';

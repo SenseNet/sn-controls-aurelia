@@ -2,7 +2,7 @@
 
     <!-- ToDo: Multiple -->
     <select md-select="label.bind: settings.DisplayName; disabled.bind: readOnly" 
-        value.bind="value & validate:rules"
+        value.bind="value & validate:rules.length ? rules : undefined"
         md-validate="true">
         <option 
             repeat.for="option of settings.Options" 

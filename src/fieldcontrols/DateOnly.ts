@@ -1,11 +1,23 @@
-import { computedFrom, autoinject, customAttribute, customElement } from 'aurelia-framework'
+/**
+ * @module FieldControls
+ * 
+ */ /** */
+
+import { computedFrom, autoinject, customElement } from 'aurelia-framework'
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
 import { LocaleService } from '../services';
 import 'moment';
 import * as moment from 'moment-timezone';
-import { ValidationRules } from 'aurelia-validation';
 
+/**
+ * Field control that represents a Date Picker. Formatting will be done based on the LocaleService
+ * Usage:
+ * 
+ * ``` html
+ * <date-only content.bind="content" settings.bind="myDateTimeFieldSettings"></date-only>
+ * ```
+ */
 @autoinject
 @customElement('date-only')
 export class DateOnly extends FieldBaseControl<string, FieldSettings.DateTimeFieldSetting> {

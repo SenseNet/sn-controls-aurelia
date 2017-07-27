@@ -1,13 +1,19 @@
-import { ComponentAttached, ComponentCreated, ComponentBind, ComponentDetached, ComponentUnbind } from 'aurelia-framework';
+/**
+ * @module sn-controls-aurelia
+ * 
+ * 
+ */ /** */
 import { ControlNameResolver } from './helpers/ControlNameResolver';
-import { View } from 'aurelia-templating';
 
+/**
+ * @description Base class for sensenet Aurelia controls
+ */
 export class AureliaBaseControl {
 
-    constructor() {
-       
-    }
-    
+    /**
+     * @returns the resolved name for the specified control
+     * @param control the type of the Control, e.g. FieldControls.ShortText
+     */
     public resolveControlName(control: { new (...args: any[]) }) {
         return ControlNameResolver.getNameForControl(control);
     }
