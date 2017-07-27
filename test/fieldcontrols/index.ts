@@ -1,3 +1,4 @@
+export * from './checkbox.tests';
 export * from './choice.tests';
 export * from './dateonly.tests';
 export * from './datetime.tests';

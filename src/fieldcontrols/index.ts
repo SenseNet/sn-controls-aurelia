@@ -1,3 +1,12 @@
+/**
+ * @module FieldControls
+ * 
+ * @preferred
+ * @description This module contains controls that are used to display or edit specific fields of a specified Content.
+ * 
+ */ /** */
+
+export * from './Checkbox';
 export * from './Choice';
 export * from './DateOnly';
 export * from './DateTime';

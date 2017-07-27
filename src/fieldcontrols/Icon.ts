@@ -1,6 +1,21 @@
+/**
+ * @module FieldControls
+ * 
+ */ /** */
+
 import { bindable, computedFrom } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
+
+
+/**
+ * Control for displaying an icon
+ * Usage:
+ * 
+ * ``` html
+ * <icon icon-name.bind="content.Icon"></icon>
+ * ```
+ */
 export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
 
     private iconNames = {
@@ -19,6 +34,7 @@ export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
         Device: 'devices',
         Domain: 'domain',
         Document: 'insert_drive_file', //???
+        trash: 'delete'
 
     }
     

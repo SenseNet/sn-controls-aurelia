@@ -1,18 +1,11 @@
 <template>
+    <require from="./GenericView.css"></require>
+
+    <div class="generic-view-wrapper">
         <div class="row">
             <compose repeat.for="mapping of schema.FieldMappings" class="col xl6 l6 m6 s12" view-model.bind="resolveControlName(mapping.ControlType)"
                 model.bind="{settings: mapping.FieldSettings, content: content, controller: controller, actionName: actionName}"></compose>
         </div>
-        <div class="row" if.bind="actionName == 'edit'">
-            <button md-button click.delegate="view()">Cancel</button>
-            <button md-button click.delegate="save()">Save</button>
-        </div>
-        <div class="row" if.bind="actionName == 'new'">
-            <button md-button click.delegate="view()">Cancel</button>
-            <button md-button click.delegate="save()">Create</button>
-        </div>
-        <div class="row" if.bind="actionName == 'view'">
-            <button md-button click.delegate="edit()"> <i class="left material-icons">mode_edit</i> Edit</button>
-        </div>
-    <slot></slot>
+        <slot></slot>
+    </div>
 </template>

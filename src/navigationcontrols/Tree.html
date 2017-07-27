@@ -1,6 +1,13 @@
 <template>
     <require from='./Tree.css'></require>
-    <div class='tree-wrapper' title="${Content.SavedFields.DisplayName || Content.SavedFields.Name}">
+    <div if.bind="hasValidContent" class="tree-wrapper" 
+         title="${Content.SavedFields.DisplayName || Content.SavedFields.Name}" 
+         draggable="true" 
+         dragstart.trigger="dragStart($event)"
+         dragenter.trigger="dragEnter($event)"
+         dragover.trigger="dragOver($event)"
+         dragend.trigger="dragEnd($event)"
+         drop.trigger="dragDrop($event)">
         <i class="expand-icon material-icons ${IsExpanded ? 'expanded' : 'collapsed'} ${!HasChildren ? 'no-children' : ''} ${IsLoading ? 'loading' : ''}" click.delegate="Toggle()">keyboard_arrow_down</i>
         
         <icon class="${IsSelected ? 'selected' : ''}" icon-name.bind="Content.Icon" click.delegate="Select()"></icon>

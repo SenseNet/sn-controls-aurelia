@@ -1,9 +1,7 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
 import { StageComponent, ComponentTester } from 'aurelia-testing';
 import { initialize, globalize } from 'aurelia-pal-nodejs';
 import { AureliaBaseControl } from '../src/AureliaBaseControl';
-import { Mocks, Repository } from 'sn-client-js';
+import { Mocks } from 'sn-client-js';
 import { configure } from '../src/';
 import { bootstrap } from 'aurelia-bootstrapper';
 

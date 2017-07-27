@@ -1,5 +1,23 @@
-import { bindable, PLATFORM } from 'aurelia-framework';
+/**
+ * @module Helpers
+ * 
+ * @preferred
+ * @description This module contains helper utilities
+ * 
+ */ /** */
 
+import { PLATFORM } from 'aurelia-framework';
+
+/**
+ * Helper class that resolves content names to be able to use in Composition, based on their Control classes
+ * Usage:
+ * 
+ * ``` ts
+ * import { ContentTypes } from 'sn-client-js';
+ * const resolvedControlName = ControlNameResolver.getNameForControl(ContentTypes.Task);
+ * 
+ * ```
+ */
 export class ControlNameResolver {
     private static nameCache: string[] = [];
     public static getNameForControl(control: {new(...args: any[])}){

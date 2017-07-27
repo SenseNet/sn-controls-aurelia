@@ -1,3 +1,9 @@
+/**
+ * @module FieldControls
+ * 
+ */ /** */
+
+
 import { computedFrom, bindable, autoinject } from 'aurelia-framework'
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings, Content, ActionName } from 'sn-client-js';
@@ -6,6 +12,15 @@ import 'moment';
 import * as moment from 'moment-timezone';
 import { ValidationController } from 'aurelia-validation';
 
+
+/**
+ * Field control that represents a Date and Time Picker. Formatting will be done based on the LocaleService. Local time will be displayed, but UTC will be bound to the field's Value
+ * Usage:
+ * 
+ * ``` html
+ * <date-time content.bind="content" settings.bind="myDateTimeFieldSettings"></date-time>
+ * ```
+ */
 @autoinject
 export class DateTime extends FieldBaseControl<string, FieldSettings.DateTimeFieldSetting> {
 

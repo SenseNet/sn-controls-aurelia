@@ -1,38 +1,41 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { ContentTypes, FieldSettings } from 'sn-client-js';
-import { DisplayName } from '../../src/fieldcontrols';
+import { Checkbox } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
 
-@suite('DisplayName component')
-export class DisplayNameTests extends FieldControlBaseTest<DisplayName> {
+@suite('Checkbox component')
+export class CheckboxFieldests extends FieldControlBaseTest<Checkbox> {
 
     constructor() {
-        super(DisplayName, 'display-name');
+        super(Checkbox, 'checkbox');
     }
 
     @test
     public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel(); 
-        expect(viewModel).to.be.instanceof(DisplayName);
+        const viewModel = await this.createFieldViewModel();
+        expect(viewModel).to.be.instanceof(Checkbox);
     }
 
     @test
     public async 'Can not be modified if is read only'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.ShortTextFieldSetting({
+        viewModel.settings = new FieldSettings.FieldSetting({
             readOnly: true
         });
-        expect(viewModel.readOnly).to.be.eq(true);
+        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        const contentViewElement = document.querySelector('checkbox input') as HTMLInputElement;
+        expect(contentViewElement.disabled).to.be.eq(true);
     }
 
     @test
     public async 'Required rule is added if complusory'() {
-        const viewModel = await this.createFieldViewModel(); //(document.querySelector('display-name') as any).au.controller.viewModel as DisplayName;
+
+        const viewModel = await this.createFieldViewModel();
+        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo); ;
         viewModel.settings = new FieldSettings.ChoiceFieldSetting({
             compulsory: true
         });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
         const rules = viewModel.rules;
         expect(rules[0][0].messageKey).to.be.eq('required');
     }
