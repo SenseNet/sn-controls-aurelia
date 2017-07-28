@@ -78,7 +78,7 @@
     "reflect-metadata": "^0.1.10",
     "rimraf": "^2.6.1",
     "tslint": "^5.5.0",
-    "typedoc": "^0.7.2",
+    "typedoc": "^0.8.0",
     "typedoc-default-themes": "^0.5.0",
     "typedoc-plugin-external-module-name": "^1.0.9",
     "typescript": "^2.4.2"
