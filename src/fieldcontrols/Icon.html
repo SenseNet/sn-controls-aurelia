@@ -1,3 +1,4 @@
 <template>
-    <i class="material-icons">${MaterialIconName}</i>
+    <i if.bind="!IconImage" class="material-icons">${MaterialIconName}</i>
+    <compose if.bind="IconImage" view="./IconAvatar.html"></compose>
 </template>

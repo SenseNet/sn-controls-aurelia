@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { AureliaControlMapper } from '../src/AureliaControlMapper';
-import { ContentTypes } from 'sn-client-js';
-import { NameField, DisplayName, ShortText, LongText, RichText, DateTime, Integer, Percentage, Password } from '../src';
+import { ContentTypes, Schemas, FieldSettings } from 'sn-client-js';
+import { NameField, DisplayName, ShortText, LongText, RichText, DateTime, Integer, Number as NumberField, Percentage, Password, DateOnly, Checkbox, ContentReference } from '../src';
 
 @suite('AureliaControlMapper Tests')
 export class AureliaControlMapperTests {
@@ -48,6 +48,41 @@ export class AureliaControlMapperTests {
     public async 'DateTime should be assigned to DateTime'() {
         expect(AureliaControlMapper.GetControlForContentField(ContentTypes.Task, 'DueDate', 'new')).to.be.eq(DateTime);
     }
+
+    @test
+    public async 'DateOnly should be assigned to DateTime if DateTimeMode is not DateAndTime'() {
+        const userSchema = Schemas.SchemaStore.find(s => s.ContentType === ContentTypes.User);
+        if (userSchema){
+            (userSchema.FieldSettings.find(s => s.Name === 'BirthDate') as FieldSettings.DateTimeFieldSetting).VisibleEdit = FieldSettings.FieldVisibility.Show;
+        }
+        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'BirthDate', 'edit')).to.be.eq(DateOnly);
+    }
+
+
+    @test
+    public async 'User Enabled should return a checkbox'() {
+        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'Enabled', 'edit')).to.be.eq(Checkbox);
+    }      
+
+
+    @test
+    public async 'GenericContent RateAvg should return a NumberField'() {
+        const genericContentSchema = Schemas.SchemaStore.find(s => s.ContentType === ContentTypes.GenericContent);
+        if (genericContentSchema){
+            (genericContentSchema.FieldSettings.find(s => s.Name === 'RateAvg') as FieldSettings.DateTimeFieldSetting).VisibleEdit = FieldSettings.FieldVisibility.Show;
+        }               
+        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.GenericContent, 'RateAvg', 'edit')).to.be.eq(NumberField);
+    }        
+    
+
+    @test
+    public async 'User CreatedBy should return a ContentReference'() {
+        const userSchema = Schemas.SchemaStore.find(s => s.ContentType === ContentTypes.User);
+        if (userSchema){
+            (userSchema.FieldSettings.find(s => s.Name === 'CreatedBy') as FieldSettings.DateTimeFieldSetting).VisibleEdit = FieldSettings.FieldVisibility.Show;
+        }        
+        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'CreatedBy', 'edit')).to.be.eq(ContentReference);
+    }      
     
     @test
     public async 'Integer should be assigned to IntegerField'() {

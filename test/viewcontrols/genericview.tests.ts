@@ -32,4 +32,22 @@ export class GenericViewTests extends ComponentTestBase<GenericView> {
         expect(genericView.content).to.be.eq(testTask);
     }
 
+    @test
+    public async 'ActionName changed should reload the saved fields in case of changing to View'() {
+        const testTask = this.mockRepo.HandleLoadedContent({ Name: 'original', Id: 23875, Path: 'Root/Test' }, ContentTypes.Task);
+        await this.createComponentAsync('<generic-view content.bind="content" action-name.bind="actionName"></generic-view>', { actionName: 'edit', content: testTask });
+        const contentViewElement = document.querySelector('generic-view') as any;
+        const genericView = contentViewElement.au.controller.viewModel as GenericView;
+        genericView.activate({
+            actionName: 'edit',
+            content: testTask,
+            schema: {} as any
+        });
+
+        genericView.content.Name = 'changed';
+        genericView.actionName = 'view';
+        genericView.actionNameChanged('view', 'edit');
+        expect(genericView.content.Name).to.be.eq('original');
+    }
+
 }

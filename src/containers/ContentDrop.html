@@ -1,0 +1,9 @@
+<template>
+    <div class="content-drop"
+         dragenter.trigger="dragEnter($event)"
+         dragover.trigger="dragOver($event)"
+         dragend.trigger="dragEnd($event)"
+         drop.trigger="dragDrop($event)">
+        <slot></slot>
+    </div>
+</template>

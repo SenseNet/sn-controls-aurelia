@@ -59,6 +59,9 @@ export class DateTime extends FieldBaseControl<string, FieldSettings.DateTimeFie
     }
 
     valueDateChanged() {
+        if ((this.valueDate as any) instanceof Date){
+            this.valueDate = moment(this.valueDate).format(this.localeService.DateFormat.toUpperCase())
+        }
         this.recalculateValue();
     };
     valueTimeChanged() {

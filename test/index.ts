@@ -45,3 +45,5 @@ export * from './viewcontrols';
 export * from './fieldcontrols';
 export * from './helpers';
 export * from './navigationcontrols';
+
+export * from './collectioncontrols';

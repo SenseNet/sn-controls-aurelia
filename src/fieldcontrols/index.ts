@@ -8,6 +8,8 @@
 
 export * from './Checkbox';
 export * from './Choice';
+export * from './ContentReference';
+export * from './ContentListReference';
 export * from './DateOnly';
 export * from './DateTime';
 export * from './DisplayName';

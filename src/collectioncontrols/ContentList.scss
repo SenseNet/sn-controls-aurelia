@@ -1,0 +1,22 @@
+.content-collection-wrapper {
+    .content-collection-item .content-drag {
+        cursor: default;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        icon {
+            margin-right: .7em;
+            opacity: .4;       
+        }
+
+        .text-content{
+           
+            .description{
+                font-weight: 300;
+                font-size: 0.9em;
+            }
+        }
+    }
+}

@@ -1,5 +1,7 @@
 export * from './checkbox.tests';
 export * from './choice.tests';
+export * from './contentlistreference.tests';
+export * from './contentreference.tests';
 export * from './dateonly.tests';
 export * from './datetime.tests';
 export * from './displayname.tests';

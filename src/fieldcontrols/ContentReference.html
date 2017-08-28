@@ -1,0 +1,22 @@
+<template>
+    <require from='./ContentReference.css'></require>
+    <div class="content-reference-wrapper  ${selectedContent != null ? ' has-content ' : ''}" blur. focusout.delegate="focusOut() & debounce:150"
+        focusin.delegate="focusIn()">
+        <icon if.bind='selectedContent != null' content.bind='selectedContent'></icon>
+        <md-input view-model.ref="searchRef" md-label.bind="settings.DisplayName" md-value.bind="searchString & debounce:500 & validate:rules"
+            md-disabled.bind="readOnly" md-validate="true" aria-autocomplete="none">
+        </md-input>
+    </div>
+    <ul class="autocomplete-content dropdown-content" if.bind="isOpened">
+        <li if.bind="!availableValues || availableValues.length === 0">
+            (There are no items available to select)
+        </li>
+        <li if.bind="availableValues && availableValues.length > 0" repeat.for="value of availableValues" click.delegate="pickValue(value)">
+            <icon content.bind="value"></icon>
+            <div class="text-content">
+                <strong>${value.DisplayName || value.Name}</strong> <br/>
+                <span if.bind='value.Description && value.Description.length'>${value.Description}</span>
+            </div>
+        </li>
+    </ul>
+</template>

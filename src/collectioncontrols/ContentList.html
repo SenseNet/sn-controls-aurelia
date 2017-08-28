@@ -1,0 +1,16 @@
+<template>
+    <require from='./ContentList.css'></require>
+    <content-drop drop-handler.call="dropContent(stringifiedContent)">
+        <md-collection class='content-collection-wrapper'>
+                <md-collection-item repeat.for="item of Items" dblclick.delegate="activateItem(item)" class='content-collection-item'>
+                    <content-drag content.bind='item'>
+                        <icon content.bind="item"></icon>
+                        <div class='text-content'>
+                            <p class='title'>${item.SavedFields.DisplayName || item.SavedFields.Name}</p>
+                            <p if.bind="item.Description" class='description'>${item.SavedFields.Description}</p>
+                        </div>
+                    </content-drag>
+                </md-collection-item>
+        </md-collection>
+    </content-drop>
+</template>

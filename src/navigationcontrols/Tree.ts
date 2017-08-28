@@ -5,9 +5,8 @@
 
 import { AureliaBaseControl } from '../AureliaBaseControl';
 import { bindable, computedFrom, autoinject } from 'aurelia-framework';
-import { Content, Repository, IContentOptions } from 'sn-client-js';
+import { Content, Repository } from 'sn-client-js';
 import { Subscription } from '@reactivex/rxjs';
-import { DragTypes } from '../Enums';
 import { Observable } from '@reactivex/rxjs';
 
 /**
@@ -95,8 +94,9 @@ export class Tree extends AureliaBaseControl {
 
             this.Content.Children({
                 metadata: 'no',
+                expand: ['Workspace'],
                 select: ['Path', 'Id', 'Name', 'DisplayName', 'Icon'],
-                orderby: 'DisplayName, Name'
+                orderby: ['DisplayName', 'Name']
             }).subscribe(children => {
                 setTimeout(() => {
                     this.Children = children;
@@ -133,11 +133,11 @@ export class Tree extends AureliaBaseControl {
     }
 
     ReorderChildren() {
-        // const ordered = _.orderBy(this.Children, ['DisplayName', 'Name']).map(c => c);
-        // this.Children = ordered;
-
-        // ToDo
-
+        this.Children = this.Children.sort((a, b) => {
+            let x: string = a['DisplayName'] || a['Name'] || '';
+            let y: string = b['DisplayName'] || b['Name'] || '';
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
         this.HasChildren = this.Children.length > 0;
     }
 
@@ -147,47 +147,50 @@ export class Tree extends AureliaBaseControl {
         if (!this.hasValidContent) {
             return;
         }
-        this.Subscriptions.push(this.Repository.Events.OnContentCreated.subscribe(created => this.handleContentCreated(created.Content)));
-        this.Subscriptions.push(this.Repository.Events.OnContentDeleted.subscribe(deleted => this.handleContentDeleted(deleted.ContentData)));
-        this.Subscriptions.push(this.Repository.Events.OnContentModified.subscribe(mod => this.handleContentModified(mod.Content)));
-        this.Subscriptions.push(this.Repository.Events.OnContentMoved.subscribe(move => this.handleContentMoved(move.Content, move.From, move.To)));
+
+        this.Subscriptions.push(this.Repository.Events.OnContentCreated.subscribe(created => this.handleContentCreated(created)));
+        this.Subscriptions.push(this.Repository.Events.OnContentDeleted.subscribe(deleted => this.handleContentDeleted(deleted)));
+        this.Subscriptions.push(this.Repository.Events.OnContentModified.subscribe(mod => this.handleContentModified(mod)));
+        this.Subscriptions.push(this.Repository.Events.OnContentMoved.subscribe(move => this.handleContentMoved(move)));
+
     }
 
-    handleContentCreated(createdContent: Content){
-        if (this.IsExpanded && !this.IsLoading && createdContent.IsChildOf(this.Content)) {
-            this.Children.push(createdContent)
+    handleContentCreated(created: Repository.EventModels.Created){
+        if (this.IsExpanded && !this.IsLoading && created.Content.IsChildOf(this.Content)) {
+            this.Children.push(created.Content)
             this.ReorderChildren();
         }
     }
 
-    handleContentDeleted(deletedContentData: IContentOptions){
-        const child = this.Children.find(c => c.Id === deletedContentData.Id);
+    handleContentDeleted(deleted: Repository.EventModels.Deleted){
+        const child = this.Children.find(c => c.Id === deleted.ContentData.Id);
         if (this.IsExpanded && !this.IsLoading && child) {
             this.Children[this.Children.indexOf(child)] = undefined as any;
         }
     }
 
-    handleContentModified(modifiedContent: Content){
-        if (this.IsExpanded && !this.IsLoading && this.Children.find(c => c != null && c.Id === modifiedContent.Id)) {
+    handleContentModified(modified: Repository.EventModels.Modified){
+        if (this.IsExpanded && !this.IsLoading && this.Children.find(c => c != null && c.Id === modified.Content.Id)) {
             this.ReorderChildren();
         }
     }
 
-    handleContentMoved(content: Content, from: string, to: string): Observable<Content>{
-        const child = this.Children.find(c => c.Id === content.Id);
+    handleContentMoved(moved: Repository.EventModels.ContentMoved): Observable<Content>{
+        const child = this.Children.find(c => c.Id === moved.Content.Id);
 
         if (this.IsExpanded && child) {
-            this.Children.splice(this.Children.indexOf(child), 1);
+            this.Children = this.Children.filter(c => c !== child);
             return Observable.of(child);
         }
 
-        if (to === this.Content.Path) {
+        if (moved.To === this.Content.Path) {
             if (this.IsExpanded) {
                 this.IsLoading = true;
-                const request = this.Repository.Load(content.Id || content.Path || '', { select: 'all' });
+                const request = this.Repository.Load(moved.Content.Id || moved.Content.Path || '', { select: 'all' });
                 request.subscribe(c => {
                     this.Children.push(c);
                     this.IsLoading = false;
+                    this.ReorderChildren();
                 }, err => {
                     this.IsLoading = false;
                 })
@@ -195,7 +198,7 @@ export class Tree extends AureliaBaseControl {
                 return request;
             }
         }
-        return Observable.of(content);
+        return Observable.of(moved.Content);
     }
 
     clearSubscriptions() {
@@ -208,43 +211,10 @@ export class Tree extends AureliaBaseControl {
     detached() {
         this.clearSubscriptions();
     }
-
-    dragStart(ev: DragEvent) {
-        ev.stopPropagation();
-        ev.dataTransfer.setData(DragTypes.Content, this.Content.Stringify());
-        ev.dataTransfer.dropEffect = 'move';
-        console.log('dragStart', this.Content.Path);
-        return true;
-    }
-    dragEnd(ev: DragEvent) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        console.log('dragEnd', this.Content.Path);
-    }
-
-    dragEnter(ev: DragEvent) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        // console.log('dragEnter', this.Content.Path);
-    }
-
-    dragOver(ev: DragEvent) {
-        ev.preventDefault();
-        ev.stopPropagation();
-       
-        console.log('dragOver', this.Content.Path);
-        return true;
-    }
-
-    dragDrop(ev: DragEvent) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        if (ev.dataTransfer.types.filter(d => d === DragTypes.Content) && this.Content.Path) {
-            const droppedContent = this.Repository.ParseContent(ev.dataTransfer.getData(DragTypes.Content));
-            if (this.Content.Path !== droppedContent.ParentPath && this.Content.Path !== droppedContent.Path && !droppedContent.IsAncestorOf(this.Content)){
+    dropContent(stringifiedContent: string){
+        const droppedContent = this.Repository.ParseContent(stringifiedContent);
+        if (this.Content.Path && this.Content.Path !== droppedContent.ParentPath && this.Content.Path !== droppedContent.Path && !droppedContent.IsAncestorOf(this.Content)){
                 droppedContent.MoveTo(this.Content.Path);
-            }
         }
-        return true;
     }
 }

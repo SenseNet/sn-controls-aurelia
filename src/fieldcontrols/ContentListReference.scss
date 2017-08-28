@@ -1,0 +1,33 @@
+.content-list-reference-wrapper{
+    display: block;
+    .add-new-container{
+        display: inline-block;
+        input{
+            border-bottom: none !important;
+            box-shadow: none !important;
+            width: 0 !important;
+            min-width: 0px !important;
+            display: inline-block;
+            background: rgba(0,0,0,.05);
+
+            &:active, &:focus{
+                width: auto !important;
+            }
+        }
+    }
+
+    border-bottom: 1px solid #9e9e9e;
+
+    &.focused{
+        border-bottom: 1px solid #26a69a;
+        box-shadow: 0 1px 0 0 #26a69a;
+
+        label{
+            color: #26a69a;
+        }
+    }
+
+    .autocomplete-content.dropdown-content{
+        position: fixed;
+    }
+}

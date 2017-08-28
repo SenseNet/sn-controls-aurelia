@@ -13,12 +13,19 @@ import 'materialize-css';
  * A list of modules that will be imported when using sn-controls-aurelia as an Aurelia plugin
  */
 export const modules = [
+        './containers/ContentDrag',
+        './containers/ContentDrop',
+
         './viewcontrols/ContentView',
         './viewcontrols/GenericView',
         './navigationcontrols/Tree',
+        './navigationcontrols/Breadcrumbs',
+        './collectioncontrols/ContentList',
         
         './fieldcontrols/Checkbox',
         './fieldcontrols/Choice',
+        './fieldcontrols/ContentReference',
+        './fieldcontrols/ContentListReference',
         './fieldcontrols/DumpField',
         './fieldcontrols/Icon',
         './fieldcontrols/DateOnly',
@@ -46,6 +53,8 @@ export function configure(app: FrameworkConfiguration){
 
 export * from './fieldcontrols';
 export * from './navigationcontrols';
+export * from './containers'
+export * from './collectioncontrols';
 export * from './services';
 export * from './viewcontrols/ContentView';
 export * from './viewcontrols/GenericView';
