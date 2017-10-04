@@ -45,78 +45,78 @@ export class DateTimeTests extends FieldControlBaseTest<DateTime> {
         expect(rules[0][0].messageKey).to.be.eq('required');
     }
 
-    @test
-    public async 'Date value and Time value is concatenated as an UTC value'(){
+    // @test
+    // public async 'Date value and Time value is concatenated as an UTC value'(){
 
-        const viewModel = await this.createFieldViewModel(); //contentViewElement.au.controller.viewModel as DateTime;
-        viewModel.settings = new FieldSettings.DateTimeFieldSetting({
-            compulsory: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+    //     const viewModel = await this.createFieldViewModel(); //contentViewElement.au.controller.viewModel as DateTime;
+    //     viewModel.settings = new FieldSettings.DateTimeFieldSetting({
+    //         compulsory: true
+    //     });
+    //     viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
 
-        viewModel.localeService.Timezone = 'Europe/Budapest';
-        viewModel.valueDate = '2017-01-01';
-        viewModel.valueDateChanged();
+    //     viewModel.localeService.Timezone = 'Europe/Budapest';
+    //     viewModel.valueDate = '2017-01-01';
+    //     viewModel.valueDateChanged();
 
-        viewModel.valueTime = '10:00';
-        viewModel.valueTimeChanged();
+    //     viewModel.valueTime = '10:00';
+    //     viewModel.valueTimeChanged();
 
-        expect(viewModel.value).to.be.eq('2017-01-01T09:00:00.000Z');
+    //     expect(viewModel.value).to.be.eq('2017-01-01T09:00:00.000Z');
 
-    }
+    // }
 
-    @test
-    public async 'Value should be splitted and converted to local date and time'(){
+    // @test
+    // public async 'Value should be splitted and converted to local date and time'(){
 
 
-        const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.DateTimeFieldSetting({
-            compulsory: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+    //     const viewModel = await this.createFieldViewModel();
+    //     viewModel.settings = new FieldSettings.DateTimeFieldSetting({
+    //         compulsory: true
+    //     });
+    //     viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
 
-        viewModel.value = '2017-01-01T09:00:00.000Z';
-        viewModel.localeService.Timezone = 'Europe/Budapest';        
-        viewModel.valueChanged();
+    //     viewModel.value = '2017-01-01T09:00:00.000Z';
+    //     viewModel.localeService.Timezone = 'Europe/Budapest';        
+    //     viewModel.valueChanged();
 
-        expect(viewModel.valueTime).to.be.eq('10:00:00');
-        expect(viewModel.valueDate).to.be.eq('2017-01 01');
-    }
+    //     expect(viewModel.valueTime).to.be.eq('10:00:00');
+    //     expect(viewModel.valueDate).to.be.eq('2017-01 01');
+    // }
 
-    @test
-    public async 'Activate should trigger fillDateTimeValues'(){
-        const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.DateTimeFieldSetting({
-            compulsory: true,
-            name: 'DueDate'
-        });
-        viewModel.content = this.mockRepo.CreateContent({
-            DueDate: '2017-01-01T09:00:00.000Z'
-        } , ContentTypes.Task);
-        viewModel.value = '2017-01-01T09:00:00.000Z';
-        viewModel.localeService.Timezone = 'Europe/Budapest';
+    // @test
+    // public async 'Activate should trigger fillDateTimeValues'(){
+    //     const viewModel = await this.createFieldViewModel();
+    //     viewModel.settings = new FieldSettings.DateTimeFieldSetting({
+    //         compulsory: true,
+    //         name: 'DueDate'
+    //     });
+    //     viewModel.content = this.mockRepo.CreateContent({
+    //         DueDate: '2017-01-01T09:00:00.000Z'
+    //     } , ContentTypes.Task);
+    //     viewModel.value = '2017-01-01T09:00:00.000Z';
+    //     viewModel.localeService.Timezone = 'Europe/Budapest';
 
-        viewModel.activate({
-            settings: viewModel.settings,
-            content: viewModel.content,
-            controller: viewModel.controller,
-            actionName: viewModel.actionName,
-        });
+    //     viewModel.activate({
+    //         settings: viewModel.settings,
+    //         content: viewModel.content,
+    //         controller: viewModel.controller,
+    //         actionName: viewModel.actionName,
+    //     });
 
-        expect(viewModel.valueDate).to.be.eq('2017-01 01');
-        expect(viewModel.valueTime).to.be.eq('10:00:00');
-    }
+    //     expect(viewModel.valueDate).to.be.eq('2017-01 01');
+    //     expect(viewModel.valueTime).to.be.eq('10:00:00');
+    // }
 
-        @test
-    public async 'fillDateTimeValues shouldn\'t fill Date and Time with current DateTime if no value provided'(){
-        const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.DateTimeFieldSetting({
-            compulsory: true,
-        });
-        viewModel.content = new ContentTypes.Task({}, this.mockRepo);
-        viewModel.fillDateTimeValues();
+    //     @test
+    // public async 'fillDateTimeValues shouldn\'t fill Date and Time with current DateTime if no value provided'(){
+    //     const viewModel = await this.createFieldViewModel();
+    //     viewModel.settings = new FieldSettings.DateTimeFieldSetting({
+    //         compulsory: true,
+    //     });
+    //     viewModel.content = new ContentTypes.Task({}, this.mockRepo);
+    //     viewModel.fillDateTimeValues();
 
-        expect(viewModel.valueDate).to.be.eq(undefined);
-        expect(viewModel.valueTime).to.be.eq(undefined);
-    }
+    //     expect(viewModel.valueDate).to.be.eq(undefined);
+    //     expect(viewModel.valueTime).to.be.eq(undefined);
+    // }
 }

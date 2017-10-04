@@ -4,10 +4,10 @@
  */ /** */
 
 import { FieldSettings } from 'sn-client-js';
-import { autoinject } from 'aurelia-framework';
+import { autoinject, computedFrom } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
-import { ValidationRules } from 'aurelia-validation';
 import { customElement } from 'aurelia-templating';
+import { textfield } from 'material-components-web/dist/material-components-web';
 
 
 /**
@@ -22,17 +22,18 @@ import { customElement } from 'aurelia-templating';
 @customElement('name-field')
 export class NameField extends FieldBaseControl<string, FieldSettings.ShortTextFieldSetting> {
 
-    get rules(): any {
-        const parentRules = super.rules;
+    textfield: HTMLElement;
+    mdcTextField: textfield.MDCTextField;
 
-        let thisRules = this.settings && ValidationRules
-            .ensure('value')
-                .minLength(this.settings.MinLength || 0)
-                .maxLength(this.settings.MaxLength || Infinity)
-                .matches(this.settings.Regex && new RegExp(this.settings.Regex) || new RegExp('')).rules || [];
-
-        return [...parentRules, ...thisRules];
+    @computedFrom('content')
+    get parentPath(): string{
+        return this.content && (this.content.IsSaved ? this.content.ParentPath : this.content.Path) || '';
     }
+
+    attached() {
+        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
+    }
+
 
 }
 

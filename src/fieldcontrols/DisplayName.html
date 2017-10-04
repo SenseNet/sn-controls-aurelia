@@ -1,8 +1,10 @@
 <template>
-  <md-input 
-    md-label.bind="settings.DisplayName"
-    md-value.bind="value & validate:rules"
-    md-placeholder.bind="settings.Description ? settings.Description : ''"
-    md-validate="true"
-    md-disabled.bind="readOnly"></md-input>
+    <label class="mdc-textfield" title.bind="settings.Description" ref="textfield">
+        <input type="text" class="mdc-textfield__input"
+            value.bind="value"
+            settings-validation.bind="settings"
+            disabled.bind="readOnly"
+            required.bind="settings.Compulsory">
+        <span class="mdc-textfield__label">${settings.DisplayName}</span>
+      </label>
 </template>

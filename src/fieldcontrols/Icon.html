@@ -1,3 +1,5 @@
 <template>
-    <i class="material-icons">${MaterialIconName}</i>
+    <require from='./Icon.css'></require>
+    <i if.bind="!IconImage" class="material-icons sn-content-icon">${MaterialIconName}</i>
+    <compose if.bind="IconImage" view="./IconAvatar.html"></compose>
 </template>

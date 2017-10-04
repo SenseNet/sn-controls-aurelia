@@ -5,7 +5,7 @@
 
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
-import { ValidationRules } from 'aurelia-validation';
+import { textfield } from 'material-components-web/dist/material-components-web';
 import { customElement } from 'aurelia-framework';
 
 
@@ -20,15 +20,10 @@ import { customElement } from 'aurelia-framework';
 @customElement('integer-field')
 export class Integer extends FieldBaseControl<number, FieldSettings.IntegerFieldSetting> {
 
+    textfield: HTMLElement;
+    mdcTextField: textfield.MDCTextField;
 
-    get rules(): any {
-        const parentRules = super.rules;
-        let thisRules = ValidationRules
-            .ensure('value')
-            .minLength(this.settings.MinValue || 0)
-            .maxLength(this.settings.MaxValue || Infinity).rules || [];
-
-        return [...parentRules, ...thisRules];
+    attached(){
+        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
     }
-
 }

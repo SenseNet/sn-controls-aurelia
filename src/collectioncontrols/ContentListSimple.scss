@@ -1,0 +1,13 @@
+.contentlist-simple-wrapper {
+    
+    li.mdc-list-item {
+        &.selected {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        icon{
+            margin-left: .3em;
+            margin-right: .6em;
+        }
+    }
+}

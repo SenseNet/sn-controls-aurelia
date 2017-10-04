@@ -1,15 +1,9 @@
 <template>
-    <require from="./DateTime.css"></require>
-    <div class="datetime-wrapper" ref="dpWrapper">
-        <div class="date-container ${showTime ? 'half-width' : ''}">
-            <label>${settings.DisplayName}</label>
-            <input 
-                md-datepicker="container.bind: dpWrapper; value.bind: value & validate:rules; options.bind:advancedOptions"
-                md-validate="true"
-                disabled.bind="readOnly"
-                type="datetime"
-                class="std-icon-fixup"
-                placeholder.bind="settings.Description ? settings.Description : 'Pick a date'"/>
-        </div>
-    </div>
+    <label class="mdc-textfield" title.one-time="settings.Description" ref="datefield">
+        <input type="date" class="mdc-textfield__input" value.bind="value" 
+            disabled.bind="readOnly"
+            settings-validation.bind="settings"
+        />
+        <span class="mdc-textfield__label">${settings.DisplayName}</span>
+      </label>
 </template>

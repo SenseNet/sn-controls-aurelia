@@ -4,7 +4,6 @@ import { Tree } from '../../src/navigationcontrols';
 import { ContentTypes, Content, Authentication } from 'sn-client-js';
 import { ComponentTestBase } from '../component-test.base';
 import { ODataCollectionResponse } from 'sn-client-js/dist/src/ODataApi';
-import { DragTypes } from '../../src/Enums';
 import { LoginState } from 'sn-client-js/dist/src/Authentication';
 
 @suite('Tree component')
@@ -130,7 +129,7 @@ export class TreeTests extends ComponentTestBase<Tree> {
         viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
         viewModel.IsExpanded = true;
         const child = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example/path/child', DisplayName: 'example' }, ContentTypes.Task);
-        viewModel.handleContentCreated(child);
+        viewModel.handleContentCreated({Content: child});
         expect(viewModel.Children[0]).to.be.eq(child);
     }
 
@@ -141,7 +140,7 @@ export class TreeTests extends ComponentTestBase<Tree> {
         viewModel.IsExpanded = true;
         const child = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example/path/child', DisplayName: 'example' }, ContentTypes.Task);
         viewModel.Children = [child];
-        viewModel.handleContentDeleted(child.GetFields());
+        viewModel.handleContentDeleted({ContentData: child.GetFields(), Permanently: true});
         expect(viewModel.Children.filter(c => c && c.Id === child.Id).length).to.be.eq(0);
     }
 
@@ -152,7 +151,7 @@ export class TreeTests extends ComponentTestBase<Tree> {
         viewModel.IsExpanded = true;
         const child = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example/path/child', DisplayName: 'example' }, ContentTypes.Task);
         viewModel.Children = [child];
-        viewModel.handleContentModified(child);
+        viewModel.handleContentModified({Content: child} as any);
     }
 
     @test
@@ -161,7 +160,7 @@ export class TreeTests extends ComponentTestBase<Tree> {
         viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
         viewModel.IsExpanded = true;
         const child = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example2/path/child', DisplayName: 'example' }, ContentTypes.Task);
-        viewModel.handleContentMoved(child, 'example2/path/child', 'example32/other/path');
+        viewModel.handleContentMoved({Content: child, From: 'example2/path/child', To: 'example32/other/path'});
         expect(viewModel.Children.filter(c => c && c.Id === child.Id).length).to.be.eq(0);
     }    
 
@@ -172,7 +171,7 @@ export class TreeTests extends ComponentTestBase<Tree> {
         viewModel.IsExpanded = true;
         const child = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example/path/child', DisplayName: 'example' }, ContentTypes.Task);
         viewModel.Children = [child];
-        viewModel.handleContentMoved(child, 'example/path/child', 'example2/other/path');
+        viewModel.handleContentMoved({Content: child, From: 'example/path/child', To: 'example2/other/path'});
         expect(viewModel.Children.filter(c => c && c.Id === child.Id).length).to.be.eq(0);
     }
 
@@ -183,7 +182,7 @@ export class TreeTests extends ComponentTestBase<Tree> {
         viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
         viewModel.IsExpanded = true;
         const child = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example/path/child', DisplayName: 'example' }, ContentTypes.Task);
-        viewModel.handleContentMoved(child, 'example2/other/path', 'example/path');
+        viewModel.handleContentMoved({Content: child, From: 'example2/other/path', To: 'example/path'});
         expect(viewModel.IsLoading).to.be.eq(true);
     }
 
@@ -198,7 +197,7 @@ export class TreeTests extends ComponentTestBase<Tree> {
             })
             viewModel.IsExpanded = true;
             const child = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example/path/child', DisplayName: 'example' }, ContentTypes.Task);
-            viewModel.handleContentMoved(child, 'example2/other/path', 'example/path').subscribe(content => {
+            viewModel.handleContentMoved({Content: child, From: 'example2/other/path', To: 'example/path'}).subscribe(content => {
                 expect(viewModel.IsLoading).to.be.eq(false);
                 done();
             }, err => done);
@@ -211,89 +210,35 @@ export class TreeTests extends ComponentTestBase<Tree> {
         this.createAndGetViewModel('<tree></tree>', 'tree').then(viewModel => {
             viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
             this.mockRepo.Authentication.stateSubject.next(LoginState.Authenticated);
+            const dropped = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example2/path2/child', Name: 'child', DisplayName: 'alma' }, ContentTypes.Task);
+            
+            this.mockRepo.httpProviderRef.setResponse({
+                d: dropped.GetFields()
+            })
+            viewModel.IsExpanded = true;
+            this.mockRepo.Events.OnContentMoved.subscribe(ev => {
+                expect(ev.To).to.be.eq(viewModel.Content.Path)
+                done();
+            }, done)
+            viewModel.dropContent(dropped.Stringify());
+        }, err => done)
+    }
+
+
+    @test
+    public 'dropContent should add a child, if a dropped content can be moved below IsLoading on failure'(done) {
+        this.createAndGetViewModel('<tree></tree>', 'tree').then(viewModel => {
+            viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
+            this.mockRepo.Authentication.stateSubject.next(LoginState.Authenticated);
             this.mockRepo.httpProviderRef.setError({
                 message: ':('
             })
             viewModel.IsExpanded = true;
             const child = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example/path/child', DisplayName: 'example' }, ContentTypes.Task);
-            viewModel.handleContentMoved(child, 'example2/other/path', 'example/path').subscribe(content => {
+            viewModel.handleContentMoved({Content: child, From: 'example2/other/path', To: 'example/path'}).subscribe(content => {
                 done('This should have failed');
             }, err => done());
         }, err => done)
     }        
-
-    @test
-    public async 'dragStart event'() {
-        const evt = {
-            dataTransfer: {
-                setData: () => {},
-                dropEffect: ''
-            },
-            stopPropagation: () => {}
-        } as any;
-         
-        const viewModel = await this.createAndGetViewModel('<tree></tree>', 'tree');
-        viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
-        const returnValue = viewModel.dragStart(evt);
-        expect(returnValue).to.be.eq(true);
-        expect(evt.dataTransfer.dropEffect).to.be.eq('move')
-    }
-
-    @test
-    public async 'dragEnd event'() {
-        const evt = {
-            stopPropagation: () => {},
-            preventDefault: () => {}
-        } as any;
-         
-        const viewModel = await this.createAndGetViewModel('<tree></tree>', 'tree');
-        viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
-        viewModel.dragEnd(evt);
-    }
-    
-    @test
-    public async 'dragEnter event'() {
-        const evt = {
-            stopPropagation: () => {},
-            preventDefault: () => {}
-        } as any;
-         
-        const viewModel = await this.createAndGetViewModel('<tree></tree>', 'tree');
-        viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
-        viewModel.dragEnter(evt);
-    }
-
-    @test
-    public async 'dragOver event'() {
-        const evt = {
-            stopPropagation: () => {},
-            preventDefault: () => {}
-        } as any;
-         
-        const viewModel = await this.createAndGetViewModel('<tree></tree>', 'tree');
-        viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
-        const returnValue = viewModel.dragOver(evt);
-        expect(returnValue).to.be.eq(true);
-    }
-
-    @test
-    public async 'dragDrop event'() {
-        const viewModel = await this.createAndGetViewModel('<tree></tree>', 'tree');
-        viewModel.Content = this.mockRepo.HandleLoadedContent({ Id: 1, Path: 'example/path', DisplayName: 'example' }, ContentTypes.Task);
-
-        const droppedContent = this.mockRepo.HandleLoadedContent({ Id: 2, Path: 'example2/path', Name: 'example2', DisplayName: 'example2' }, ContentTypes.Task);
-
-        const evt = {
-            stopPropagation: () => {},
-            preventDefault: () => {},
-            dataTransfer: {
-                types: [DragTypes.Content],
-                getData: () => droppedContent.Stringify()
-            }
-        } as any;
-         
-        const returnValue = viewModel.dragDrop(evt);
-        expect(returnValue).to.be.eq(true);
-    }
 
 }

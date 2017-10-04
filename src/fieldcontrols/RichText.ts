@@ -62,7 +62,7 @@ export class RichText extends FieldBaseControl<string, FieldSettings.LongTextFie
     }
 
     public attached() {
-        this.quill = new Quill(this.quillElementRef, {
+        this.quill = new (Quill as any)(this.quillElementRef, {
             modules: {
                 toolbar:
                 [

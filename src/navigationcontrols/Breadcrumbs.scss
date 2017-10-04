@@ -1,0 +1,24 @@
+a.path-breadcrumb{
+
+    cursor: pointer;
+
+    &:first-child:before{
+        display: none;
+    }
+    
+    &:before{
+        cursor: default;
+        content: '\E5CC';
+        font-family: 'Material Icons';
+        padding: 0 6px;
+        position: relative;
+        font-size: 1.5em;
+        top: 0.25em;
+        font-weight: normal !important;
+    }
+
+    &:last-child{
+        font-weight: bold;
+    }
+
+}

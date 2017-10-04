@@ -5,7 +5,6 @@
  
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
-import { MdSelect } from 'aurelia-materialize-bridge'
 import { customElement } from 'aurelia-framework';
 
 /**
@@ -18,6 +17,5 @@ import { customElement } from 'aurelia-framework';
  */
 @customElement('checkbox')
 export class Checkbox extends FieldBaseControl<Object, FieldSettings.ChoiceFieldSetting> {
-    
-    mdSelect: MdSelect;
+   
 }

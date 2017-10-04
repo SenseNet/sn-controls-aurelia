@@ -5,7 +5,7 @@
 
 import { bindable, computedFrom } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
-import { FieldSettings } from 'sn-client-js';
+import { FieldSettings, Content, ContentTypes, ODataHelper } from 'sn-client-js';
 
 
 /**
@@ -35,15 +35,30 @@ export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
         Domain: 'domain',
         Document: 'insert_drive_file', //???
         trash: 'delete'
-
     }
     
     @bindable
-    public IconName: string = 'folder';
+    public Content: Content;
+    @bindable
+    public HasAvatar: boolean = false;
+
+    @bindable
+    public IconImage: string;
 
 
-    @computedFrom('name')
-    public get MaterialIconName(): string{
-        return this.iconNames[this.IconName] || 'folder';
+    @computedFrom('Content')
+    public get MaterialIconName(): string {
+        return this.Content && this.Content.Icon && this.iconNames[this.Content.Icon] || 'folder';
+    }
+
+    public ContentChanged(){
+        this.TryLoadAvatar();
+    }
+
+
+    public TryLoadAvatar(){
+        if (this.Content instanceof ContentTypes.User && this.Content.ImageData && this.Content.ImageData.__mediaresource.media_src){
+            this.IconImage = ODataHelper.joinPaths(this.Content.GetRepository().Config.RepositoryUrl, this.Content.ImageData.__mediaresource.media_src);
+        }
     }
 }

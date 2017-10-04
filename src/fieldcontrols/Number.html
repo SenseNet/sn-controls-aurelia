@@ -1,7 +1,9 @@
 <template>
-    <md-input md-type="number" 
-              md-step="settings.Step || 0.01" 
-              md-label.bind="settings.DisplayName"
-              md-value.bind="value"
-              md-disabled.bind="readOnly"></md-input><br />
+    <label class="mdc-textfield" title.one-time="settings.Description" ref="textfield">
+        <input type="number" class="mdc-textfield__input" value.bind="value" 
+            disabled.bind="readOnly"
+            settings-validation.bind="settings"
+        />
+        <span class="mdc-textfield__label">${settings.DisplayName}</span>
+      </label>
 </template>

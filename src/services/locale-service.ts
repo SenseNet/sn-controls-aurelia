@@ -15,10 +15,10 @@ export class LocaleService{
     /**
      * Date format
      */
-    public DateFormat: string =  'yyyy-mm dd';
+    public DateFormat: string =  'YYYY-MM-DD';
 
     /**
-     * Date format
+     * DateTime format
      */
-    public TimeFormat: string = 'HH:mm:ss';
+    public DateTimeFormat: string = 'YYYY-MM-DDTHH:mm:ss';
 }

@@ -1,23 +1,28 @@
 <template>
     <require from='./Tree.css'></require>
-    <div if.bind="hasValidContent" class="tree-wrapper" 
-         title="${Content.SavedFields.DisplayName || Content.SavedFields.Name}" 
-         draggable="true" 
-         dragstart.trigger="dragStart($event)"
-         dragenter.trigger="dragEnter($event)"
-         dragover.trigger="dragOver($event)"
-         dragend.trigger="dragEnd($event)"
-         drop.trigger="dragDrop($event)">
-        <i class="expand-icon material-icons ${IsExpanded ? 'expanded' : 'collapsed'} ${!HasChildren ? 'no-children' : ''} ${IsLoading ? 'loading' : ''}" click.delegate="Toggle()">keyboard_arrow_down</i>
-        
-        <icon class="${IsSelected ? 'selected' : ''}" icon-name.bind="Content.Icon" click.delegate="Select()"></icon>
-        <span class="tree-item-name ${IsSelected ? 'selected' : ''}" click.delegate="Select()">
-            ${Content.SavedFields.DisplayName || Content.SavedFields.Name}
-            <md-progress md-type="circular" class="preloader ${IsLoading ? 'loading' : ''}" md-pixel-size="25"></md-progress>
-        </span>
+    <div if.bind="hasValidContent" class="tree-wrapper mdc-typography--body2" title="${Content.SavedFields.DisplayName || Content.SavedFields.Name}">
+        <div class="current-level ${IsSelected ? 'selected' : ''}" click.delegate="Select()" css="padding-left: ${NestingLevel * 0.7}rem"
+            content-drop.call="dropContent(stringifiedContent, stringifiedContentList)">
+            <i class="expand-icon material-icons ${IsExpanded ? 'expanded' : 'collapsed'} ${!HasChildren ? 'no-children' : ''} ${IsLoading ? 'loading' : ''}"
+                click.delegate="Toggle()">keyboard_arrow_down</i>
 
+            <icon class="${IsSelected ? 'selected' : ''}" content.bind="Content"></icon>
+            <span class="tree-item-name ${IsSelected ? 'selected' : ''}" content-drag.bind="[Content]">
+                    ${Content.SavedFields.DisplayName || Content.SavedFields.Name}
+            </span>
+        </div>
+        <div if.bind="IsLoading" role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate">
+            <div class="mdc-linear-progress__buffering-dots"></div>
+            <div class="mdc-linear-progress__buffer"></div>
+            <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+                <span class="mdc-linear-progress__bar-inner"></span>
+            </div>
+            <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+                <span class="mdc-linear-progress__bar-inner"></span>
+            </div>
+        </div>
         <div if.bind="IsExpanded" class="children-list">
-            <tree if.bind="!IsLoading" content.bind="child" selection.two-way="Selection" repeat.for="child of Children"></tree>
+            <tree if.bind="!IsLoading" content.bind="child" selection.two-way="Selection" repeat.for="child of Children" nesting-level.bind="NestingLevel + 1"></tree>
         </div>
     </div>
 </template>

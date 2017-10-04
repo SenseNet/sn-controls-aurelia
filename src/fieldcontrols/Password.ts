@@ -7,7 +7,9 @@ import { FieldSettings } from 'sn-client-js';
 import { customElement } from 'aurelia-framework';
 
 import { FieldBaseControl } from './FieldBaseControl';
-import { ValidationRules } from 'aurelia-validation';
+
+import { textfield } from 'material-components-web/dist/material-components-web';
+
 
 /**
  * Field control for passwords.
@@ -19,18 +21,11 @@ import { ValidationRules } from 'aurelia-validation';
  */
 @customElement('password-field')
 export class Password extends FieldBaseControl<string, FieldSettings.PasswordFieldSetting> {
+    textfield: HTMLElement;
+    mdcTextField: textfield.MDCTextField;
 
-    get rules(): any {
-        const parentRules = super.rules;
-
-        let thisRules = this.settings && ValidationRules
-            .ensure('value')
-                .minLength(this.settings.MinLength || 0)
-                .maxLength(this.settings.MaxLength || Infinity)
-                .matches(this.settings.Regex && new RegExp(this.settings.Regex) || new RegExp('')).rules || [];
-
-        return [...parentRules, ...thisRules];
+    attached() {
+        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
     }
-
 }
 

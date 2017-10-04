@@ -1,9 +1,13 @@
 <template>
-  <md-input 
-    md-label.bind="settings.DisplayName"
-    md-value.bind="value & validate:rules"
-    md-placeholder.bind="settings.Description ? settings.Description : ''"
-    md-validate="true"
-    md-text-area="true"
-    md-disabled.bind="readOnly"></md-input>
+    <require from="./LongText.css"></require>
+    <label class="mdc-textfield mdc-textfield--multiline longtext-wrapper" title.bind="settings.Description" ref="textfield">
+        <textarea type="text" 
+            class="mdc-textfield__input" 
+            value.bind="value" 
+            disabled.bind="readOnly" 
+            rows="8"
+            settings-validation.bind="settings"
+            cols="40"></textarea>
+        <span class="mdc-textfield__label">${settings.DisplayName}</span>
+      </label>    
 </template>

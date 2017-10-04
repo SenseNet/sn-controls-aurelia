@@ -1,5 +1,7 @@
 export * from './checkbox.tests';
 export * from './choice.tests';
+export * from './contentlistreference.tests';
+export * from './contentreference.tests';
 export * from './dateonly.tests';
 export * from './datetime.tests';
 export * from './displayname.tests';
@@ -11,5 +13,6 @@ export * from './number.tests';
 export * from './password.tests';
 export * from './integer.tests';
 export * from './longtext.tests';
+export * from './percentage.tests';
 export * from './richtext.tests';
 export * from './shorttext.tests';
