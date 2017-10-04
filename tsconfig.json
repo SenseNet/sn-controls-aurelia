@@ -12,8 +12,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "outDir": "./dist",
-        "strict": true,
-        "skipLibCheck": true
+        "strict": true
     },
     "exclude": [
         "node_modules",

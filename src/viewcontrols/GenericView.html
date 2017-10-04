@@ -1,11 +1,11 @@
 <template>
     <require from="./GenericView.css"></require>
 
-    <div class="generic-view-wrapper">
-        <div class="row">
-            <compose repeat.for="mapping of schema.FieldMappings" class="col xl6 l6 m6 s12" view-model.bind="resolveControlName(mapping.ControlType)"
-                model.bind="{settings: mapping.FieldSettings, content: content, controller: controller, actionName: actionName}"></compose>
+    <div class="generic-view-wrapper mdc-layout-grid">
+        <div class="mdc-layout-grid__inner">
+            <compose repeat.for="mapping of schema.FieldMappings" class="mdc-form-field mdc-layout-grid__cell" view-model.bind="mapping.ControlTypeName"
+                model.bind="{settings: mapping.FieldSettings, content: content, actionName: actionName}"></compose>
+            <slot></slot>
         </div>
-        <slot></slot>
     </div>
 </template>

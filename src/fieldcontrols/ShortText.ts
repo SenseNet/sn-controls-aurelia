@@ -9,6 +9,9 @@ import { customElement } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
 import { ValidationRules } from 'aurelia-validation';
 
+import { textfield } from 'material-components-web/dist/material-components-web';
+
+
 /**
  * Field control for general Short Text fields.
  * Usage:
@@ -28,8 +31,15 @@ export class ShortText extends FieldBaseControl<string, FieldSettings.ShortTextF
                 .minLength(this.settings.MinLength || 0)
                 .maxLength(this.settings.MaxLength || Infinity)
                 .matches(this.settings.Regex && new RegExp(this.settings.Regex) || new RegExp('')).rules || [];
-
         return [...parentRules, ...thisRules];
+    }
+
+
+    textfield: HTMLElement;
+    mdcTextField: textfield.MDCTextField;
+
+    attached(){
+        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
     }
 
 }

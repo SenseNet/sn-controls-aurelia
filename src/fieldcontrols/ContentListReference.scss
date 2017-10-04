@@ -1,33 +1,79 @@
 .content-list-reference-wrapper{
-    display: block;
-    .add-new-container{
-        display: inline-block;
-        input{
-            border-bottom: none !important;
-            box-shadow: none !important;
-            width: 0 !important;
-            min-width: 0px !important;
-            display: inline-block;
-            background: rgba(0,0,0,.05);
 
-            &:active, &:focus{
-                width: auto !important;
+    label.mdc-textfield{
+        span.mdc-textfield__label.mdc-textfield__label--float-above{
+            top: 0px;
+        }
+    }
+
+    .chips-container{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        .chip{
+            
+            box-shadow: 0 0 0.2em rgba(0,0,0,.4);
+            background: rgba(0, 0, 0, 0.05);
+            padding: 1px 3px;
+
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            margin: .2em;
+            border-radius: 3px;
+            flex-grow: .3;
+            display: flex;
+            justify-content: space-between;
+
+            icon {
+                float: left;
+            }
+
+            .close{
+                font-size: .7em;
+                cursor: pointer;
+            }
+
+            .display-name{
+                margin: 0 .5em;
             }
         }
+
+        .add-new-container{
+            display: inline-block;
+    
+            .search-box{
+                display: inline-block;
+                overflow: hidden;
+    
+                width: 0 !important;
+                &:active, &:focus{
+                    width: auto !important;
+                }
+            }
+           
+        }        
     }
 
-    border-bottom: 1px solid #9e9e9e;
+    display: block;
 
-    &.focused{
-        border-bottom: 1px solid #26a69a;
-        box-shadow: 0 1px 0 0 #26a69a;
 
-        label{
-            color: #26a69a;
+    .mdc-list-item{
+        &.selected{
+            background: rgba(0,0,0,.1);
         }
     }
 
-    .autocomplete-content.dropdown-content{
-        position: fixed;
+    border-bottom: 1px solid var(--mdc-theme-primary);
+
+    &.focused{
+        border-bottom: 1px solid var(--mdc-theme-primary);
+        box-shadow: 0 1px 0 0 var(--mdc-theme-primary);
+
+        label{
+            color: var(--mdc-theme-primary);
+        }
     }
 }

@@ -5,11 +5,7 @@
 
 import { bindable, autoinject } from 'aurelia-framework';
 import { Content, ControlSchema, FieldSettings, ActionName, ContentTypes } from 'sn-client-js';
-
-import { AureliaBaseControl } from '../AureliaBaseControl';
-import { AureliaControlMapper } from '../AureliaControlMapper';
-import { ValidationController, ValidationControllerFactory } from 'aurelia-validation';
-import { MaterializeFormValidationRenderer } from 'aurelia-materialize-bridge';
+import { ControlNameResolverService, ControlMappingService } from '../services'
 
 /**
  * A generic View Control, works based on a single Content, renders FieldControls based on the AureliaControlMapper and the provided Schema. Also responsible to aggregating validation data
@@ -21,19 +17,20 @@ import { MaterializeFormValidationRenderer } from 'aurelia-materialize-bridge';
  */
 
 @autoinject
-export class GenericView extends AureliaBaseControl {
+export class GenericView {
     
     /**
      * The bindable Content instance
      */
     @bindable
     public content: Content;
+    
 
     /**
      * the bindable ControlSchema object
      */
     @bindable
-    public schema: ControlSchema<AureliaBaseControl, FieldSettings.FieldSetting>;
+    public schema: ControlSchema<Object, FieldSettings.FieldSetting>;
 
     /**
      * The optional ActionName
@@ -41,22 +38,32 @@ export class GenericView extends AureliaBaseControl {
     @bindable 
     actionName?: ActionName;
 
-    controller: ValidationController;
+    private parseSchema(){
+        this.schema.FieldMappings = this.schema && this.schema.FieldMappings && this.schema.FieldMappings.map(m => {
+            return {
+                ...m,
+                ControlTypeName: this.ControlNameResolverService.getNameForControl(m.ControlType),
+            }
+        });
+    }
 
-    constructor(controllerFactory: ValidationControllerFactory) {
-        super();
-        this.controller = controllerFactory.createForCurrentScope();
-        this.controller.addRenderer(new MaterializeFormValidationRenderer());
+
+    constructor(
+        private ControlNameResolverService: ControlNameResolverService,
+        private ControlMappingService: ControlMappingService
+    ) {
     }
 
     /**
      * a general activation method, that can be used with composition
      * @param { schema: ControlSchema<AureliaBaseControl, FieldSettings.FieldSetting>, content: Content, actionName: ActionName } model The model to be provided to activate the Control
      */
-    activate(model: { schema: ControlSchema<AureliaBaseControl, FieldSettings.FieldSetting>, content: Content, actionName: ActionName }) {
-        this.schema = model.schema;
+    activate(model: { schema: ControlSchema<Object, FieldSettings.FieldSetting>, content: Content, actionName: ActionName }) {
         this.content = model.content;
+        this.schema = model.schema;
         this.actionName = model.actionName;
+        this.parseSchema();
+
     }
 
     actionNameChanged(newName: ActionName, oldName: ActionName) {
@@ -64,7 +71,9 @@ export class GenericView extends AureliaBaseControl {
             const savedFields = this.content.SavedFields;
             Object.assign(this.content, savedFields);
         }
+        // ToDo: Check
         const contentType = this.content && (ContentTypes as any)[this.content.Type] || Content as { new(...args) };
-        this.schema = this.content && AureliaControlMapper.GetFullSchemaForContentType(contentType, this.actionName || 'view');
+        this.schema = this.content && this.ControlMappingService.Mappings.GetFullSchemaForContentType(contentType, this.actionName || 'view');
+        this.parseSchema();
     }
 }

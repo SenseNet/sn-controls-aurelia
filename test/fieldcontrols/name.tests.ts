@@ -45,4 +45,21 @@ export class NameTests extends FieldControlBaseTest<NameField> {
         const rules = viewModel.rules;
         expect(rules[0][0].messageKey).to.be.eq('required');
     }
+
+    @test
+    public async 'ParentPath is set based on Content'(){
+        const viewModel = await this.createFieldViewModel();
+        // No content
+        expect(viewModel.parentPath).to.be.empty;
+
+        // Unsaved - Content Path
+        viewModel.content = this.mockRepo.CreateContent({Path: 'root/content'}, ContentTypes.User);
+        expect(viewModel.parentPath).to.be.eq('root/content');
+
+        // Saved - Parent Path from Content
+        viewModel.content = this.mockRepo.HandleLoadedContent({Path: 'root/content', Id: 123}, ContentTypes.User);
+        expect(viewModel.parentPath).to.be.eq('root');
+
+
+    }
 }

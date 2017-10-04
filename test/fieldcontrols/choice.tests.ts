@@ -29,14 +29,32 @@ export class ChoiceFieldests extends FieldControlBaseTest<Choice> {
     }
 
     @test
-    public async 'Required rule is added if complusory'() {
+    public async 'Writes back value when changed'() {
 
         const viewModel = await this.createFieldViewModel();
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo); ;
-        viewModel.settings = new FieldSettings.ChoiceFieldSetting({
-            compulsory: true
+        const content = new ContentTypes.Task({} as any, this.mockRepo); ;
+        expect(viewModel.value).to.be.undefined;
+        const settings = new FieldSettings.ChoiceFieldSetting({
+            compulsory: true,
+            defaultValue: 'Value1',
+            options: [
+                {
+                    Enabled: true,
+                    Value: 'Value1',
+                    Text: 'Value1'
+                },
+                {
+                    Enabled: true,
+                    Value: 'Value2',
+                    Text: 'Value2'
+                }
+                
+            ]
         });
-        const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
+        viewModel.activate({ content, settings })
+
+        viewModel.mdcSelect.emit('MDCSelect:change');
+        expect(viewModel.value[0]).of.be.eq('Value1');
+        
     }
 }

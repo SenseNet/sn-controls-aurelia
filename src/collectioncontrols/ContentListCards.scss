@@ -1,0 +1,28 @@
+.content-list-cards-wrapper {
+    .mdc-card {
+        .icon-container {
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+
+            icon {
+
+                i {
+                    font-size: 2em;
+                    color: white;
+                }
+            }
+        }
+    }
+
+    
+    .mdc-animation-acceleration-curve{
+        transition: box-shadow .22s cubic-bezier(0.4, 0, 1, 1);
+    }
+}

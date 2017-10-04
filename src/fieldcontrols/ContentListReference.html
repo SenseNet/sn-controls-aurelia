@@ -1,34 +1,37 @@
 <template>
     <require from='./ContentListReference.css'></require>
     <div class="content-list-reference-wrapper ${isFocused ? 'focused' : ''}" click.delegate="focusIn()">
-        <div>
-            <label>${settings.DisplayName}</label>
-        </div>
+        <label class="mdc-textfield ${isFocused ? 'mdc-textfield--focused' : ''}">
+            <span class="mdc-textfield__label mdc-textfield__label--float-above">${settings.DisplayName}</span>
+        </label>
         <div class="chips-container">
-            <md-chip repeat.for="item of Items" md-close.bind='!readOnly' close.trigger="removeReference(item)">
-                <icon class="left" content.bind='item'></icon>
-                <span style='margin: 0 5px;'>${item.DisplayName || item.Name}</span>
-            </md-chip>
-            <div class="add-new-container">
-                    <div focusout.delegate="focusOut() & debounce:150" focusin.delegate="focusIn()">
-                        <input type="text" ref="searchInput" value.bind="searchString & debounce:500 & validate:rules" if.bind="!readOnly" keyup.trigger="handleSearchKeyUp($event)" />
-                        <!--<md-input view-model.ref="searchRef" md-label.bind="settings.DisplayName" md-value.bind="searchString & debounce:500 & validate:rules"
-                        md-disabled.bind="readOnly" aria-autocomplete="none">
-                    </md-input> -->
+            <div class="chip" repeat.for="item of Items">
+                <span>
+                    <icon content.bind='item'></icon>
+                    <span class="display-name">${item.DisplayName || item.Name}</span>
+                </span>
+                <i if.bind='!readOnly' class="close material-icons" click.trigger="removeReference(item)">close</i>
+            </div>
+            <div class="add-new-container" focusout.delegate="focusOut() & debounce:150" focusin.delegate="focusIn()" class="mdc-textfield">
+                    <span class="search-box" contenteditable="true" ref="searchInput" innerhtml.two-way="searchString & debounce:500" if.bind="!readOnly"
+                        keyup.trigger="handleSearchKeyUp($event)" onkeypress="return event.keyCode != 13;"></span>
+            </div>            
+        </div>
+
+        <div class="mdc-simple-menu ${isOpened ? 'mdc-simple-menu--open' : ''}">
+            <ul class="mdc-list mdc-simple-menu__items">
+                <li if.bind="!availableValues || availableValues.length === 0" class="mdc-list-item" role="option" aria-disabled="true">
+                    (There are no items available to select)
+                </li>
+                <li if.bind="availableValues && availableValues.length > 0" class="mdc-list-item ${$index === selectionIndex ? 'selected' : ''}"
+                    repeat.for="value of availableValues" click.delegate="pickValue(value)" role="option" aria-disabled="false">
+                    <icon content.bind="value"></icon>
+                    <div class="text-content">
+                        ${value.DisplayName || value.Name} <br/>
+                        <span css="font-size: .8em;" if.bind='value.Description && value.Description.length'>${value.Description}</span>
                     </div>
-                    <ul class="autocomplete-content dropdown-content" if.bind="isOpened">
-                        <li if.bind="!availableValues || availableValues.length === 0">
-                            (There are no items available to select)
-                        </li>
-                        <li if.bind="availableValues && availableValues.length > 0" repeat.for="value of availableValues" click.delegate="pickValue(value)" class="${$index === selectionIndex ? 'selected' : ''}">
-                            <icon content.bind="value"></icon>
-                            <div class="text-content">
-                                <strong>${value.DisplayName || value.Name}</strong> <br/>
-                                <span if.bind='value.Description && value.Description.length'>${value.Description}</span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                </li>
+            </ul>
         </div>
     </div>
 </template>

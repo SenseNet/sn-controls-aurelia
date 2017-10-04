@@ -1,52 +1,54 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { AureliaControlMapper } from '../src/AureliaControlMapper';
 import { ContentTypes, Schemas, FieldSettings } from 'sn-client-js';
-import { NameField, DisplayName, ShortText, LongText, RichText, DateTime, Integer, Number as NumberField, Percentage, Password, DateOnly, Checkbox, ContentReference } from '../src';
+import { NameField, DisplayName, ShortText, LongText, RichText, DateTime, Integer, Number as NumberField, Percentage, Password, DateOnly, Checkbox, ContentReference } from '../../src';
+import { ControlMappingService } from '../../src/services';
 
 @suite('AureliaControlMapper Tests')
 export class AureliaControlMapperTests {
 
+    private mapper = new ControlMappingService();
+
     @test
     public async 'Should be initialized'() {
-        expect(AureliaControlMapper).to.be.instanceOf(Object);
+        expect(this.mapper).to.be.instanceOf(ControlMappingService);
     }
 
     @test
     public async 'NameField should be assigned to Name setting'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.Task, 'Name', 'new')).to.be.eq(NameField)
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.Task, 'Name', 'new')).to.be.eq(NameField)
     }
 
 
     @test
     public async 'DisplayName should be assigned to DisplayName setting'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.Task, 'DisplayName', 'new')).to.be.eq(DisplayName);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.Task, 'DisplayName', 'new')).to.be.eq(DisplayName);
     }
 
     @test
     public async 'ShortText should be assigned to short text settings other than Name and DisplayName'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'FullName', 'new')).to.be.eq(ShortText);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.User, 'FullName', 'new')).to.be.eq(ShortText);
     }
 
     @test
     public async 'Password should be assigned to Password field'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'Password', 'new')).to.be.eq(Password);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.User, 'Password', 'new')).to.be.eq(Password);
     }
 
     @test
     public async 'LongText should be assigned to LongText when TextType is not RichText'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'Description', 'new')).to.be.eq(LongText);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.User, 'Description', 'new')).to.be.eq(LongText);
     }
 
     @test
     public async 'RichText should be assigned to LongText when TextType is RichText'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.Email, 'Body', 'new')).to.be.eq(RichText);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.Email, 'Body', 'new')).to.be.eq(RichText);
     }
 
 
     @test
     public async 'DateTime should be assigned to DateTime'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.Task, 'DueDate', 'new')).to.be.eq(DateTime);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.Task, 'DueDate', 'new')).to.be.eq(DateTime);
     }
 
     @test
@@ -55,13 +57,13 @@ export class AureliaControlMapperTests {
         if (userSchema){
             (userSchema.FieldSettings.find(s => s.Name === 'BirthDate') as FieldSettings.DateTimeFieldSetting).VisibleEdit = FieldSettings.FieldVisibility.Show;
         }
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'BirthDate', 'edit')).to.be.eq(DateOnly);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.User, 'BirthDate', 'edit')).to.be.eq(DateOnly);
     }
 
 
     @test
     public async 'User Enabled should return a checkbox'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'Enabled', 'edit')).to.be.eq(Checkbox);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.User, 'Enabled', 'edit')).to.be.eq(Checkbox);
     }      
 
 
@@ -71,7 +73,7 @@ export class AureliaControlMapperTests {
         if (genericContentSchema){
             (genericContentSchema.FieldSettings.find(s => s.Name === 'RateAvg') as FieldSettings.DateTimeFieldSetting).VisibleEdit = FieldSettings.FieldVisibility.Show;
         }               
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.GenericContent, 'RateAvg', 'edit')).to.be.eq(NumberField);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.GenericContent, 'RateAvg', 'edit')).to.be.eq(NumberField);
     }        
     
 
@@ -81,18 +83,21 @@ export class AureliaControlMapperTests {
         if (userSchema){
             (userSchema.FieldSettings.find(s => s.Name === 'CreatedBy') as FieldSettings.DateTimeFieldSetting).VisibleEdit = FieldSettings.FieldVisibility.Show;
         }        
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.User, 'CreatedBy', 'edit')).to.be.eq(ContentReference);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.User, 'CreatedBy', 'edit')).to.be.eq(ContentReference);
     }      
     
     @test
     public async 'Integer should be assigned to IntegerField'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.Settings, 'PageCount', 'view')).to.be.eq(Integer);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.Settings, 'PageCount', 'view')).to.be.eq(Integer);
     }
 
     @test
     public async 'Percentage should be assigned to IntegerField if flag is set'() {
-        expect(AureliaControlMapper.GetControlForContentField(ContentTypes.Task, 'TaskCompletion', 'new')).to.be.eq(Percentage);
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.Task, 'TaskCompletion', 'new')).to.be.eq(Percentage);
     }
 
-
+    @test
+    public async 'Workspace IsActive should be assigned to Checkbox'() {
+        expect(this.mapper.Mappings.GetControlForContentField(ContentTypes.Workspace, 'IsActive', 'new')).to.be.eq(Checkbox);
+    }
 }

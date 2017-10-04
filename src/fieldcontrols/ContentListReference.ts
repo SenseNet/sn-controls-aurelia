@@ -1,7 +1,7 @@
 import { FieldBaseControl } from './FieldBaseControl';
-import { FieldSettings, ContentListReferenceField, Content, SavedContent } from 'sn-client-js';
+import { FieldSettings, ContentListReferenceField, Content, SavedContent, QueryResult } from 'sn-client-js';
 import { customElement, bindable } from 'aurelia-framework';
-import { MdInput } from 'aurelia-materialize-bridge';
+import { Observable } from '@reactivex/rxjs';
 
 @customElement('contentlist-reference')
 export class ContentListReference extends FieldBaseControl<ContentListReferenceField<Content>, FieldSettings.ReferenceFieldSetting> {
@@ -12,7 +12,6 @@ export class ContentListReference extends FieldBaseControl<ContentListReferenceF
     @bindable
     public availableValues: SavedContent<Content>[] = [];
 
-    searchRef: MdInput;
 
     @bindable
     public searchString: string = '';
@@ -25,17 +24,20 @@ export class ContentListReference extends FieldBaseControl<ContentListReferenceF
 
     searchInput: HTMLInputElement;
 
-    
+
     @bindable
     selectionIndex: number = 0;
 
-    searchStringChanged(newValue: string) {
-        this.searchString && this.value && this.value.Search(this.searchString, 10, 0, { select: 'all' }).Exec().subscribe(res => {
+    searchStringChanged(newValue: string): Observable<QueryResult<Content>> {
+        const req = newValue && this.value && this.value.Search(newValue, 10, 0, { select: 'all' })
+            .Exec().share();
+        req && req.subscribe(res => {
             this.availableValues = res.Result.filter(a => this.Items.indexOf(a) === -1 && a !== this.content);
             this.isOpened = true;
             this.selectionIndex = 0;
         }, err => {
         }) || (this.availableValues = []);
+        return req || Observable.of<QueryResult<Content>>({Count: 0, Result: []});
     }
 
     removeReference(item: Content) {
@@ -81,8 +83,8 @@ export class ContentListReference extends FieldBaseControl<ContentListReferenceF
         this.isFocused = false;
     }
 
-    handleSearchKeyUp($event: KeyboardEvent){
-        switch ($event.keyCode){
+    handleSearchKeyUp($event: KeyboardEvent) {
+        switch ($event.keyCode) {
             case 38: {
                 this.selectionIndex = Math.max(this.selectionIndex - 1, 0);
                 break;
@@ -92,8 +94,10 @@ export class ContentListReference extends FieldBaseControl<ContentListReferenceF
                 break;
             }
             case 13: {
-                if (this.availableValues[this.selectionIndex]){
+                if (this.availableValues[this.selectionIndex]) {
                     this.pickValue(this.availableValues[this.selectionIndex])
+                    $event.preventDefault();
+                    $event.stopPropagation();
                 }
             }
 

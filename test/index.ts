@@ -1,13 +1,13 @@
 // ToDo: Refactor to TestInit module
 import 'aurelia-polyfills';
+import '@reactivex/rxjs';
 import * as Path from 'path';
 import { initialize, globalize } from 'aurelia-pal-nodejs';
 import { Options, ExtensionHandlers } from 'aurelia-loader-nodejs';
+import { MockCanvasRenderingContext2D } from './mocks';
 
 initialize();
 globalize();
-
-import * as jquery from 'jquery';
 
 ExtensionHandlers['.css'] = (params: any) => {
     return Promise.resolve(' ');
@@ -15,17 +15,11 @@ ExtensionHandlers['.css'] = (params: any) => {
 
 (global as any).Node = (window as any).Node;
 (global as any).navigator = {};
-(global as any).Materialize = {};
 (global as any).getComputedStyle = window.getComputedStyle;
 (global as any).Text = class { };
 (global as any).MutationObserver = class { observe() { }; takeRecords() { return []; } };
-(global as any).Hammer = require('hammerjs');
-(global as any).$ = jquery;
-(global as any).jQuery = jquery;
-(global as any).validate_field = () => {};
-(window as any).$ = jquery;
-(window as any).jQuery = jquery;
 
+(global as any).HTMLCanvasElement = HTMLElement;
 
 document.getSelection = () => { 
     return {
@@ -36,14 +30,17 @@ document.getSelection = () => {
 
 Options.relativeToDir = Path.join(process.cwd(), 'dist', 'src');
 
+(window as any).HTMLCanvasElement.prototype.getContext = () => { return new MockCanvasRenderingContext2D() }
+(window as any).requestAnimationFrame = (callback: (...args) => void) => { return callback(1); }
+
 import 'reflect-metadata';
 import 'quill';
 
-export * from './aurelia-control-mapper.tests';
+export * from './mocks';
 
-export * from './viewcontrols';
-export * from './fieldcontrols';
-export * from './helpers';
-export * from './navigationcontrols';
-
+export * from './attributes';
 export * from './collectioncontrols';
+export * from './fieldcontrols';
+export * from './navigationcontrols';
+export * from './services';
+export * from './viewcontrols';

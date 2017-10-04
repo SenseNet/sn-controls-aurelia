@@ -9,7 +9,7 @@ export class ContentViewTests extends ComponentTestBase<ContentView> {
 
     @test
     public async 'Can be constructed'() {
-        const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: 'new', content: null as any });
+        const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: 'new', content: this.mockRepo.CreateContent({}, ContentTypes.User) as any });
         const contentViewElement = document.querySelector('content-view');
         expect(contentViewElement).to.be.instanceOf(HTMLElement);
         expect(component).to.be.instanceof(Object);        

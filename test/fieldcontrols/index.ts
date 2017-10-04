@@ -13,5 +13,6 @@ export * from './number.tests';
 export * from './password.tests';
 export * from './integer.tests';
 export * from './longtext.tests';
+export * from './percentage.tests';
 export * from './richtext.tests';
 export * from './shorttext.tests';

@@ -3,13 +3,10 @@
  * 
  * 
  */ /** */
-import { bindable, computedFrom } from 'aurelia-framework';
+import { bindable, autoinject } from 'aurelia-framework';
 import { ActionName } from 'sn-client-js';
 import { Content, ControlSchema, FieldSettings, ContentTypes } from 'sn-client-js';
-
-import { AureliaBaseControl } from '../AureliaBaseControl';
-import { AureliaControlMapper } from '../AureliaControlMapper';
-
+import { ControlMappingService, ControlNameResolverService } from '../services';
 
 /**
  * A very top level View Control, works with a single Content and based on the AureliaControlMapper
@@ -19,37 +16,54 @@ import { AureliaControlMapper } from '../AureliaControlMapper';
  *  <content-view content.bind='contentInstance'></content-view>
  * ```
  */
-export class ContentView extends AureliaBaseControl {
+@autoinject
+ export class ContentView  {
+    constructor(
+        private controlMappingService: ControlMappingService,
+        private ControlNameResolverService: ControlNameResolverService
+    ) {
+    }
 
     /**
      * The bindable Content instance
      */
     @bindable
     public content: Content;
-
+    
     /**
      * @returns the ActionName, it is based on the Content state ('view' by default, 'new' if the content is not saved yet)
      */
     @bindable
     public actionName: ActionName  = 'view';
 
-    /**
-     * @returns the Schema object, based on the binded content and the assigned actionName
-     */
-    @computedFrom('content', 'actionName')
-    public get schema(): ControlSchema<AureliaBaseControl, FieldSettings.FieldSetting>{
+    @bindable
+    controlName: string;
 
+
+
+    contentChanged(){
+        this.contextChange();
+    } 
+    actionNameChanged(){
+        this.contextChange();
+    }
+    public contextChange: () => void = () => {
         // ToDo: Reload content with required fields
         const contentType = this.content && (ContentTypes as any)[this.content.Type] || Content as {new(...args)};
+        const schema = this.controlMappingService.Mappings.GetFullSchemaForContentType(contentType, this.actionName);
+        this.controlName = this.ControlNameResolverService.getNameForControl(schema && schema.ContentTypeControl);
 
-        return this.content && AureliaControlMapper.GetFullSchemaForContentType(contentType, this.actionName);
+        this.model = {
+            schema,
+            content: this.content,
+            actionName: this.actionName
+        };
     }
 
-    /**
-     * @returns the ViewControl, as resolved from the AureliaControlMapper
-     */
-    @computedFrom('schema')
-    public get control(): {new(...args: any[])}{
-        return this.schema && this.schema.ContentTypeControl;
-    }
+    @bindable
+    public model: { 
+        schema: ControlSchema<{}, FieldSettings.FieldSetting>,
+        actionName: ActionName,
+        content: Content
+    };
 }

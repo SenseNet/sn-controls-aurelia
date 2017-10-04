@@ -3,7 +3,6 @@
  * 
  */ /** */
 
-import { AureliaBaseControl } from '../AureliaBaseControl';
 import { bindable, computedFrom, autoinject } from 'aurelia-framework';
 import { Content, Repository } from 'sn-client-js';
 import { Subscription } from '@reactivex/rxjs';
@@ -17,7 +16,8 @@ import { Observable } from '@reactivex/rxjs';
  * ```
  */
 @autoinject
-export class Tree extends AureliaBaseControl {
+export class Tree {
+
 
     Subscriptions: Subscription[] = [];
 
@@ -25,6 +25,9 @@ export class Tree extends AureliaBaseControl {
     get Repository(): Repository.BaseRepository {
         return this.Content['repository'];
     };
+
+    @bindable
+    public NestingLevel: number = 0;
 
     /**
      * Property that represents if the tree is expanded or not
@@ -80,7 +83,7 @@ export class Tree extends AureliaBaseControl {
     }
 
     @computedFrom('Content')
-    get hasValidContent(): boolean{
+    get hasValidContent(): boolean {
         return this.Content && this.Content.options && Object.keys(this.Content.SavedFields).length > 0;
     }
 
@@ -155,27 +158,27 @@ export class Tree extends AureliaBaseControl {
 
     }
 
-    handleContentCreated(created: Repository.EventModels.Created){
+    handleContentCreated(created: Repository.EventModels.Created) {
         if (this.IsExpanded && !this.IsLoading && created.Content.IsChildOf(this.Content)) {
             this.Children.push(created.Content)
             this.ReorderChildren();
         }
     }
 
-    handleContentDeleted(deleted: Repository.EventModels.Deleted){
+    handleContentDeleted(deleted: Repository.EventModels.Deleted) {
         const child = this.Children.find(c => c.Id === deleted.ContentData.Id);
         if (this.IsExpanded && !this.IsLoading && child) {
-            this.Children[this.Children.indexOf(child)] = undefined as any;
+            this.Children = this.Children.filter(c => c !== child);
         }
     }
 
-    handleContentModified(modified: Repository.EventModels.Modified){
+    handleContentModified(modified: Repository.EventModels.Modified) {
         if (this.IsExpanded && !this.IsLoading && this.Children.find(c => c != null && c.Id === modified.Content.Id)) {
             this.ReorderChildren();
         }
     }
 
-    handleContentMoved(moved: Repository.EventModels.ContentMoved): Observable<Content>{
+    handleContentMoved(moved: Repository.EventModels.ContentMoved): Observable<Content> {
         const child = this.Children.find(c => c.Id === moved.Content.Id);
 
         if (this.IsExpanded && child) {
@@ -211,10 +214,22 @@ export class Tree extends AureliaBaseControl {
     detached() {
         this.clearSubscriptions();
     }
-    dropContent(stringifiedContent: string){
-        const droppedContent = this.Repository.ParseContent(stringifiedContent);
-        if (this.Content.Path && this.Content.Path !== droppedContent.ParentPath && this.Content.Path !== droppedContent.Path && !droppedContent.IsAncestorOf(this.Content)){
-                droppedContent.MoveTo(this.Content.Path);
+    async dropContent(stringifiedContent?: string, stringifiedContentList?: string[]) {
+        if (stringifiedContentList && stringifiedContentList.length) {
+
+            // ToDo: To batch operation
+            for (const content of stringifiedContentList){
+                await this.dropContent(content)
+            }
+            // stringifiedContentList.forEach(item => {
+            //     this.dropContent(item);
+            // })
+        } else if (stringifiedContent) {
+
+            const droppedContent = this.Repository.ParseContent(stringifiedContent);
+            if (this.Content.Path && this.Content.Path !== droppedContent.ParentPath && this.Content.Path !== droppedContent.Path && !droppedContent.IsAncestorOf(this.Content)) {
+                await droppedContent.MoveTo(this.Content.Path).toPromise();
+            }
         }
     }
 }

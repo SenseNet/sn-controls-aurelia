@@ -1,19 +1,11 @@
-/**
- * @module sn-controls-aurelia
- * 
- * 
- */ /** */
-
 import { ControlMapper, FieldSettings, ContentTypes } from 'sn-client-js';
-import { AureliaBaseControl } from './AureliaBaseControl';
-import { GenericView } from './viewcontrols'
-import { Choice, DisplayName, DumpField, DateOnly, DateTime, Password, Percentage, Integer, LongText, NameField, Number as NumberField, RichText, ShortText, Checkbox, ContentReference, ContentListReference } from './fieldcontrols';
+import { Choice, DisplayName, DumpField, DateOnly, DateTime, Password, Percentage, Integer, LongText, NameField, Number as NumberField, RichText, ShortText, Checkbox, ContentReference, ContentListReference } from '../fieldcontrols';
 
-/**
- * @description A static Control Mapper instance, used to create the mapping between sensenet ECM ContentTypes and FieldSettings and Aurelia components.
- */
-const AureliaControlMapper =
-    new ControlMapper(AureliaBaseControl, (s) => s, GenericView, DumpField)
+export class ControlMappingService{
+
+    private _mappings: ControlMapper<Object, FieldSettings.FieldSetting>;
+    private initMappings() {
+        this._mappings = new ControlMapper(Object, (s) => s, {name: 'GenericView'} as any, DumpField)
         .SetupFieldSettingDefault(FieldSettings.ShortTextFieldSetting, (setting) => {
             switch (setting.Name) {
                 case 'Name':
@@ -57,5 +49,14 @@ const AureliaControlMapper =
         .SetupFieldSettingForControl(ContentTypes.User, 'Enabled', () => { return Checkbox; })
         .SetupFieldSettingForControl(ContentTypes.Workspace, 'IsWallContainer', () => { return Checkbox; })
         .SetupFieldSettingForControl(ContentTypes.Workspace, 'IsActive', () => { return Checkbox; })
+    }
 
-export { AureliaControlMapper };
+
+
+    public get Mappings(){
+        if (!this._mappings){
+            this.initMappings();
+        }
+        return this._mappings;
+    } 
+}

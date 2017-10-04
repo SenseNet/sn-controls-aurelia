@@ -6,8 +6,7 @@
 import { FieldSettings } from 'sn-client-js';
 import { customElement } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
-import { ValidationRules } from 'aurelia-validation';
-
+import { textfield } from 'material-components-web/dist/material-components-web';
 
 /**
  * Field control for unformatted long text (textarea).
@@ -20,15 +19,11 @@ import { ValidationRules } from 'aurelia-validation';
 @customElement('long-text')
 export class LongText extends FieldBaseControl<string, FieldSettings.LongTextFieldSetting> {
 
-    get rules(): any {
-        const parentRules = super.rules;
+    textfield: HTMLElement;
+    mdcTextField: textfield.MDCTextField;
 
-        let thisRules = this.settings && ValidationRules
-            .ensure('value')
-                .minLength(this.settings.MinLength || 0)
-                .maxLength(this.settings.MaxLength || Infinity).rules || [];
-
-        return [...parentRules, ...thisRules];
+    attached() {
+        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
     }
 }
 

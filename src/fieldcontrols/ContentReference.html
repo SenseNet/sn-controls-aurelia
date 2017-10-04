@@ -1,9 +1,45 @@
 <template>
     <require from='./ContentReference.css'></require>
+    <div class="content-reference-wrapper ${isFocused ? 'focused' : ''}" click.delegate="focusIn()">
+        <label class="mdc-textfield ${isFocused ? 'mdc-textfield--focused' : ''}">
+            <span class="mdc-textfield__label mdc-textfield__label--float-above">${settings.DisplayName}</span>
+        </label>
+        <div class="chips-container">
+            <div class="chip"  if.bind="!isOpened && Item">
+                <icon content.bind='Item'></icon>
+                <span class="display-name">${Item.DisplayName || Item.Name}</span>
+                <i if.bind='!readOnly' class="close material-icons" click.trigger="removeItem()">close</i>               
+            </div>
+            <div class="add-new-container" focusout.delegate="focusOut() & debounce:150" focusin.delegate="focusIn()" class="mdc-textfield">
+                    <span class="search-box" contenteditable="true" ref="searchInput" innerhtml.two-way="searchString & debounce:500" if.bind="!readOnly"
+                        keyup.trigger="handleSearchKeyUp($event)" onkeypress="return event.keyCode != 13;"></span>
+            </div>            
+        </div>
+
+        <div class="mdc-simple-menu ${isOpened ? 'mdc-simple-menu--open' : ''}">
+            <ul class="mdc-list mdc-simple-menu__items">
+                <li if.bind="!availableValues || availableValues.length === 0" class="mdc-list-item" role="option" aria-disabled="true">
+                    (There are no items available to select)
+                </li>
+                <li if.bind="availableValues && availableValues.length > 0" class="mdc-list-item ${$index === selectionIndex ? 'selected' : ''}"
+                    repeat.for="value of availableValues" click.delegate="pickValue(value)" role="option" aria-disabled="false">
+                    <icon content.bind="value"></icon>
+                    <div class="text-content">
+                        ${value.DisplayName || value.Name} <br/>
+                        <span css="font-size: .8em;" if.bind='value.Description && value.Description.length'>${value.Description}</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</template>
+
+<!-- <template>
+    <require from='./ContentReference.css'></require>
     <div class="content-reference-wrapper  ${selectedContent != null ? ' has-content ' : ''}" blur. focusout.delegate="focusOut() & debounce:150"
         focusin.delegate="focusIn()">
         <icon if.bind='selectedContent != null' content.bind='selectedContent'></icon>
-        <md-input view-model.ref="searchRef" md-label.bind="settings.DisplayName" md-value.bind="searchString & debounce:500 & validate:rules"
+        <md-input md-label.bind="settings.DisplayName" md-value.bind="searchString & debounce:500 & validate:rules"
             md-disabled.bind="readOnly" md-validate="true" aria-autocomplete="none">
         </md-input>
     </div>
@@ -19,4 +55,4 @@
             </div>
         </li>
     </ul>
-</template>
+</template> -->

@@ -3,12 +3,14 @@
  * 
  */ /** */
 
-import { computedFrom, autoinject, customElement } from 'aurelia-framework'
+import { autoinject, customElement, bindable } from 'aurelia-framework'
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
 import { LocaleService } from '../services';
+import { textfield } from 'material-components-web/dist/material-components-web';
 import 'moment';
 import * as moment from 'moment-timezone';
+
 
 /**
  * Field control that represents a Date Picker. Formatting will be done based on the LocaleService
@@ -26,23 +28,21 @@ export class DateOnly extends FieldBaseControl<string, FieldSettings.DateTimeFie
         super();
     }
 
-    get value(){
-        return super.value;
+    datefield: HTMLElement;
+    mdcDateField: textfield.MDCTextField;
+
+    attached(){
+        this.mdcDateField = new textfield.MDCTextfield(this.datefield);
     }
 
-    set value(newValue){
-        super.value = newValue && moment(newValue).format('YYYY-MM-DDT00:00:00') + 'Z';
+    @bindable
+    public dateValue: string;
+
+    public dateValueChanged(newValue){
+        this.value = newValue && moment(newValue).format('YYYY-MM-DDT00:00:00') + 'Z';
     }
 
-    @computedFrom('settings')
-    get advancedOptions() {
-        return {
-            closeOnSelect: true,
-            closeOnClear: true,
-            selectYears: 50,
-            showIcon: !this.readOnly,
-            format: this.localeService.DateFormat,
-        };
-    };
-
+    public valueChanged(newValue){
+        this.dateValue = moment(this.value).format(this.localeService.DateFormat)
+    }
 }

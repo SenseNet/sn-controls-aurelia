@@ -1,10 +1,9 @@
 import { bindable, customElement, computedFrom } from 'aurelia-framework';
 import { Content } from 'sn-client-js';
-import { AureliaBaseControl } from '../AureliaBaseControl';
 
 
 @customElement('breadcrumbs')
-export class Breadcrumbs extends AureliaBaseControl{
+export class Breadcrumbs {
     @bindable
     public Selection: Content;
 

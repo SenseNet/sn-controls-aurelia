@@ -6,7 +6,7 @@
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
 import { customElement } from 'aurelia-framework';
-import { ValidationRules } from 'aurelia-validation';
+import { textfield } from 'material-components-web/dist/material-components-web';
 
 /**
  * Field control for number fields.
@@ -18,13 +18,11 @@ import { ValidationRules } from 'aurelia-validation';
  */
 @customElement('number-field')
 export class Number  extends FieldBaseControl<number, FieldSettings.NumberFieldSetting> {
-    get rules(): any {
-        const parentRules = super.rules;
-        let thisRules = ValidationRules
-            .ensure('value')
-                .minLength(this.settings.MinValue || 0)
-                .maxLength(this.settings.MaxValue || Infinity).rules || [];
 
-        return [...parentRules, ...thisRules];
+    textfield: HTMLElement;
+    mdcTextField: textfield.MDCTextField;
+
+    attached(){
+        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
     }
 }

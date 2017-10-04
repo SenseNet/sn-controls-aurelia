@@ -5,16 +5,23 @@
  * 
  */ /** */
 
-import { FrameworkConfiguration } from 'aurelia-framework';
-import { PLATFORM } from 'aurelia-pal';
-import 'materialize-css';
+import { FrameworkConfiguration, PLATFORM } from 'aurelia-framework';
+
+export * from './fieldcontrols';
+export * from './navigationcontrols';
+export * from './attributes';
+export * from './collectioncontrols';
+export * from './services';
+export * from './viewcontrols';
+export * from './Enums';
 
 /**
  * A list of modules that will be imported when using sn-controls-aurelia as an Aurelia plugin
  */
 export const modules = [
-        './containers/ContentDrag',
-        './containers/ContentDrop',
+        './attributes/ContentDragCustomAttribute',
+        './attributes/ContentDropCustomAttribute',
+        './attributes/SettingsValidationCustomAttribute',
 
         './viewcontrols/ContentView',
         './viewcontrols/GenericView',
@@ -46,17 +53,6 @@ export const modules = [
  * @param app the Aurelia FrameworkConfiguration object
  */
 export function configure(app: FrameworkConfiguration){
-    app.globalResources(modules);
-    app.plugin(PLATFORM.moduleName('aurelia-materialize-bridge'), b => b.useAll().preventWavesAttach()); 
+    app.globalResources(modules.map(m => PLATFORM.moduleName(m)));
     app.plugin('aurelia-validation');
 }
-
-export * from './fieldcontrols';
-export * from './navigationcontrols';
-export * from './containers'
-export * from './collectioncontrols';
-export * from './services';
-export * from './viewcontrols/ContentView';
-export * from './viewcontrols/GenericView';
-
-export * from './Enums';

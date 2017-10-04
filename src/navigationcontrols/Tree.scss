@@ -1,33 +1,11 @@
 .tree-wrapper {
     user-select: none;
 
-    .tree-wrapper {
-        margin-left: 15px;
-        white-space: nowrap;
-    }
-
-    icon {
-
-        cursor: pointer;
-
-        opacity: .4;
-
-        &.selected {
-            opacity: .6;
-        }
-    }
-
-    overflow: hidden;
-
     .tree-item-name {
-        cursor: pointer;
         text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
         display: block;
-        clear: none;
-        width: calc(100% - 60px);
-        float: right;
+        white-space: nowrap;
+        overflow: hidden;
 
         &.selected {
             font-weight: bolder;
@@ -59,11 +37,30 @@
             opacity: .3;
         }
 
-        cursor: pointer;
         transition: transform 400ms cubic-bezier(0.6, -0.28, 0.735, 0.045);
 
         &.collapsed {
             transform: rotate(-180deg);
+        }
+    }
+
+    .current-level {
+        cursor: pointer;
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        padding: .6em;
+
+        icon {
+            margin-right: .6rem;
+        }
+
+        opacity: .65;
+
+        &.selected {
+            background-color: rgba(0, 0, 0, 0.1);
         }
     }
 }

@@ -3,7 +3,6 @@
  * 
  */ /** */
 
-import { AureliaBaseControl } from '../AureliaBaseControl';
 import { Content, FieldSettings, ActionName } from 'sn-client-js';
 
 import { ValidationController, ValidationRules, FluentRuleCustomizer } from 'aurelia-validation';
@@ -12,8 +11,7 @@ import { computedFrom, bindable } from 'aurelia-framework';
 /**
  * Base class for field controls. Contains basic binding, activation and validation logic.
  */
-export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.FieldSetting>
-        extends AureliaBaseControl {
+export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.FieldSetting> {
     @bindable
     content: Content;
 
@@ -42,7 +40,7 @@ export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.Fiel
     }
 
     set value(newValue: TValueType){
-        this.content[this.settings.Name] = newValue;
+        this.settings && this.content && (this.content[this.settings.Name] = newValue);
     }
     settings: TConfigType;
     activate(model: {settings: TConfigType, content: Content, controller: ValidationController, actionName: ActionName}){
@@ -50,7 +48,7 @@ export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.Fiel
         this.settings = model.settings;
         this.controller = model.controller;
         this.actionName = model.actionName;
-        this.value = this.content[this.settings.Name] || this.settings.DefaultValue || '';
+        this.value = this.content && this.settings && this.content[this.settings.Name] || this.settings.DefaultValue || '';
     }
 
 }

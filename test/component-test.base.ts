@@ -1,11 +1,10 @@
 import { StageComponent, ComponentTester } from 'aurelia-testing';
 import { initialize, globalize } from 'aurelia-pal-nodejs';
-import { AureliaBaseControl } from '../src/AureliaBaseControl';
 import { Mocks } from 'sn-client-js';
 import { configure } from '../src/';
 import { bootstrap } from 'aurelia-bootstrapper';
 
-export class ComponentTestBase<T extends AureliaBaseControl> {
+export class ComponentTestBase<T> {
 
     protected mockRepo: Mocks.MockRepository = new Mocks.MockRepository();
     private component: ComponentTester;
