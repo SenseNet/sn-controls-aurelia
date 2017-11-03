@@ -91,7 +91,7 @@
     "aurelia-validation": "^1.1.2",
     "cpx": "^1.5.0",
     "lodash": "^4.17.4",
-    "material-components-web": "^0.23.0",
+    "material-components-web": "^0.24.0",
     "moment": "^2.18.1",
     "moment-timezone": "^0.5.13",
     "node-sass": "^4.5.3",
