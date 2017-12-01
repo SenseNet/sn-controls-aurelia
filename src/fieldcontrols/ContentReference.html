@@ -1,8 +1,8 @@
 <template>
     <require from='./ContentReference.css'></require>
     <div class="content-reference-wrapper ${isFocused ? 'focused' : ''}" click.delegate="focusIn()">
-        <label class="mdc-textfield ${isFocused ? 'mdc-textfield--focused' : ''}">
-            <span class="mdc-textfield__label mdc-textfield__label--float-above">${settings.DisplayName}</span>
+        <label class="mdc-text-field ${isFocused ? 'mdc-text-field--focused' : ''}">
+            <span class="mdc-text-field__label mdc-text-field__label--float-above">${settings.DisplayName}</span>
         </label>
         <div class="chips-container">
             <div class="chip"  if.bind="!isOpened && Item">
@@ -10,7 +10,7 @@
                 <span class="display-name">${Item.DisplayName || Item.Name}</span>
                 <i if.bind='!readOnly' class="close material-icons" click.trigger="removeItem()">close</i>               
             </div>
-            <div class="add-new-container" focusout.delegate="focusOut() & debounce:150" focusin.delegate="focusIn()" class="mdc-textfield">
+            <div class="add-new-container" focusout.delegate="focusOut() & debounce:150" focusin.delegate="focusIn()" class="mdc-text-field">
                     <span class="search-box" contenteditable="true" ref="searchInput" innerhtml.two-way="searchString & debounce:500" if.bind="!readOnly"
                         keyup.trigger="handleSearchKeyUp($event)" onkeypress="return event.keyCode != 13;"></span>
             </div>            
@@ -33,26 +33,3 @@
         </div>
     </div>
 </template>
-
-<!-- <template>
-    <require from='./ContentReference.css'></require>
-    <div class="content-reference-wrapper  ${selectedContent != null ? ' has-content ' : ''}" blur. focusout.delegate="focusOut() & debounce:150"
-        focusin.delegate="focusIn()">
-        <icon if.bind='selectedContent != null' content.bind='selectedContent'></icon>
-        <md-input md-label.bind="settings.DisplayName" md-value.bind="searchString & debounce:500 & validate:rules"
-            md-disabled.bind="readOnly" md-validate="true" aria-autocomplete="none">
-        </md-input>
-    </div>
-    <ul class="autocomplete-content dropdown-content" if.bind="isOpened">
-        <li if.bind="!availableValues || availableValues.length === 0">
-            (There are no items available to select)
-        </li>
-        <li if.bind="availableValues && availableValues.length > 0" repeat.for="value of availableValues" click.delegate="pickValue(value)">
-            <icon content.bind="value"></icon>
-            <div class="text-content">
-                <strong>${value.DisplayName || value.Name}</strong> <br/>
-                <span if.bind='value.Description && value.Description.length'>${value.Description}</span>
-            </div>
-        </li>
-    </ul>
-</template> -->

@@ -1,6 +1,21 @@
+/**
+ * @module Attributes
+ * 
+ */ /** */
+
 import { bindable, autoinject } from 'aurelia-framework';
 import { FieldSettings } from 'sn-client-js';
 
+/**
+ * Custom attribute that can be added to an Input field and can be used to validate its value based on a provided sensenet FieldSetting.
+ * Usage example:
+ * ```html
+ * <input type="text" value.bind="value" settings-validation.bind="settings">
+ * ```
+ * The following attributes will be added when a settings object is bound:
+ * 
+ * required, minlength, maxlength, pattern
+ */
 @autoinject
 export class SettingsValidationCustomAttribute {
     
@@ -16,13 +31,17 @@ export class SettingsValidationCustomAttribute {
         newSetting.Compulsory ? this.element.setAttribute('required', 'required') : this.element.removeAttribute('required');
 
         //TextFields - MinLength
-        (newSetting instanceof FieldSettings.TextFieldSetting && newSetting.MinLength) ? this.element.setAttribute('minlength', newSetting.MinLength.toString()) : this.element.removeAttribute('minlength');
+        if (FieldSettings.isFieldSettingOfType(newSetting, FieldSettings.TextFieldSetting) && newSetting.MinLength){
+            this.element.setAttribute('minlength', newSetting.MinLength.toString())
+        } else {
+            this.element.removeAttribute('minlength')
+        }
 
         //TextFields - MaxLength
-        (newSetting instanceof FieldSettings.TextFieldSetting && newSetting.MaxLength) ? this.element.setAttribute('maxlength', newSetting.MaxLength.toString()) : this.element.removeAttribute('maxlength');
+        (FieldSettings.isFieldSettingOfType(newSetting, FieldSettings.TextFieldSetting) && newSetting.MaxLength) ? this.element.setAttribute('maxlength', newSetting.MaxLength.toString()) : this.element.removeAttribute('maxlength');
        
         //ShortText - Regex/pattern
-        (newSetting instanceof FieldSettings.ShortTextFieldSetting && newSetting.Regex) ? this.element.setAttribute('pattern', newSetting.Regex) : this.element.removeAttribute('pattern');
+        (FieldSettings.isFieldSettingOfType(newSetting, FieldSettings.ShortTextFieldSetting) && newSetting.Regex) ? this.element.setAttribute('pattern', newSetting.Regex) : this.element.removeAttribute('pattern');
 
         //...
     }

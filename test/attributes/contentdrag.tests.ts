@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { Repository, Mocks, Content } from 'sn-client-js';
+import { Repository, Mocks, ContentInternal } from 'sn-client-js';
 import { ContentDragCustomAttribute } from '../../src/attributes';
 import { DragTypes } from '../../src/Enums';
 import { MockDragEvent } from '../mocks';
@@ -28,16 +28,18 @@ export class ContentDragTests {
     public async 'Content can be bound'() {
         this.attribute.content = [this.repo.HandleLoadedContent({
             Id: 123456,
-            Path: '/Root/Example'
+            Path: '/Root/Example',
+            Name: 'C1'
         })];
-        expect(this.attribute.content[0]).to.be.instanceof(Content);
+        expect(this.attribute.content[0]).to.be.instanceof(ContentInternal);
     }
 
     @test
     public async 'dragStart event is bound and simple content dragged'() {
         this.attribute.content = [this.repo.HandleLoadedContent({
             Id: 123456,
-            Path: '/Root/Example'
+            Path: '/Root/Example',
+            Name: 'C2'
         })];
         const ev = new MockDragEvent();
         ev.type = 'dragstart';
@@ -54,11 +56,13 @@ export class ContentDragTests {
         this.attribute.content = [
             this.repo.HandleLoadedContent({
                 Id: 123456,
-                Path: '/Root/Example'
+                Path: '/Root/Example',
+                Name: 'C1'
             }),
             this.repo.HandleLoadedContent({
                 Id: 654321,
-                Path: '/Root/Example2'
+                Path: '/Root/Example2',
+                Name: 'C2'
             })];
         const ev = new MockDragEvent();
         ev.type = 'dragstart';

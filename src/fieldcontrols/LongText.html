@@ -1,13 +1,13 @@
 <template>
     <require from="./LongText.css"></require>
-    <label class="mdc-textfield mdc-textfield--multiline longtext-wrapper" title.bind="settings.Description" ref="textfield">
+    <label class="mdc-text-field mdc-text-field--multiline longtext-wrapper" title.bind="settings.Description" ref="textfield">
         <textarea type="text" 
-            class="mdc-textfield__input" 
+            class="mdc-text-field__input" 
             value.bind="value" 
             disabled.bind="readOnly" 
             rows="8"
             settings-validation.bind="settings"
             cols="40"></textarea>
-        <span class="mdc-textfield__label">${settings.DisplayName}</span>
+        <span class="mdc-text-field__label">${settings.DisplayName}</span>
       </label>    
 </template>

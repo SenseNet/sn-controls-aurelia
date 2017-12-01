@@ -29,11 +29,12 @@ export class ComponentTestBase<T> {
         this.component = StageComponent
             .withResources()
             .inView(componentView)
-            .boundTo(bindingContext)
+            .boundTo(bindingContext as {})
 
-        this.component.bootstrap(app => { 
+        this.component.bootstrap(app => {
             app.use.standardConfiguration();
             configure(app.use);
+            return app.use;
         });
         await this.component.create(bootstrap);
         return this.component;

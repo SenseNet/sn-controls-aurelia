@@ -1,8 +1,5 @@
 /**
- * @module Helpers
- * 
- * @preferred
- * @description This module contains helper utilities
+ * @module Services
  * 
  */ /** */
 

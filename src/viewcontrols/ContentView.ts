@@ -7,6 +7,7 @@ import { bindable, autoinject } from 'aurelia-framework';
 import { ActionName } from 'sn-client-js';
 import { Content, ControlSchema, FieldSettings, ContentTypes } from 'sn-client-js';
 import { ControlMappingService, ControlNameResolverService } from '../services';
+import { GenericContent } from 'sn-client-js/dist/src/ContentTypes';
 
 /**
  * A very top level View Control, works with a single Content and based on the AureliaControlMapper
@@ -49,8 +50,8 @@ import { ControlMappingService, ControlNameResolverService } from '../services';
     }
     public contextChange: () => void = () => {
         // ToDo: Reload content with required fields
-        const contentType = this.content && (ContentTypes as any)[this.content.Type] || Content as {new(...args)};
-        const schema = this.controlMappingService.Mappings.GetFullSchemaForContentType(contentType, this.actionName);
+        const contentType = this.content && (ContentTypes as any)[this.content.Type] || GenericContent as {new(...args)};
+        const schema = this.content && this.controlMappingService.GetMappings(this.content.GetRepository()).GetFullSchemaForContentType(contentType, this.actionName);
         this.controlName = this.ControlNameResolverService.getNameForControl(schema && schema.ContentTypeControl);
 
         this.model = {

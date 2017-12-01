@@ -10,7 +10,7 @@ import { FieldSettings } from 'sn-client-js';
 import { LocaleService } from '../services';
 import 'moment';
 import * as moment from 'moment-timezone';
-import { textfield } from 'material-components-web/dist/material-components-web';
+import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
 
 
 
@@ -30,7 +30,7 @@ export class DateTime extends FieldBaseControl<string, FieldSettings.DateTimeFie
     }
 
     datefield: HTMLElement;
-    mdcDateField: textfield.MDCTextField;
+    mdcDateField: MDCTextField;
 
 
     @bindable
@@ -41,7 +41,7 @@ export class DateTime extends FieldBaseControl<string, FieldSettings.DateTimeFie
     }
 
     attached() {
-        this.mdcDateField = new textfield.MDCTextfield(this.datefield);
+        this.mdcDateField = new MDCTextField(this.datefield);
     }
 
     activate(model){

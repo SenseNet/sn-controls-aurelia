@@ -5,49 +5,43 @@
 
     <div class="content-collection-wrapper">
         <div class="simple-list" if.bind="ViewType == 'List'">
-            <div class="contentlist-simple-wrapper">
+            <div class="contentlist-simple-wrapper" content-drop.call="dropContent(stringifiedContent, stringifiedContentList, files)">
                 <ul class="mdc-list">
                     <li if.bind="ShowScope" class="mdc-list-item" dblclick.delegate="activateItem(Scope)">
                         <span class="mdc-list-item__text">
-                        ...
+                            ...
                         </span>
                     </li>
                     <li repeat.for="item of Items" class="mdc-list-item mdc-ripple-surface mdc-animation-acceleration-curve ${ isSelected(item) ? 'selected' : '' & signal:'content-list-selection-changed' }"
                         content-drag.bind="Selection.length && Selection || [item] & signal:'content-list-selection-changed'"
-                        dblclick.delegate="activateItem(item)" click.delegate="selectItem($event, item)" keydown.trigger="handleKeyPress($event)">
-                        <span if.bind="Selection.length > 1 & signal:'content-list-selection-changed'" class="selection-checkbox">
+                        content-drop.call="dropContentOnItem(item, stringifiedContent, stringifiedContentList, files)" dblclick.delegate="activateItem(item)"
+                        click.delegate="selectItem($event, item)" keydown.trigger="handleKeyPress($event)">
+                        <span if.bind="isSelected(item) & signal:'content-list-selection-changed'" class="selection-checkbox">
                             <div class="mdc-checkbox">
-                                    <input type="checkbox"
-                                            class="mdc-checkbox__native-control"
-                                            click.trigger="toggleSelection($event, item)"
-                                            checked.bind="isSelected(item) & signal:'content-list-selection-changed'"
-                                            value.one-way="isSelected(item) & signal:'content-list-selection-changed'"/>
-                                    <div class="mdc-checkbox__background">
-                                        <svg class="mdc-checkbox__checkmark"
-                                            viewBox="0 0 24 24">
-                                            <path class="mdc-checkbox__checkmark__path"
-                                                    fill="none"
-                                                    stroke="white"
-                                                    d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
-                                        </svg>
-                                        <div class="mdc-checkbox__mixedmark"></div>
-                                    </div>
+                                <input type="checkbox" class="mdc-checkbox__native-control" click.trigger="toggleSelection($event, item)" checked.bind="isSelected(item) & signal:'content-list-selection-changed'"
+                                    value.one-way="isSelected(item) & signal:'content-list-selection-changed'" />
+                                <div class="mdc-checkbox__background">
+                                    <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+                                        <path class="mdc-checkbox__checkmark__path" fill="none" stroke="white" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+                                    </svg>
+                                    <div class="mdc-checkbox__mixedmark"></div>
                                 </div>
+                            </div>
                         </span>
 
-                        <icon click.delegate="toggleSelection($event, item)" if.bind="!Selection.length <= 1 & signal:'content-list-selection-changed'"
+                        <icon if.bind="!isSelected(item) & signal:'content-list-selection-changed'" click.delegate="toggleSelection($event, item)" if.bind="!Selection.length <= 1 & signal:'content-list-selection-changed'"
                             class="mdc-list-item__start-detail" content.bind="item"></icon>
 
                         <span class="mdc-list-item__text">
-                                            ${item.SavedFields.DisplayName || item.SavedFields.Name || item.DisplayName || item.Name}
-                                        <span class="mdc-list-item__text__secondary">${item.SavedFields.Description}</span>
+                            ${item.SavedFields.DisplayName || item.SavedFields.Name || item.DisplayName || item.Name}
+                            <span class="mdc-list-item__text__secondary">${item.SavedFields.Description}</span>
                         </span>
                     </li>
                 </ul>
             </div>
         </div>
         <div class="card-list" if.bind="ViewType == 'Details'">
-            <div class="content-list-cards-wrapper mdc-layout-grid">
+            <div class="content-list-cards-wrapper mdc-layout-grid" content-drop.call="dropContent(event, stringifiedContent, stringifiedContentList, files)">
                 <div class="mdc-layout-grid__inner">
                     <div class="mdc-card mdc-layout-grid__cell mdc-layout-grid__cell--span-4-desktop mdc-layout-grid__cell--span-4-tablet mdc-layout-grid__cell--span-6-phone mdc-ripple-surface"
                         if.bind="ShowScope">
@@ -59,6 +53,7 @@
                     </div>
                     <div class="mdc-card mdc-layout-grid__cell mdc-layout-grid__cell--span-4-desktop mdc-layout-grid__cell--span-4-tablet mdc-layout-grid__cell--span-6-phone mdc-ripple-surface mdc-animation-acceleration-curve ${isSelected(item) ? 'mdc-elevation--z14' : '' & signal:'content-list-selection-changed'}"
                         repeat.for="item of Items" content-drag.bind="Selection.length && Selection || [item] & signal:'content-list-selection-changed'"
+                        content-drop.call="dropContentOnItem(event, item, stringifiedContent, stringifiedContentList, files)"
                         dblclick.delegate="activateItem(item)" click.delegate="selectItem($event, item)">
                         <div class="mdc-card__horizontal-block">
                             <section class="mdc-card__primary">
@@ -70,11 +65,23 @@
                             </div>
                         </div>
                         <!-- <section class="mdc-card__supporting-text">
-                                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                                        </section> -->
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </section> -->
                         <section class="mdc-card__actions">
-                            <button repeat.for='action of Actions' class="mdc-button mdc-button--compact mdc-card__action" click.delegate="triggerAction($event, action.action, item)">${action.name}</button>
+                            <div if.one-way="item._isOperationInProgress" role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate">
+                                <div class="mdc-linear-progress__buffering-dots"></div>
+                                <div class="mdc-linear-progress__buffer"></div>
+                                <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+                                    <span class="mdc-linear-progress__bar-inner"></span>
+                                </div>
+                                <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+                                    <span class="mdc-linear-progress__bar-inner"></span>
+                                </div>
+                            </div>
+                            <div if.one-way="!item._isOperationInProgress">
+                                <button repeat.for='action of Actions' class="mdc-button mdc-button--compact mdc-card__action" click.delegate="triggerAction($event, action.action, item)">${action.name}</button>
+                            </div>
                         </section>
                     </div>
                 </div>

@@ -1,8 +1,9 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { ContentTypes, FieldSettings } from 'sn-client-js';
+import { FieldSettings } from 'sn-client-js';
 import { NameField } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { User } from 'sn-client-js/dist/src/ContentTypes';
 
 @suite('NameField component')
 export class NameTests extends FieldControlBaseTest<NameField> {
@@ -24,10 +25,10 @@ export class NameTests extends FieldControlBaseTest<NameField> {
     @test
     public async 'Can not be modified if is read only'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.ChoiceFieldSetting({
-            readOnly: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            ReadOnly: true
+        } as FieldSettings.ShortTextFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
 
         const contentViewElement = document.querySelector('name-field input') as HTMLInputElement;
 
@@ -38,10 +39,10 @@ export class NameTests extends FieldControlBaseTest<NameField> {
     @test
     public async 'Required rule is added if complusory'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.ChoiceFieldSetting({
-            compulsory: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            Compulsory: true
+        } as FieldSettings.ShortTextFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
         const rules = viewModel.rules;
         expect(rules[0][0].messageKey).to.be.eq('required');
     }
@@ -53,11 +54,11 @@ export class NameTests extends FieldControlBaseTest<NameField> {
         expect(viewModel.parentPath).to.be.empty;
 
         // Unsaved - Content Path
-        viewModel.content = this.mockRepo.CreateContent({Path: 'root/content'}, ContentTypes.User);
+        viewModel.content = this.mockRepo.CreateContent({Path: 'root/content'}, User);
         expect(viewModel.parentPath).to.be.eq('root/content');
 
         // Saved - Parent Path from Content
-        viewModel.content = this.mockRepo.HandleLoadedContent({Path: 'root/content', Id: 123}, ContentTypes.User);
+        viewModel.content = this.mockRepo.HandleLoadedContent<User>({Path: 'root/content', Id: 123} as any);
         expect(viewModel.parentPath).to.be.eq('root');
 
 

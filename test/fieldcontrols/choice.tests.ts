@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { ContentTypes, FieldSettings } from 'sn-client-js';
+import { FieldSettings } from 'sn-client-js';
 import { Choice } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
 
@@ -20,10 +20,10 @@ export class ChoiceFieldests extends FieldControlBaseTest<Choice> {
     @test
     public async 'Can not be modified if is read only'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.ChoiceFieldSetting({
-            readOnly: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            ReadOnly: true
+        } as FieldSettings.ChoiceFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12387, Path: 'asd', Name: ''});
         const contentViewElement = document.querySelector('choice input') as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
     }
@@ -32,12 +32,12 @@ export class ChoiceFieldests extends FieldControlBaseTest<Choice> {
     public async 'Writes back value when changed'() {
 
         const viewModel = await this.createFieldViewModel();
-        const content = new ContentTypes.Task({} as any, this.mockRepo); ;
+        const content = this.mockRepo.HandleLoadedContent({Id: 1237, Path: 'asd', Name: ''});
         expect(viewModel.value).to.be.undefined;
-        const settings = new FieldSettings.ChoiceFieldSetting({
-            compulsory: true,
-            defaultValue: 'Value1',
-            options: [
+        const settings = {
+            Compulsory: true,
+            DefaultValue: 'Value1',
+            Options: [
                 {
                     Enabled: true,
                     Value: 'Value1',
@@ -50,7 +50,7 @@ export class ChoiceFieldests extends FieldControlBaseTest<Choice> {
                 }
                 
             ]
-        });
+        } as FieldSettings.ChoiceFieldSetting;
         viewModel.activate({ content, settings })
 
         viewModel.mdcSelect.emit('MDCSelect:change');

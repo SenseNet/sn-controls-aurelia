@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { ComponentTestBase } from '../component-test.base';
 import { ContentView } from '../../src/viewcontrols';
-import { ContentTypes } from 'sn-client-js';
+import { Task } from 'sn-client-js/dist/src/ContentTypes';
 
 @suite('ContentView component')
 export class ContentViewTests extends ComponentTestBase<ContentView> {
 
     @test
     public async 'Can be constructed'() {
-        const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: 'new', content: this.mockRepo.CreateContent({}, ContentTypes.User) as any });
+        const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: 'new', content: this.mockRepo.CreateContent({}, Task) });
         const contentViewElement = document.querySelector('content-view');
         expect(contentViewElement).to.be.instanceOf(HTMLElement);
         expect(component).to.be.instanceof(Object);        
@@ -21,8 +21,7 @@ export class ContentViewTests extends ComponentTestBase<ContentView> {
             Id: 234,
             Path: 'Root/Test',
             DueDate: '2017-01-01T11:11:11Z',
-            Name: '' },
-        ContentTypes.Task);
+            Name: '' });
         const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { 
             actionName: 'edit',
             content: testTask
@@ -43,7 +42,7 @@ export class ContentViewTests extends ComponentTestBase<ContentView> {
 
     @test
     public async 'actionName should be View by default on saved contents'() {
-        const content = this.mockRepo.HandleLoadedContent({} as any, ContentTypes.Task);
+        const content = this.mockRepo.HandleLoadedContent({} as any);
         const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: 'view', content: content });
         const contentViewElement = document.querySelector('content-view') as any;
         const contentViewModel = contentViewElement.au.controller.viewModel as ContentView;

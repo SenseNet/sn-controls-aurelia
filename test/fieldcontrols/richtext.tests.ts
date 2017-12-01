@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { ContentTypes, FieldSettings } from 'sn-client-js';
+import { FieldSettings } from 'sn-client-js';
 import { RichText } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
 
@@ -34,10 +34,10 @@ export class RichTextFieldests extends FieldControlBaseTest<RichText> {
 
     @test
     public async 'Required rule is added if complusory'() {
-        const settings = new FieldSettings.LongTextFieldSetting({
-            compulsory: true
-        });
-        const content = new ContentTypes.Task({} as any, this.mockRepo);
+        const settings = {
+            Compulsory: true
+        } as FieldSettings.LongTextFieldSetting;
+        const content = this.mockRepo.HandleLoadedContent({Id: 265, Path: 'root/path', Name: 'ContentName'});
 
         const viewModel = await this.createFieldViewModel();
         viewModel.activate({
@@ -75,10 +75,10 @@ export class RichTextFieldests extends FieldControlBaseTest<RichText> {
     public async 'onQuillTextChange should update value'(){
         
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings =  new FieldSettings.LongTextFieldSetting({
-            compulsory: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings =  {
+            Compulsory: true
+        } as FieldSettings.LongTextFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 265, Path: 'root/path', Name: 'ContentName'});
         // await viewModel.initializeQuill();
 
         viewModel.textValue = 'test value';

@@ -7,7 +7,7 @@ import { autoinject, customElement, bindable } from 'aurelia-framework'
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
 import { LocaleService } from '../services';
-import { textfield } from 'material-components-web/dist/material-components-web';
+import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
 import 'moment';
 import * as moment from 'moment-timezone';
 
@@ -29,10 +29,10 @@ export class DateOnly extends FieldBaseControl<string, FieldSettings.DateTimeFie
     }
 
     datefield: HTMLElement;
-    mdcDateField: textfield.MDCTextField;
+    mdcDateField: MDCTextField;
 
     attached(){
-        this.mdcDateField = new textfield.MDCTextfield(this.datefield);
+        this.mdcDateField = new MDCTextField(this.datefield);
     }
 
     @bindable

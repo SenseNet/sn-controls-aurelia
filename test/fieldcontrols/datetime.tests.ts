@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { ContentTypes, FieldSettings } from 'sn-client-js';
+import { FieldSettings } from 'sn-client-js';
 import { DateTime } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
 
@@ -22,10 +22,10 @@ export class DateTimeTests extends FieldControlBaseTest<DateTime> {
     public async 'Can not be modified if is read only'() {
 
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.DateTimeFieldSetting({
-            readOnly: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            ReadOnly: true
+        } as FieldSettings.DateTimeFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
 
         const contentViewElement = document.querySelector('date-time input') as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
@@ -36,10 +36,10 @@ export class DateTimeTests extends FieldControlBaseTest<DateTime> {
         
 
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.DateTimeFieldSetting({
-            compulsory: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            Compulsory: true
+        } as FieldSettings.DateTimeFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
 
         const rules = viewModel.rules;
         expect(rules[0][0].messageKey).to.be.eq('required');

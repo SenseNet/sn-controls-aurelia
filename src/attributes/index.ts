@@ -2,7 +2,7 @@
  * @module Attributes
  * 
  * @preferred
- * @description This module contains custom attributes
+ * @description This module contains Aurelia Custom attributes
  * 
  */ /** */
 

@@ -6,6 +6,7 @@
 import { bindable, autoinject } from 'aurelia-framework';
 import { Content, ControlSchema, FieldSettings, ActionName, ContentTypes } from 'sn-client-js';
 import { ControlNameResolverService, ControlMappingService } from '../services'
+import { GenericContent } from 'sn-client-js/dist/src/ContentTypes';
 
 /**
  * A generic View Control, works based on a single Content, renders FieldControls based on the AureliaControlMapper and the provided Schema. Also responsible to aggregating validation data
@@ -72,8 +73,8 @@ export class GenericView {
             Object.assign(this.content, savedFields);
         }
         // ToDo: Check
-        const contentType = this.content && (ContentTypes as any)[this.content.Type] || Content as { new(...args) };
-        this.schema = this.content && this.ControlMappingService.Mappings.GetFullSchemaForContentType(contentType, this.actionName || 'view');
+        const contentType = this.content && (ContentTypes as any)[this.content.Type] || GenericContent as { new(...args) };
+        this.schema = this.content && this.ControlMappingService.GetMappings(this.content.GetRepository()).GetFullSchemaForContentType(contentType, this.actionName || 'view');
         this.parseSchema();
     }
 }
