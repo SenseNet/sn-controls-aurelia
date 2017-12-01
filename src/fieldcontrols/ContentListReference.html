@@ -1,8 +1,8 @@
 <template>
     <require from='./ContentListReference.css'></require>
     <div class="content-list-reference-wrapper ${isFocused ? 'focused' : ''}" click.delegate="focusIn()">
-        <label class="mdc-textfield ${isFocused ? 'mdc-textfield--focused' : ''}">
-            <span class="mdc-textfield__label mdc-textfield__label--float-above">${settings.DisplayName}</span>
+        <label class="mdc-text-field ${isFocused ? 'mdc-text-field--focused' : ''}">
+            <span class="mdc-text-field__label mdc-text-field__label--float-above">${settings.DisplayName}</span>
         </label>
         <div class="chips-container">
             <div class="chip" repeat.for="item of Items">
@@ -12,7 +12,7 @@
                 </span>
                 <i if.bind='!readOnly' class="close material-icons" click.trigger="removeReference(item)">close</i>
             </div>
-            <div class="add-new-container" focusout.delegate="focusOut() & debounce:150" focusin.delegate="focusIn()" class="mdc-textfield">
+            <div class="add-new-container" focusout.delegate="focusOut() & debounce:150" focusin.delegate="focusIn()" class="mdc-text-field">
                     <span class="search-box" contenteditable="true" ref="searchInput" innerhtml.two-way="searchString & debounce:500" if.bind="!readOnly"
                         keyup.trigger="handleSearchKeyUp($event)" onkeypress="return event.keyCode != 13;"></span>
             </div>            

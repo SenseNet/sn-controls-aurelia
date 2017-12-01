@@ -5,7 +5,7 @@
 
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
-import { textfield } from 'material-components-web/dist/material-components-web';
+import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
 import { customElement } from 'aurelia-framework';
 
 
@@ -21,9 +21,9 @@ import { customElement } from 'aurelia-framework';
 export class Integer extends FieldBaseControl<number, FieldSettings.IntegerFieldSetting> {
 
     textfield: HTMLElement;
-    mdcTextField: textfield.MDCTextField;
+    mdcTextField: MDCTextField;
 
     attached(){
-        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
+        this.mdcTextField = new MDCTextField(this.textfield);
     }
 }

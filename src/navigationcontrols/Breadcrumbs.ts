@@ -1,3 +1,8 @@
+/**
+ * @module NavigationControls
+ * 
+ */ /** */
+
 import { bindable, customElement, computedFrom } from 'aurelia-framework';
 import { Content } from 'sn-client-js';
 

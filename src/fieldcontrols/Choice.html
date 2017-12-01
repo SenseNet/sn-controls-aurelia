@@ -2,8 +2,8 @@
     <require from="./Choice.css"></require>
 
     <div ref="select" class="mdc-select ${readOnly ? 'mdc-select--disabled' : ''} choice-wrapper" role="listbox" tabindex="0">
-        <label class="mdc-textfield ${ settings.Complusory && !value ? 'mdc-textfield--invalid' : ''}">
-            <span class="mdc-textfield__label mdc-textfield__label--float-above">${settings.DisplayName}${settings.Compulsory ? '*' : '' }</span>
+        <label class="mdc-text-field ${ settings.Complusory && !value ? 'mdc-text-field--invalid' : ''}">
+            <span class="mdc-text-field__label mdc-text-field__label--float-above">${settings.DisplayName}${settings.Compulsory ? '*' : '' }</span>
         </label>
         <span class="mdc-select__selected-text" id="${value}">${DefaultText}</span>
         <input type="hidden" required.bind="settings.Compulsory" value.one-way="value" disabled.bind="readOnly" />

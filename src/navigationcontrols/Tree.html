@@ -2,7 +2,7 @@
     <require from='./Tree.css'></require>
     <div if.bind="hasValidContent" class="tree-wrapper mdc-typography--body2" title="${Content.SavedFields.DisplayName || Content.SavedFields.Name}">
         <div class="current-level ${IsSelected ? 'selected' : ''}" click.delegate="Select()" css="padding-left: ${NestingLevel * 0.7}rem"
-            content-drop.call="dropContent(stringifiedContent, stringifiedContentList)">
+            content-drop.call="dropContent(event, stringifiedContent, stringifiedContentList, files)">
             <i class="expand-icon material-icons ${IsExpanded ? 'expanded' : 'collapsed'} ${!HasChildren ? 'no-children' : ''} ${IsLoading ? 'loading' : ''}"
                 click.delegate="Toggle()">keyboard_arrow_down</i>
 

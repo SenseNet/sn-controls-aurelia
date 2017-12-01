@@ -20,10 +20,10 @@ export class ContentReferenceFieldests extends FieldControlBaseTest<ContentRefer
     @test
     public async 'Can not be modified if is read only'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.ReferenceFieldSetting({
-            readOnly: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            ReadOnly: true
+        } as FieldSettings.ReferenceFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({} as any);
         const contentViewElement = document.querySelector('content-reference .search-box');
         expect(contentViewElement).to.be.null;
     }
@@ -32,10 +32,10 @@ export class ContentReferenceFieldests extends FieldControlBaseTest<ContentRefer
     public async 'Required rule is added if complusory'() {
 
         const viewModel = await this.createFieldViewModel();
-        const content = new ContentTypes.Task({} as any, this.mockRepo);
-        const settings = new FieldSettings.ReferenceFieldSetting({
-            compulsory: true
-        });
+        const content = this.mockRepo.HandleLoadedContent({} as any)
+        const settings = {
+            Compulsory: true
+        } as FieldSettings.ReferenceFieldSetting;
 
         viewModel.activate({ content, settings });
 
@@ -46,23 +46,20 @@ export class ContentReferenceFieldests extends FieldControlBaseTest<ContentRefer
     @test
     public 'searchStringChanged should trigger an OData call'(done: MochaDone) {
 
-        const mockRepo = new Mocks.MockRepository();
+        const mockRepo = this.mockRepo = new Mocks.MockRepository();
 
         this.createFieldViewModel().then(viewModel => {
-            const content = mockRepo.CreateContent({}, ContentTypes.Task);
-            const settings = new FieldSettings.ReferenceFieldSetting({
-                compulsory: true,
-                name: 'CreatedBy'
-            });
+            const content = mockRepo.HandleLoadedContent({} as any)
+            const settings = {
+                Compulsory: true,
+                Name: 'CreatedBy'
+            } as FieldSettings.ReferenceFieldSetting;
 
-            mockRepo.httpProviderRef.setResponse(<ODataApi.ODataCollectionResponse<ContentTypes.User>>{ d: { __count: 1, results: [{ Id: 1, Name: 'user' }] } })
-            mockRepo.Authentication.stateSubject.next(Authentication.LoginState.Authenticated);
-
+            mockRepo.Authentication.StateSubject.next(Authentication.LoginState.Authenticated);
             viewModel.activate({ content, settings });
-            mockRepo.httpProviderRef.setResponse(<ODataApi.ODataCollectionResponse<ContentTypes.User>>{ d: { __count: 1, results: [{ Id: 1, Name: 'user' }] } })
 
             setTimeout(() => {
-                mockRepo.httpProviderRef.setResponse(<ODataApi.ODataCollectionResponse<ContentTypes.User>>{
+                mockRepo.HttpProviderRef.AddResponse(<ODataApi.ODataCollectionResponse<ContentTypes.User>>{
                     d: {
                         __count: 1,
                         results: [{
@@ -89,13 +86,13 @@ export class ContentReferenceFieldests extends FieldControlBaseTest<ContentRefer
         this.mockRepo = new Mocks.MockRepository();
 
         this.createFieldViewModel().then(viewModel => {
-            const content = this.mockRepo.HandleLoadedContent({ Id: 123, Path: 'Root/Content1' }, ContentTypes.User);
-            const c1 = this.mockRepo.HandleLoadedContent({ Id: 123, Path: 'Root/Content1' }, ContentTypes.User);
-            const c2 = this.mockRepo.HandleLoadedContent({ Id: 12356, Path: 'Root/Content1' }, ContentTypes.User);
-            const settings = new FieldSettings.ReferenceFieldSetting({
-                compulsory: true,
-                name: 'CreatedBy'
-            });
+            const content = this.mockRepo.HandleLoadedContent({ Id: 123, Path: 'Root/Content1', Name: 'C0' });
+            const c1 = this.mockRepo.HandleLoadedContent({ Id: 123, Path: 'Root/Content1', Name: 'C1' });
+            const c2 = this.mockRepo.HandleLoadedContent({ Id: 12356, Path: 'Root/Content1', Name: 'C1' });
+            const settings = {
+                Compulsory: true,
+                Name: 'CreatedBy'
+            } as FieldSettings.ReferenceFieldSetting;
             viewModel.activate({ content, settings, controller: { validate: () => { } } });
             viewModel.searchString = 'asd';
             viewModel.isOpened = true;
@@ -103,7 +100,7 @@ export class ContentReferenceFieldests extends FieldControlBaseTest<ContentRefer
             viewModel.pickValue(c2);
             expect(viewModel.searchString).to.be.empty;
             expect(viewModel.isOpened).to.be.false;
-            expect(viewModel.value['contentReference']).to.be.eq(c2);
+            expect(viewModel.value['_contentReference']).to.be.eq(c2);
             done();
         }, done);
     }
@@ -131,9 +128,9 @@ export class ContentReferenceFieldests extends FieldControlBaseTest<ContentRefer
     public async 'FocusOut'() {
         const viewModel = await this.createFieldViewModel();
         viewModel.controller = { validate: () => { } } as any;
-        viewModel.settings = new FieldSettings.ReferenceFieldSetting({
-            compulsory: true
-        })
+        viewModel.settings = {
+            Compulsory: true
+        } as FieldSettings.ReferenceFieldSetting;
 
         viewModel.isFocused = true;
         viewModel.isOpened = true;
@@ -145,21 +142,21 @@ export class ContentReferenceFieldests extends FieldControlBaseTest<ContentRefer
     @test
     public async 'removeItem'() {
         const viewModel = await this.createFieldViewModel();
-        const content = this.mockRepo.HandleLoadedContent({ Id: 123, Path: 'Root/Content1' }, ContentTypes.User);
+        const content = this.mockRepo.HandleLoadedContent({ Id: 123, Path: 'Root/Content1', Name: 'C1' });
 
         viewModel.content = content;
         viewModel.controller = { validate: () => { } } as any;
-        viewModel.settings = new FieldSettings.ReferenceFieldSetting({
-            compulsory: true,
-            name: 'CreatedBy'
-        });
+        viewModel.settings = {
+            Compulsory: true,
+            Name: 'CreatedBy'
+        } as FieldSettings.ReferenceFieldSetting;
 
 
-        const c1 = this.mockRepo.HandleLoadedContent({ Id: 123, Path: 'Root/Content1' }, ContentTypes.User);
+        const c1 = this.mockRepo.HandleLoadedContent({ Id: 123, Path: 'Root/Content1', Name: 'C1' });
         viewModel.Item = c1;
 
         viewModel.removeItem();
         expect(viewModel.Item).to.be.null;
-        expect(viewModel.value['contentReference']).to.be.null;
+        expect(viewModel.value['_contentReference']).to.be.null;
     }
 }

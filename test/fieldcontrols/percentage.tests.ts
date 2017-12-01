@@ -20,10 +20,10 @@ export class PercentageTests extends FieldControlBaseTest<Percentage> {
     @test
     public async 'Can not be modified if is read only'() {
         const viewModel = await this.createFieldViewModel();       
-        viewModel.settings = new FieldSettings.NumberFieldSetting({
-            readOnly: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            ReadOnly: true
+        } as FieldSettings.NumberFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12487, Path: 'root/path', Name: 'C1'}); ;
         const contentViewElement = document.querySelector('percentage .mdc-slider') as HTMLInputElement;
         expect(contentViewElement.getAttribute('aria-disabled')).to.be.eq('true');
     }
@@ -32,15 +32,18 @@ export class PercentageTests extends FieldControlBaseTest<Percentage> {
     public async 'Value will be bound back on change'() {
         const viewModel = await this.createFieldViewModel();       
         
-        const content = new ContentTypes.Task({
+        const content = this.mockRepo.HandleLoadedContent<ContentTypes.Task>({
+            Id: 12976,
+            Path: 'root/path',
+            Name: 'TestTask',
             TaskCompletion: 5
-        }, this.mockRepo) as any;
+        }) as any;
         
 
-        const settings = new FieldSettings.NumberFieldSetting({
-            readOnly: true,
-            name: 'TaskCompletion'
-        });
+        const settings = {
+            ReadOnly: true,
+            Name: 'TaskCompletion'
+        } as FieldSettings.NumberFieldSetting;
         viewModel.activate({content, settings, controller: null as any, actionName: 'edit' });
 
         viewModel.mdcSlider.stepUp(6);

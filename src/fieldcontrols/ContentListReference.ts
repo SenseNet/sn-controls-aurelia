@@ -1,16 +1,21 @@
+/**
+ * @module FieldControls
+ * 
+ */ /** */
+
 import { FieldBaseControl } from './FieldBaseControl';
-import { FieldSettings, ContentListReferenceField, Content, SavedContent, QueryResult } from 'sn-client-js';
+import { FieldSettings, ContentListReferenceField, Content, SavedContent, QueryResult, IContent } from 'sn-client-js';
 import { customElement, bindable } from 'aurelia-framework';
-import { Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
 
 @customElement('contentlist-reference')
-export class ContentListReference extends FieldBaseControl<ContentListReferenceField<Content>, FieldSettings.ReferenceFieldSetting> {
+export class ContentListReference extends FieldBaseControl<ContentListReferenceField<IContent>, FieldSettings.ReferenceFieldSetting> {
 
     @bindable
-    Items: SavedContent<Content>[] = [];
+    Items: SavedContent[] = [];
 
     @bindable
-    public availableValues: SavedContent<Content>[] = [];
+    public availableValues: SavedContent[] = [];
 
 
     @bindable
@@ -28,7 +33,7 @@ export class ContentListReference extends FieldBaseControl<ContentListReferenceF
     @bindable
     selectionIndex: number = 0;
 
-    searchStringChanged(newValue: string): Observable<QueryResult<Content>> {
+    searchStringChanged(newValue: string): Observable<QueryResult> {
         const req = newValue && this.value && this.value.Search(newValue, 10, 0, { select: 'all' })
             .Exec().share();
         req && req.subscribe(res => {
@@ -37,7 +42,7 @@ export class ContentListReference extends FieldBaseControl<ContentListReferenceF
             this.selectionIndex = 0;
         }, err => {
         }) || (this.availableValues = []);
-        return req || Observable.of<QueryResult<Content>>({Count: 0, Result: []});
+        return req || Observable.of<QueryResult>({Count: 0, Result: []});
     }
 
     removeReference(item: Content) {
@@ -54,7 +59,7 @@ export class ContentListReference extends FieldBaseControl<ContentListReferenceF
         });
     }
 
-    pickValue(content: SavedContent<Content>) {
+    pickValue(content: SavedContent) {
         this.Items.push(content);
         this.Items = this.Items.map(a => a);
 

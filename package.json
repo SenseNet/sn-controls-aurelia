@@ -1,6 +1,6 @@
 {
   "name": "sn-controls-aurelia",
-  "version": "1.0.0",
+  "version": "2.0.0-development.5",
   "description": "Aurelia controls for sensenet ECM",
   "main": "./dist/src/index.js",
   "typings": "./src/sn-controls-aurelia.d.ts",
@@ -16,7 +16,7 @@
     "build": "tsc",
     "postbuild": "./node_modules/.bin/cpx \"src/**/*.html\" dist/src && node-sass src -o dist/src",
     "publish:development": "npm publish --tag development",
-    "typedoc": "./node_modules/.bin/typedoc --tsconfig ./tsconfig.typedoc.json --out documentation --excludePrivate --theme default --readme readme.md"
+    "typedoc": "./node_modules/.bin/typedoc --mode modules --tsconfig ./tsconfig.typedoc.json --out documentation --excludePrivate --theme default --readme readme.md ./src"
   },
   "files": [
     "dist",
@@ -58,29 +58,30 @@
     "path": "sensenet-kfi-cz-conventional-changelog"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.4",
-    "@types/lodash": "^4.14.77",
-    "@types/mocha": "^2.2.43",
-    "@types/node": "^8.0.32",
+    "@types/chai": "^4.0.5",
+    "@types/lodash": "^4.14.85",
+    "@types/mocha": "^2.2.44",
+    "@types/node": "^8.0.53",
     "aurelia-bootstrapper": "^2.1.1",
     "aurelia-loader-nodejs": "^1.0.1",
     "aurelia-pal-nodejs": "^1.0.0-beta.2.0.0",
-    "aurelia-templating": "^1.5.0",
-    "aurelia-testing": "^1.0.0-beta.3.0.1",
+    "aurelia-templating": "^1.6.0",
+    "aurelia-templating-binding": "^1.4.0",
+    "aurelia-testing": "^1.0.0-beta.4.0.0",
     "chai": "^4.1.2",
     "codecov.io": "^0.1.6",
     "commitizen": "^2.9.6",
     "cz-conventional-changelog": "^2.0.0",
     "istanbul": "^0.4.5",
     "mocha": "^4.0.0",
-    "mocha-typescript": "^1.1.9",
+    "mocha-typescript": "^1.1.11",
     "reflect-metadata": "^0.1.10",
     "rimraf": "^2.6.2",
-    "tslint": "^5.5.0",
+    "tslint": "^5.8.0",
     "typedoc": "^0.9.0",
     "typedoc-default-themes": "^0.5.0",
     "typedoc-plugin-external-module-name": "^1.0.9",
-    "typescript": "^2.5.3"
+    "typescript": "^2.6.1"
   },
   "dependencies": {
     "@types/quill": "^1.3.3",
@@ -91,13 +92,15 @@
     "aurelia-validation": "^1.1.2",
     "cpx": "^1.5.0",
     "lodash": "^4.17.4",
-    "material-components-web": "^0.24.0",
-    "moment": "^2.18.1",
+    "material-components-web": "^0.25.0",
+    "moment": "^2.19.2",
     "moment-timezone": "^0.5.13",
-    "node-sass": "^4.5.3",
-    "nyc": "^11.2.1",
-    "quill": "^1.3.2",
+    "node-sass": "^4.6.1",
+    "nyc": "^11.3.0",
+    "quill": "^1.3.4",
+    "rxjs": "^5.5.2",
     "sensenet-kfi-cz-conventional-changelog": "^1.0.0",
-    "sn-client-js": "^2.4.1"
+    "sn-client-auth-google": "^1.0.0",
+    "sn-client-js": "^3.0.0"
   }
 }

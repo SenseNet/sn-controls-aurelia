@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { ContentTypes, FieldSettings } from 'sn-client-js';
+import { FieldSettings } from 'sn-client-js';
 import { Number } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
 
@@ -20,10 +20,10 @@ export class NumberFieldTests extends FieldControlBaseTest<Number> {
     @test
     public async 'Can not be modified if is read only'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.ChoiceFieldSetting({
-            readOnly: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            ReadOnly: true
+        } as FieldSettings.IntegerFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12487, Path: 'root/path', Name: 'C1'});
         const contentViewElement = document.querySelector('number-field input') as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
 
@@ -32,10 +32,10 @@ export class NumberFieldTests extends FieldControlBaseTest<Number> {
     @test
     public async 'Required rule is added if complusory'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.settings = new FieldSettings.ChoiceFieldSetting({
-            compulsory: true
-        });
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
+        viewModel.settings = {
+            Compulsory: true
+        } as FieldSettings.IntegerFieldSetting;
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12487, Path: 'root/path', Name: 'C1'});
         const rules = viewModel.rules;
         expect(rules[0][0].messageKey).to.be.eq('required');
     }

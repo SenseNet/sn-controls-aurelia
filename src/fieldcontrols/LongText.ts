@@ -6,7 +6,7 @@
 import { FieldSettings } from 'sn-client-js';
 import { customElement } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
-import { textfield } from 'material-components-web/dist/material-components-web';
+import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
 
 /**
  * Field control for unformatted long text (textarea).
@@ -20,10 +20,10 @@ import { textfield } from 'material-components-web/dist/material-components-web'
 export class LongText extends FieldBaseControl<string, FieldSettings.LongTextFieldSetting> {
 
     textfield: HTMLElement;
-    mdcTextField: textfield.MDCTextField;
+    mdcTextField: MDCTextField;
 
     attached() {
-        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
+        this.mdcTextField = new MDCTextField(this.textfield);
     }
 }
 

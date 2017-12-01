@@ -1,9 +1,9 @@
 <template>
-    <label class="mdc-textfield" title.one-time="settings.Description" ref="datefield">
-        <input type="date" class="mdc-textfield__input" value.bind="value" 
+    <label class="mdc-text-field" title.one-time="settings.Description" ref="datefield">
+        <input type="date" class="mdc-text-field__input" value.bind="value" 
             disabled.bind="readOnly"
             settings-validation.bind="settings"
         />
-        <span class="mdc-textfield__label">${settings.DisplayName}</span>
+        <span class="mdc-text-field__label">${settings.DisplayName}</span>
       </label>
 </template>

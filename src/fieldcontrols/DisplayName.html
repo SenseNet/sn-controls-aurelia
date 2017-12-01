@@ -1,10 +1,10 @@
 <template>
-    <label class="mdc-textfield" title.bind="settings.Description" ref="textfield">
-        <input type="text" class="mdc-textfield__input"
+    <label class="mdc-text-field" title.bind="settings.Description" ref="textfield">
+        <input type="text" class="mdc-text-field__input"
             value.bind="value"
             settings-validation.bind="settings"
             disabled.bind="readOnly"
             required.bind="settings.Compulsory">
-        <span class="mdc-textfield__label">${settings.DisplayName}</span>
+        <span class="mdc-text-field__label">${settings.DisplayName}</span>
       </label>
 </template>

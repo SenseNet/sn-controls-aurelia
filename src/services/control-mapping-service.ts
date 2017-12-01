@@ -1,11 +1,17 @@
+/**
+ * @module Services
+ * 
+ */ /** */
 import { ControlMapper, FieldSettings, ContentTypes } from 'sn-client-js';
 import { Choice, DisplayName, DumpField, DateOnly, DateTime, Password, Percentage, Integer, LongText, NameField, Number as NumberField, RichText, ShortText, Checkbox, ContentReference, ContentListReference } from '../fieldcontrols';
+import { BaseRepository } from 'sn-client-js/dist/src/Repository';
 
 export class ControlMappingService{
 
     private _mappings: ControlMapper<Object, FieldSettings.FieldSetting>;
-    private initMappings() {
-        this._mappings = new ControlMapper(Object, (s) => s, {name: 'GenericView'} as any, DumpField)
+
+    private initMappings(repo: BaseRepository) {
+        this._mappings = new ControlMapper(repo, Object, (s) => s, {name: 'GenericView'} as any, DumpField)
         .SetupFieldSettingDefault(FieldSettings.ShortTextFieldSetting, (setting) => {
             switch (setting.Name) {
                 case 'Name':
@@ -53,9 +59,9 @@ export class ControlMappingService{
 
 
 
-    public get Mappings(){
+    public GetMappings(repo: BaseRepository){
         if (!this._mappings){
-            this.initMappings();
+            this.initMappings(repo);
         }
         return this._mappings;
     } 
