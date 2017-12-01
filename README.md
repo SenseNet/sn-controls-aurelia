@@ -28,19 +28,40 @@ npm install --save sn-controls-aurelia
 You can import into your Aurelia application's entry point
 
 ```ts
+import { Repository } from 'sn-client-js';
+// ... your other imports
 
-import 'sn-controls-aurelia';
-
-// ...
 export async function configure(aurelia: Aurelia) {
     aurelia.use
     .standardConfiguration()
     .developmentLogging()
     // ... your other features and plugins
+    .plugin(PLATFORM.moduleName('aurelia-validation'))
     .plugin(PLATFORM.moduleName('sn-controls-aurelia'));
+
+    aurelia.container.registerSingleton(Repository.BaseRepository, () => {
+        const repo = new Repository.SnRepository(
+        {
+            RepositoryUrl: 'https://my-sn7-instance',
+        });
+
+        return repo;
+    });
 
     await aurelia.start();
     await aurelia.setRoot(PLATFORM.moduleName('app'));
 }
 
+```
+
+If you are using Webpack, add these dependencies into your *webpack.config*'s *plugins* section:
+
+```ts
+new ModuleDependenciesPlugin({
+    "sn-controls-aurelia": [
+    './attributes/ContentDragCustomAttribute',
+    './attributes/ContentDropCustomAttribute',
+    './attributes/SettingsValidationCustomAttribute'
+    ]
+}),
 ```

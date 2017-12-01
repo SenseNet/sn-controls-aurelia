@@ -1,6 +1,12 @@
+/**
+ * @module CollectionControls
+ * 
+ * */ /** */
+
+
 import { bindable, computedFrom, customElement, autoinject } from 'aurelia-framework';
-import { Content, Query, Repository, IContentOptions } from 'sn-client-js';
-import { Subscription } from '@reactivex/rxjs';
+import { Content, Query, Repository, IContent } from 'sn-client-js';
+import { Subscription } from 'rxjs/Subscription';
 import { BindingSignaler } from 'aurelia-templating-resources';
 
 export enum CollectionView {
@@ -9,13 +15,33 @@ export enum CollectionView {
     Details = 'Details',
 }
 
+
+/**
+ * Component that lets you display and work with a simple Content Collection
+ * 
+ * Usage example: 
+ * ```html
+ * <content-list scope.bind="Scope" 
+ *      get-items.call="GetSelectedChildren(scope, query)" 
+ *      on-activate.call="Select(content)"
+ *      on-drop-files.call="FilesDropped(event, files)"
+ *      on-drop-content.call="ContentDropped(content)"
+ *      on-drop-content-list.call="ContentListDropped(contentList)"
+ *      on-drop-content-on-item.call="ContentDroppedOnItem(content, item)"
+ *      on-drop-content-list-on-item.call="ContentListDroppedOnItem(contentList, item)"
+ *      view-type.bind="ViewType"
+ *      query.bind='query'
+ *      selection.two-way="SelectedContent"
+ *      actions.bind="exploreActions"></content-list>
+ * ```
+ */
 @customElement('content-list')
 @autoinject
 export class ContentList {
 
     protected readonly selectionChangedSignalKey = 'content-list-selection-changed';
     constructor(
-        private readonly bindingSignaler: BindingSignaler        
+        private readonly bindingSignaler: BindingSignaler
     ) {
     }
 
@@ -30,7 +56,7 @@ export class ContentList {
 
     @computedFrom('Scope')
     get hasScope(): boolean {
-        return this.Scope && this.Scope.options && Object.keys(this.Scope.SavedFields).length > 0 || false;
+        return this.Scope && this.Scope.SavedFields && Object.keys(this.Scope.SavedFields).length > 0 || false;
     }
 
     @bindable
@@ -62,6 +88,44 @@ export class ContentList {
 
     @bindable
     public Actions: { name: string; action: (content: Content) => void }[] = [];
+
+    @bindable 
+    public OnDropFiles: (params: {event: DragEvent, files: FileList}) => void = (params) => {
+    };
+
+    @bindable 
+    public OnDropContent: (params: {event: DragEvent, content: Content}) => void = (params: {content: Content}) => {
+        if (this.Scope.Path && this.Scope.Path !== params.content.ParentPath && this.Scope.Path !== params.content.Path && !params.content.IsAncestorOf(this.Scope)) {
+            params.content.MoveTo(this.Scope.Path);
+        }
+    }
+
+    
+    @bindable 
+    public OnDropContentOnItem: (params: {event: DragEvent, content: Content, item: Content}) => void = (params) => {
+        if (params.item.Path && params.item.Path !== params.content.ParentPath && params.item.Path !== params.content.Path && !params.content.IsAncestorOf(params.item)) {
+            params.content.MoveTo(params.item.Path);
+        }
+    }
+
+    @bindable
+    public OnDropContentList: (params: {event: DragEvent, contentList: Content[]}) => void = (params) => {
+        if (this.Scope.Path){
+            params.contentList.forEach(c => this.OnDropContent({content: c, event: params.event}));
+        }
+    };
+
+    public OnDropFilesOnItem: (params: {files: FileList, item: Content, event: DragEvent, }) => void = (params) => {
+        console.log('Dropped files on item', params);
+    };
+    
+
+    @bindable
+    public OnDropContentListOnItem: (params: {contentList: Content[], item: Content, event: DragEvent, }) => void = (params) => {
+        if (this.Scope.Path){
+            params.contentList.forEach(c => this.OnDropContentOnItem({content: c, item: params.item, event: params.event}));
+        }
+    };    
 
     public triggerAction(event: MouseEvent, action: (item: Content) => void, item: Content) {
         event.stopPropagation();
@@ -129,12 +193,15 @@ export class ContentList {
             return;
         }
 
-        const index = this.Selection.indexOf(content);
+        const tempSelection = this.Selection.map(s => s);
+
+        const index = tempSelection.indexOf(content);
         if (index === -1) {
-            this.Selection.push(content);
+            tempSelection.push(content);
         } else {
-            this.Selection.splice(index, 1);
+            tempSelection.splice(index, 1);
         }
+        this.Selection = tempSelection;
         setTimeout(() => {
             this.bindingSignaler.signal(this.selectionChangedSignalKey);
         });
@@ -182,14 +249,14 @@ export class ContentList {
     public Items: Content[];
 
     @bindable
-    public ReloadOnContentChange: (change: Content | IContentOptions) => boolean =
-    (content) => {
+    public ReloadOnContentChange: (change: Content | IContent) => boolean =
+    (content: Content | IContent) => {
         return true;
         // ToDo: check this based on scope and Query
-        // return this.hasScope && ( isContent(content) && this.Scope.IsAncestorOf(content)) || (content.Path && this.Scope.IsAncestorOf(content as any)) || false;
+        // return (this.Query !== undefined)  || this.hasScope && ( isContent(content) && this.Scope.IsAncestorOf(content as Content)) || (content.Path && this.Scope.IsAncestorOf(content as any)) || false;
     }
 
-    handleContentChanges(...changes: (Content | IContentOptions)[]) {
+    handleContentChanges(...changes: (Content | IContent)[]) {
         changes.forEach(change => {
             if (this.ReloadOnContentChange(change)) {
                 this.Reinitialize();
@@ -199,10 +266,33 @@ export class ContentList {
         return;
     }
 
-    dropContent(stringifiedContent: string) {
-        const droppedContent = this.Repository.ParseContent(stringifiedContent);
-        if (this.Scope.Path && this.Scope.Path !== droppedContent.ParentPath && this.Scope.Path !== droppedContent.Path && !droppedContent.IsAncestorOf(this.Scope)) {
-            droppedContent.MoveTo(this.Scope.Path);
+    dropContent(event: DragEvent, stringifiedContent: string, stringifiedContentList?: string[], files?: FileList) {
+        if (stringifiedContent){
+            const droppedContent = this.Repository.ParseContent(stringifiedContent);
+            this.OnDropContent({event, content: droppedContent});
+        }
+        if (stringifiedContentList){
+            const contentList = stringifiedContentList.map(c => this.Repository.ParseContent(c))
+            this.OnDropContentList({event, contentList});
+        }
+
+        if (files){
+            this.OnDropFiles({event, files});
+        }
+    }
+
+    dropContentOnItem(event: DragEvent, item: Content, stringifiedContent?: string, stringifiedContentList?: string[], files?: FileList){
+        if (stringifiedContent){
+            const droppedContent = this.Repository.ParseContent(stringifiedContent);
+            this.OnDropContentOnItem({event, content: droppedContent, item});
+        }
+        if (stringifiedContentList){
+            const contentList = stringifiedContentList.map(c => this.Repository.ParseContent(c))
+            this.OnDropContentListOnItem({event, contentList, item});
+        }
+
+        if (files){
+            this.OnDropFilesOnItem({event, files, item});
         }
     }
 }

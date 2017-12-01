@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { ContentTypes, FieldSettings } from 'sn-client-js';
+import { FieldSettings } from 'sn-client-js';
 import { LongText } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
 
@@ -21,10 +21,10 @@ export class LongTextTests extends FieldControlBaseTest<LongText> {
     @test
     public async 'Can not be modified if is read only'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
-        viewModel.settings = new FieldSettings.ChoiceFieldSetting({
-            readOnly: true
-        });
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''});
+        viewModel.settings = {
+            ReadOnly: true
+        } as FieldSettings.ChoiceFieldSetting;
 
         const contentViewElement = document.querySelector('long-text') as any;
         expect(contentViewElement.au.controller.viewModel.readOnly).to.be.eq(true);
@@ -34,10 +34,10 @@ export class LongTextTests extends FieldControlBaseTest<LongText> {
     @test
     public async 'Required rule is added if complusory'() {
         const viewModel = await this.createFieldViewModel();
-        viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
-        viewModel.settings = new FieldSettings.ChoiceFieldSetting({
-            compulsory: true
-        });
+        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''});
+        viewModel.settings = {
+            Compulsory: true
+        } as FieldSettings.ChoiceFieldSetting;
         const rules = viewModel.rules;
         expect(rules[0][0].messageKey).to.be.eq('required');
     }

@@ -5,8 +5,8 @@
 
 import { bindable, computedFrom, autoinject } from 'aurelia-framework';
 import { Content, Repository } from 'sn-client-js';
-import { Subscription } from '@reactivex/rxjs';
-import { Observable } from '@reactivex/rxjs';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 /**
  * A tree with bindable Root content and Selection.
@@ -23,7 +23,7 @@ export class Tree {
 
     @computedFrom('Content')
     get Repository(): Repository.BaseRepository {
-        return this.Content['repository'];
+        return this.Content.GetRepository();
     };
 
     @bindable
@@ -84,13 +84,14 @@ export class Tree {
 
     @computedFrom('Content')
     get hasValidContent(): boolean {
-        return this.Content && this.Content.options && Object.keys(this.Content.SavedFields).length > 0;
+        return this.Content && this.Content.SavedFields && Object.keys(this.Content.SavedFields).length > 0;
     }
 
     /**
      * Triggers an Expand on the current level (also used to load Children content)
      */
-    async Expand(): Promise<void> {
+    @bindable
+    Expand: () => Promise<void> = () => {
         return new Promise<void>((resolve, reject) => {
             this.IsExpanded = true;
             this.IsLoading = true;
@@ -98,8 +99,9 @@ export class Tree {
             this.Content.Children({
                 metadata: 'no',
                 expand: ['Workspace'],
-                select: ['Path', 'Id', 'Name', 'DisplayName', 'Icon'],
-                orderby: ['DisplayName', 'Name']
+                select: ['Path', 'Id', 'Name', 'DisplayName', 'Icon', 'IsFolder'],
+                orderby: ['DisplayName', 'Name'],
+                filter: 'IsFolder'
             }).subscribe(children => {
                 setTimeout(() => {
                     this.Children = children;
@@ -191,7 +193,9 @@ export class Tree {
                 this.IsLoading = true;
                 const request = this.Repository.Load(moved.Content.Id || moved.Content.Path || '', { select: 'all' });
                 request.subscribe(c => {
-                    this.Children.push(c);
+                    if (c.IsFolder){
+                        this.Children.push(c);
+                    }
                     this.IsLoading = false;
                     this.ReorderChildren();
                 }, err => {
@@ -214,22 +218,43 @@ export class Tree {
     detached() {
         this.clearSubscriptions();
     }
-    async dropContent(stringifiedContent?: string, stringifiedContentList?: string[]) {
-        if (stringifiedContentList && stringifiedContentList.length) {
 
-            // ToDo: To batch operation
-            for (const content of stringifiedContentList){
-                await this.dropContent(content)
+    @bindable 
+    public OnDropContent: (params: {event: DragEvent, content: Content}) => void = (params: {content: Content}) => {
+        if (this.Content.Path && this.Content.Path !== params.content.ParentPath && this.Content.Path !== params.content.Path && !params.content.IsAncestorOf(this.Content)) {
+            params.content.MoveTo(this.Content.Path);
+        }
+    }
+
+    @bindable
+    public OnDropContentList: (params: {event: DragEvent, contentList: Content[]}) => void = (params) => {
+        if (this.Content.Path){
+            if (params.event.ctrlKey){
+                this.Repository.CopyBatch(params.contentList, this.Content.Path);
+            } else {
+                this.Repository.MoveBatch(params.contentList, this.Content.Path);
             }
-            // stringifiedContentList.forEach(item => {
-            //     this.dropContent(item);
-            // })
-        } else if (stringifiedContent) {
+        }
+    };
 
+    @bindable 
+    public OnDropFiles: (params: {event: DragEvent, files: FileList}) => void = (params) => {
+
+    };    
+
+    async dropContent(event: DragEvent, stringifiedContent: string, stringifiedContentList?: string[], files?: FileList) {
+
+        if (stringifiedContent){
             const droppedContent = this.Repository.ParseContent(stringifiedContent);
-            if (this.Content.Path && this.Content.Path !== droppedContent.ParentPath && this.Content.Path !== droppedContent.Path && !droppedContent.IsAncestorOf(this.Content)) {
-                await droppedContent.MoveTo(this.Content.Path).toPromise();
-            }
+            this.OnDropContent({event, content: droppedContent});
+        }
+        if (stringifiedContentList){
+            const contentList = stringifiedContentList.map(c => this.Repository.ParseContent(c))
+            this.OnDropContentList({event, contentList});
+        }
+
+        if (files){
+            this.OnDropFiles({event, files});
         }
     }
 }

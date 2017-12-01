@@ -1,6 +1,5 @@
 // ToDo: Refactor to TestInit module
 import 'aurelia-polyfills';
-import '@reactivex/rxjs';
 import * as Path from 'path';
 import { initialize, globalize } from 'aurelia-pal-nodejs';
 import { Options, ExtensionHandlers } from 'aurelia-loader-nodejs';

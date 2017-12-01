@@ -5,7 +5,8 @@
 
 import { bindable, computedFrom } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
-import { FieldSettings, Content, ContentTypes, ODataHelper } from 'sn-client-js';
+import { FieldSettings, Content, ODataHelper } from 'sn-client-js';
+import { User } from 'sn-client-js/dist/src/ContentTypes';
 
 
 /**
@@ -38,7 +39,7 @@ export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
     }
     
     @bindable
-    public Content: Content;
+    public content: Content<User>;
     @bindable
     public HasAvatar: boolean = false;
 
@@ -48,7 +49,7 @@ export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
 
     @computedFrom('Content')
     public get MaterialIconName(): string {
-        return this.Content && this.Content.Icon && this.iconNames[this.Content.Icon] || 'folder';
+        return this.content && this.content.Icon && this.iconNames[this.content.Icon] || 'folder';
     }
 
     public ContentChanged(){
@@ -57,8 +58,11 @@ export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
 
 
     public TryLoadAvatar(){
-        if (this.Content instanceof ContentTypes.User && this.Content.ImageData && this.Content.ImageData.__mediaresource.media_src){
-            this.IconImage = ODataHelper.joinPaths(this.Content.GetRepository().Config.RepositoryUrl, this.Content.ImageData.__mediaresource.media_src);
+        if (this.content && (this.content as User).ImageData){
+            if (this.content.ImageData && this.content.ImageData.__mediaresource.media_src){
+                this.IconImage = ODataHelper.joinPaths(this.content.GetRepository().Config.RepositoryUrl, this.content.ImageData.__mediaresource.media_src);
+            }
+   
         }
     }
 }

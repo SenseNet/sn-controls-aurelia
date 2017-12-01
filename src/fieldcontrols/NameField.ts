@@ -7,7 +7,7 @@ import { FieldSettings } from 'sn-client-js';
 import { autoinject, computedFrom } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
 import { customElement } from 'aurelia-templating';
-import { textfield } from 'material-components-web/dist/material-components-web';
+import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
 
 
 /**
@@ -23,7 +23,7 @@ import { textfield } from 'material-components-web/dist/material-components-web'
 export class NameField extends FieldBaseControl<string, FieldSettings.ShortTextFieldSetting> {
 
     textfield: HTMLElement;
-    mdcTextField: textfield.MDCTextField;
+    mdcTextField: MDCTextField;
 
     @computedFrom('content')
     get parentPath(): string{
@@ -31,7 +31,7 @@ export class NameField extends FieldBaseControl<string, FieldSettings.ShortTextF
     }
 
     attached() {
-        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
+        this.mdcTextField = new MDCTextField(this.textfield);
     }
 
 

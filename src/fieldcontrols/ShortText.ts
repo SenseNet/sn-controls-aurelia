@@ -9,7 +9,7 @@ import { customElement } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
 import { ValidationRules } from 'aurelia-validation';
 
-import { textfield } from 'material-components-web/dist/material-components-web';
+import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
 
 
 /**
@@ -36,10 +36,10 @@ export class ShortText extends FieldBaseControl<string, FieldSettings.ShortTextF
 
 
     textfield: HTMLElement;
-    mdcTextField: textfield.MDCTextField;
+    mdcTextField: MDCTextField;
 
     attached(){
-        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
+        this.mdcTextField = new MDCTextField(this.textfield);
     }
 
 }

@@ -60,7 +60,8 @@ export class ContentDropTests {
         const ev = new MockDragEvent();
         ev.dataTransfer.setData(DragTypes.Content, this.repo.HandleLoadedContent({
             Id: 123,
-            Path: 'Root/Example'
+            Path: 'Root/Example',
+            Name: 'C1'
         }).Stringify());
         this.attribute.handler = handler;
         this.attribute.dragDrop(ev);
@@ -87,11 +88,13 @@ export class ContentDropTests {
         ev.dataTransfer.setData(DragTypes.ContentList, JSON.stringify([
             this.repo.HandleLoadedContent({
                 Id: 123,
-                Path: 'Root/Example'
+                Path: 'Root/Example',
+                Name: 'C1'
             }).Stringify(),
             this.repo.HandleLoadedContent({
                 Id: 321,
-                Path: 'Root/Example2'
+                Path: 'Root/Example2',
+                Name: 'C2'
             }).Stringify()
         ]));
         this.attribute.handler = handler;

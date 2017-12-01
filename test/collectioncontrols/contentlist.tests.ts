@@ -3,7 +3,6 @@ import { suite, test } from 'mocha-typescript';
 import { ComponentTestBase } from '../component-test.base';
 import { ContentList } from '../../src/collectioncontrols';
 import { MockDragEvent } from '../index';
-import { Authentication } from 'sn-client-js';
 
 @suite('ContentList component')
 export class ContentListTests extends ComponentTestBase<ContentList> {
@@ -34,7 +33,7 @@ export class ContentListTests extends ComponentTestBase<ContentList> {
         Id: 10004,
         Path: 'Root/Item4',
         Name: 'Item4'
-    })    
+    })
 
     @test
     public async 'Can be constructed'() {
@@ -111,7 +110,8 @@ export class ContentListTests extends ComponentTestBase<ContentList> {
                 done();
             }, this.mockRepo.HandleLoadedContent({
                 Id: 123,
-                Path: 'root'
+                Path: 'root',
+                Name: 'C1'
             }));
         })
     }
@@ -240,7 +240,7 @@ export class ContentListTests extends ComponentTestBase<ContentList> {
             expect(viewModel.isSelected(this.item1)).to.be.false;
             expect(viewModel.isSelected(this.item2)).to.be.true;
             expect(viewModel.isSelected(this.item3)).to.be.true;
-            expect(viewModel.isSelected(this.item4)).to.be.true;            
+            expect(viewModel.isSelected(this.item4)).to.be.true;
 
             done();
         })
@@ -273,7 +273,7 @@ export class ContentListTests extends ComponentTestBase<ContentList> {
     }
 
     @test
-    'Reinitialize() should return, if triggered twice while loading'(done: MochaDone){
+    'Reinitialize() should return, if triggered twice while loading'(done: MochaDone) {
         this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
             viewModel.Query = this.mockRepo.CreateQuery(q => q.Equals('DisplayName', 'Example'));
             viewModel.GetItems = () => {
@@ -288,7 +288,7 @@ export class ContentListTests extends ComponentTestBase<ContentList> {
     }
 
     @test
-    'ReloadOnContentChange() should return true'(done: MochaDone){
+    'ReloadOnContentChange() should return true'(done: MochaDone) {
         this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
             expect(viewModel.ReloadOnContentChange(null as any)).to.be.true;
             done();
@@ -296,37 +296,90 @@ export class ContentListTests extends ComponentTestBase<ContentList> {
     }
 
     @test
-    'handleContentChanges() should trigger a reinitialize'(done: MochaDone){
+    'handleContentChanges() should trigger a reinitialize'(done: MochaDone) {
         this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
             viewModel.GetItems = () => {
                 return new Promise((resolve, reject) => {
                     setTimeout(() => resolve(), 10);
                 })
             }
-            viewModel.handleContentChanges({Id: 123});
+            viewModel.handleContentChanges({ Id: 123 });
             expect(viewModel.IsLoading).to.be.true;
             done();
         });
     }
 
     @test
-    'dropContent() should trigger a move operation if the Content is in the scope'(done: MochaDone){
+    'dropContent() should trigger OnDropContent if the Content is in the scope'(done: MochaDone) {
         this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
-            this.mockRepo.httpProviderRef.setResponse({
-                ...viewModel.Scope,
-                Path: 'Root2/Example',
-                Name: 'Example'
-            });
-            this.mockRepo.Authentication.stateSubject.next(Authentication.LoginState.Authenticated);
-            this.mockRepo.Events.OnContentMoved.first().subscribe(u => {
+            viewModel.Scope = this.item4;
+            viewModel.OnDropContent = (ev) => {
+                expect(ev.content).to.be.eq(this.item1);
                 done();
-            }, done);
-            viewModel.Scope = this.mockRepo.HandleLoadedContent({
-                Id: 123,
-                Path: 'Root2',
-                Name: 'Root'
-            })
-            viewModel.dropContent(this.item1.Stringify());
+            }
+            viewModel.dropContent(null as any, this.item1.Stringify());
+        });
+    }
+    @test
+    'dropContent() should trigger OnDropContentList for multiple content if the Content is in the scope'(done: MochaDone) {
+        this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
+            viewModel.Scope = this.item4;
+            viewModel.OnDropContentList = (ev) => {
+                expect(ev.contentList[0]).to.be.eq(this.item1);
+                expect(ev.contentList[1]).to.be.eq(this.item2);
+                done();
+            }
+            viewModel.dropContent(null as any, null as any, [this.item1.Stringify(), this.item2.Stringify()]);
+        });
+    }
+
+    @test
+    'dropContent() should trigger OnDropFiles for files'(done: MochaDone) {
+        this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
+            const fileList = {};
+            viewModel.Scope = this.item4;
+            viewModel.OnDropFiles = (ev) => {
+                expect(ev.files).to.be.eq(fileList);
+                done()
+            };
+            viewModel.dropContent(null as any, null as any, null as any, fileList as any);
+        });
+    }
+
+    @test
+    'dropContentOnItem() should trigger OnDropContent if the Content is in the scope'(done: MochaDone) {
+        this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
+            viewModel.Scope = this.item4;
+            viewModel.OnDropContentOnItem = (ev) => {
+                expect(ev.content).to.be.eq(this.item1);
+                done();
+            }
+            viewModel.dropContentOnItem(null as any, this.item3, this.item1.Stringify());
+        });
+    }
+    @test
+    'dropContentOnItem() should trigger OnDropContentList for multiple content if the Content is in the scope'(done: MochaDone) {
+        this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
+            viewModel.Scope = this.item4;
+            viewModel.OnDropContentListOnItem = (ev) => {
+                expect(ev.contentList[0]).to.be.eq(this.item1);
+                expect(ev.contentList[1]).to.be.eq(this.item2);
+                done();
+            }
+            viewModel.dropContentOnItem(null as any, this.item3, null as any, [this.item1.Stringify(), this.item2.Stringify()]);
+        });
+    }
+
+    @test
+    'dropContentOnItem() should trigger OnDropFiles for files'(done: MochaDone) {
+        this.createAndGetViewModel('<content-list></content-list>', 'content-list').then((viewModel) => {
+            const fileList = {};
+            viewModel.Scope = this.item4;
+            viewModel.OnDropFilesOnItem = (ev) => { 
+                expect(ev.files).to.be.eq(fileList);
+                done()
+            };
+            viewModel.dropContentOnItem(null as any, this.item3, null as any, null as any, fileList as any);
         });
     }
 }

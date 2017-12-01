@@ -6,7 +6,7 @@
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings } from 'sn-client-js';
 import { customElement } from 'aurelia-framework';
-import { textfield } from 'material-components-web/dist/material-components-web';
+import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
 
 /**
  * Field control for number fields.
@@ -20,9 +20,9 @@ import { textfield } from 'material-components-web/dist/material-components-web'
 export class Number  extends FieldBaseControl<number, FieldSettings.NumberFieldSetting> {
 
     textfield: HTMLElement;
-    mdcTextField: textfield.MDCTextField;
+    mdcTextField: MDCTextField;
 
     attached(){
-        this.mdcTextField = new textfield.MDCTextfield(this.textfield);
+        this.mdcTextField = new MDCTextField(this.textfield);
     }
 }

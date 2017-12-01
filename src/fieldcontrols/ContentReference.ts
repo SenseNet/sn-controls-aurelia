@@ -1,16 +1,21 @@
+/**
+ * @module FieldControls
+ * 
+ */ /** */
+
 import { FieldBaseControl } from './FieldBaseControl';
-import { FieldSettings, ContentReferenceField, Content, SavedContent, QueryResult } from 'sn-client-js';
+import { FieldSettings, ContentReferenceField, SavedContent, QueryResult, IContent } from 'sn-client-js';
 import { customElement, bindable } from 'aurelia-framework';
-import { Observable } from '@reactivex/rxjs';
+import { Observable } from 'rxjs/Observable';
 
 @customElement('content-reference')
-export class ContentReference extends FieldBaseControl<ContentReferenceField<Content>, FieldSettings.ReferenceFieldSetting> {
+export class ContentReference extends FieldBaseControl<ContentReferenceField<IContent>, FieldSettings.ReferenceFieldSetting> {
 
     @bindable
-    Item: SavedContent<Content>;
+    Item: SavedContent;
 
     @bindable
-    public availableValues: SavedContent<Content>[] = [];
+    public availableValues: SavedContent[] = [];
 
 
     @bindable
@@ -28,16 +33,16 @@ export class ContentReference extends FieldBaseControl<ContentReferenceField<Con
     @bindable
     selectionIndex: number = 0;
 
-    searchStringChanged(newValue: string): Observable<QueryResult<Content>> {
+    searchStringChanged(newValue: string): Observable<QueryResult> {
         const req = newValue && this.value && this.value.Search(newValue, 10, 0, { select: 'all' })
-            .Exec().share();
+            .Exec();
         req && req.subscribe(res => {
             this.availableValues = res.Result.filter(a => a !== this.content);
             this.isOpened = true;
             this.selectionIndex = 0;
         }, err => {
         }) || (this.availableValues = []);
-        return req || Observable.of<QueryResult<Content>>({Count: 0, Result: []});
+        return req || Observable.of<QueryResult>({Count: 0, Result: []});
     }
 
     activate(model) {
@@ -49,7 +54,7 @@ export class ContentReference extends FieldBaseControl<ContentReferenceField<Con
         });
     }
 
-    pickValue(content: SavedContent<Content>) {
+    pickValue(content: SavedContent) {
         this.Item = content;
 
         this.searchString = '';
