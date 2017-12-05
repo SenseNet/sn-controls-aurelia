@@ -49,7 +49,7 @@ export class ContentReferenceFieldests extends FieldControlBaseTest<ContentRefer
         const mockRepo = this.mockRepo = new Mocks.MockRepository();
 
         this.createFieldViewModel().then(viewModel => {
-            const content = mockRepo.HandleLoadedContent({} as any)
+            const content = mockRepo.HandleLoadedContent({Name: 'TestContent', Path: 'Root/Example/Test', Id: 817235})
             const settings = {
                 Compulsory: true,
                 Name: 'CreatedBy'
