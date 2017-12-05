@@ -32,7 +32,7 @@ export class ContentListReferenceFieldests extends FieldControlBaseTest<ContentL
     @test
     public async 'Required rule is added if complusory'() {
         const viewModel = await this.createFieldViewModel();
-        const content = this.mockRepo.HandleLoadedContent({Id: 123827, Path: 'asd', Name: ''});
+        const content = this.mockRepo.HandleLoadedContent({Id: 123827, Path: 'asd', Name: 'Test'}, ContentTypes.Task);
         const settings = {
             Compulsory: true
         } as FieldSettings.ReferenceFieldSetting;
@@ -47,7 +47,7 @@ export class ContentListReferenceFieldests extends FieldControlBaseTest<ContentL
         const mockRepo = new Mocks.MockRepository();
 
         this.createFieldViewModel().then(viewModel => {
-            const content = mockRepo.CreateContent({Type: 'Group'}, Group);
+            const content = mockRepo.HandleLoadedContent({Name: 'TestGroup', Id: 1238756, Path: 'Root/Example/TestGroup'}, Group);
             const settings = {
                 Compulsory: true,
                 Name: 'Members'
@@ -55,25 +55,25 @@ export class ContentListReferenceFieldests extends FieldControlBaseTest<ContentL
             mockRepo.Authentication.StateSubject.next(Authentication.LoginState.Authenticated);
             viewModel.activate({ content, settings });
 
-            setTimeout(() => {
-                mockRepo.HttpProviderRef.AddResponse(<ODataApi.ODataCollectionResponse<ContentTypes.User>>{
-                    d: {
-                        __count: 1,
-                        results: [{
-                            Id: 4,
-                            Name: 'alma'
-                        }]
-                    },
-                });
+            setTimeout(() => {                
+            mockRepo.HttpProviderRef
+            .AddResponse(<ODataApi.ODataCollectionResponse<ContentTypes.User>>{
+                d: {
+                    __count: 1,
+                    results: [{
+                        Id: 4,
+                        Name: 'alma',
+                        Path: 'Root/Test'
+                    }]
+                },
+            });
 
-                viewModel.searchStringChanged('alma').subscribe(r => {
-                    expect(r.Count).to.be.eq(1);
-                    expect(r.Result[0].Name).to.be.eq('alma');
-                    done();
-                }, done);
-
-            }, 200);
-
+            viewModel.searchStringChanged('alma').subscribe(r => {
+                expect(r.Count).to.be.eq(1);
+                expect(r.Result[0].Name).to.be.eq('alma');
+                done();
+            }, done);
+        }, 200);
         }, done);
     }
 

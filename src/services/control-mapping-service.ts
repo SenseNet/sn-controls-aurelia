@@ -5,13 +5,14 @@
 import { ControlMapper, FieldSettings, ContentTypes } from 'sn-client-js';
 import { Choice, DisplayName, DumpField, DateOnly, DateTime, Password, Percentage, Integer, LongText, NameField, Number as NumberField, RichText, ShortText, Checkbox, ContentReference, ContentListReference } from '../fieldcontrols';
 import { BaseRepository } from 'sn-client-js/dist/src/Repository';
+import { GenericView } from '../index';
 
 export class ControlMappingService{
 
     private _mappings: ControlMapper<Object, FieldSettings.FieldSetting>;
 
     private initMappings(repo: BaseRepository) {
-        this._mappings = new ControlMapper(repo, Object, (s) => s, {name: 'GenericView'} as any, DumpField)
+        this._mappings = new ControlMapper(repo, Object, (s) => s, GenericView, DumpField)
         .SetupFieldSettingDefault(FieldSettings.ShortTextFieldSetting, (setting) => {
             switch (setting.Name) {
                 case 'Name':
