@@ -3,19 +3,20 @@
     <require from="./ContentListCards.css"></require>
     <require from='./ContentListSimple.css'></require>
 
-    <div class="content-collection-wrapper">
+    <div class="content-collection-wrapper" keydown.delegate="handleKeyPress($event)" tabindex="0">
         <div class="simple-list" if.bind="ViewType == 'List'">
-            <div class="contentlist-simple-wrapper" content-drop.call="dropContent(stringifiedContent, stringifiedContentList, files)">
+            <div class="contentlist-simple-wrapper" content-drop.call="dropContent(event, stringifiedContent, stringifiedContentList, files)">
                 <ul class="mdc-list">
-                    <li if.bind="ShowScope" class="mdc-list-item" dblclick.delegate="activateItem(Scope)">
-                        <span class="mdc-list-item__text">
-                            ...
+                    <li if.bind="ShowScope && hasParent" class="mdc-list-item mdc-ripple-surface mdc-animation-acceleration-curve parent-item ${LastSelectionIndex === -1 ? 'focused' : '' & signal:'content-list-selection-changed'}"
+                        dblclick.delegate="activateItem(Scope)">
+                        <span class="mdc-list-item__text parent-wrapper">
+                            [ ... ]
                         </span>
                     </li>
-                    <li repeat.for="item of Items" class="mdc-list-item mdc-ripple-surface mdc-animation-acceleration-curve ${ isSelected(item) ? 'selected' : '' & signal:'content-list-selection-changed' }"
+                    <li repeat.for="item of Items" class="mdc-list-item mdc-ripple-surface mdc-animation-acceleration-curve ${ isSelected(item) ? 'selected' : '' & signal:'content-list-selection-changed' } ${isFocused(item) ? 'focused' : '' & signal:'content-list-selection-changed'}"
                         content-drag.bind="Selection.length && Selection || [item] & signal:'content-list-selection-changed'"
-                        content-drop.call="dropContentOnItem(item, stringifiedContent, stringifiedContentList, files)" dblclick.delegate="activateItem(item)"
-                        click.delegate="selectItem($event, item)" keydown.trigger="handleKeyPress($event)">
+                        content-drop.call="dropContentOnItem(event, item, stringifiedContent, stringifiedContentList, files, $event)"
+                        dblclick.delegate="activateItem(item)" click.delegate="selectItem($event, item)">
                         <span if.bind="isSelected(item) & signal:'content-list-selection-changed'" class="selection-checkbox">
                             <div class="mdc-checkbox">
                                 <input type="checkbox" class="mdc-checkbox__native-control" click.trigger="toggleSelection($event, item)" checked.bind="isSelected(item) & signal:'content-list-selection-changed'"
@@ -29,13 +30,23 @@
                             </div>
                         </span>
 
-                        <icon if.bind="!isSelected(item) & signal:'content-list-selection-changed'" click.delegate="toggleSelection($event, item)" if.bind="!Selection.length <= 1 & signal:'content-list-selection-changed'"
-                            class="mdc-list-item__start-detail" content.bind="item"></icon>
+                        <icon if.bind="!isSelected(item) & signal:'content-list-selection-changed'" click.delegate="toggleSelection($event, item)"
+                            if.bind="!Selection.length <= 1 & signal:'content-list-selection-changed'" class="mdc-list-item__start-detail"
+                            content.bind="item"></icon>
 
                         <span class="mdc-list-item__text">
                             ${item.SavedFields.DisplayName || item.SavedFields.Name || item.DisplayName || item.Name}
                             <span class="mdc-list-item__text__secondary">${item.SavedFields.Description}</span>
                         </span>
+
+                        <div class="list-actions" if.bind="isFocused(item) & signal:'content-list-selection-changed'">
+                            <a repeat.for='action of GetActions({content: item})' 
+                                class="list-action mdc-button mdc-button--compact mdc-card__action" 
+                                click.delegate="triggerAction($event, action, item)"
+                                title.bind="action.DisplayName || action.Name">
+                                    <icon icon-name.bind="action.Icon" fallback="Application"></icon>
+                            </a>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -80,7 +91,10 @@
                                 </div>
                             </div>
                             <div if.one-way="!item._isOperationInProgress">
-                                <button repeat.for='action of Actions' class="mdc-button mdc-button--compact mdc-card__action" click.delegate="triggerAction($event, action.action, item)">${action.name}</button>
+                                <a repeat.for='action of GetActions({content: item})' class="card-action mdc-button mdc-button--compact mdc-card__action" click.delegate="triggerAction($event, action, item)">
+                                    <icon icon-name.bind="action.Icon" fallback="Application"></icon>
+                                    <span>${action.DisplayName || action.Name}</span>
+                                </a>
                             </div>
                         </section>
                     </div>

@@ -6,7 +6,7 @@
 import { bindable, autoinject } from 'aurelia-framework';
 import { Content, ControlSchema, FieldSettings, ActionName, ContentTypes } from 'sn-client-js';
 import { ControlNameResolverService, ControlMappingService } from '../services'
-import { GenericContent } from 'sn-client-js/dist/src/ContentTypes';
+import { GenericContent } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
 
 /**
  * A generic View Control, works based on a single Content, renders FieldControls based on the AureliaControlMapper and the provided Schema. Also responsible to aggregating validation data

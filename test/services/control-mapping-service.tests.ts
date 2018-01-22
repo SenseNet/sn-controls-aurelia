@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
-import { ContentTypes, Schemas, FieldSettings } from 'sn-client-js';
+import { ContentTypes, DefaultSchemaStore, FieldSettings } from 'sn-client-js';
 import { NameField, DisplayName, ShortText, LongText, RichText, DateTime, Integer, Number as NumberField, Percentage, Password, DateOnly, Checkbox, ContentReference } from '../../src';
 import { ControlMappingService } from '../../src/services';
 import { MockRepository } from 'sn-client-js/dist/test/Mocks';
@@ -55,7 +55,7 @@ export class AureliaControlMapperTests {
 
     @test
     public async 'DateOnly should be assigned to DateTime if DateTimeMode is not DateAndTime'() {
-        const userSchema = Schemas.SchemaStore.find(s => s.ContentTypeName === 'User');
+        const userSchema = DefaultSchemaStore.find(s => s.ContentTypeName === 'User');
         if (userSchema){
             (userSchema.FieldSettings.find(s => s.Name === 'BirthDate') as FieldSettings.DateTimeFieldSetting).VisibleEdit = FieldSettings.FieldVisibility.Show;
         }
@@ -71,7 +71,7 @@ export class AureliaControlMapperTests {
 
     @test
     public async 'GenericContent RateAvg should return a NumberField'() {
-        const genericContentSchema = Schemas.SchemaStore.find(s => s.ContentTypeName === 'GenericContent');
+        const genericContentSchema = DefaultSchemaStore.find(s => s.ContentTypeName === 'GenericContent');
         if (genericContentSchema){
             (genericContentSchema.FieldSettings.find(s => s.Name === 'RateAvg') as FieldSettings.DateTimeFieldSetting).VisibleEdit = FieldSettings.FieldVisibility.Show;
         }               

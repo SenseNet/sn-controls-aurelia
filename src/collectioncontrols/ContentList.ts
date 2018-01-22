@@ -8,6 +8,7 @@ import { bindable, computedFrom, customElement, autoinject } from 'aurelia-frame
 import { Content, Query, Repository, IContent } from 'sn-client-js';
 import { Subscription } from 'rxjs/Subscription';
 import { BindingSignaler } from 'aurelia-templating-resources';
+import { ActionModel } from 'sn-client-js/dist/src/Repository';
 
 export enum CollectionView {
     List = 'List',
@@ -32,7 +33,7 @@ export enum CollectionView {
  *      view-type.bind="ViewType"
  *      query.bind='query'
  *      selection.two-way="SelectedContent"
- *      actions.bind="exploreActions"></content-list>
+ *      on-action.call="onAction(content, action)"></content-list>
  * ```
  */
 @customElement('content-list')
@@ -52,11 +53,19 @@ export class ContentList {
     public Scope: Content;
 
     @bindable
+    public ScopeHistory: Content[] = [];
+
+    @bindable
     public Selection: Content[] = [];
 
     @computedFrom('Scope')
     get hasScope(): boolean {
         return this.Scope && this.Scope.SavedFields && Object.keys(this.Scope.SavedFields).length > 0 || false;
+    }
+
+    @computedFrom('Scope')
+    get hasParent(): boolean {
+        return this.hasScope && this.Scope.Path.split('/').filter(p => p && p.length).length > 1;
     }
 
     @bindable
@@ -87,49 +96,49 @@ export class ContentList {
     public OnActivate: (params: { content: Content }) => void;
 
     @bindable
-    public Actions: { name: string; action: (content: Content) => void }[] = [];
+    public OnAction: (params: { content: Content, action: ActionModel }) => void; //{ name: string; action: (content: Content) => void }[] = [];
 
-    @bindable 
-    public OnDropFiles: (params: {event: DragEvent, files: FileList}) => void = (params) => {
+    @bindable
+    public OnDropFiles: (params: { event: DragEvent, files: FileList }) => void = (params) => {
     };
 
-    @bindable 
-    public OnDropContent: (params: {event: DragEvent, content: Content}) => void = (params: {content: Content}) => {
+    @bindable
+    public OnDropContent: (params: { event: DragEvent, content: Content }) => void = (params: { content: Content }) => {
         if (this.Scope.Path && this.Scope.Path !== params.content.ParentPath && this.Scope.Path !== params.content.Path && !params.content.IsAncestorOf(this.Scope)) {
             params.content.MoveTo(this.Scope.Path);
         }
     }
 
-    
-    @bindable 
-    public OnDropContentOnItem: (params: {event: DragEvent, content: Content, item: Content}) => void = (params) => {
+
+    @bindable
+    public OnDropContentOnItem: (params: { event: DragEvent, content: Content, item: Content }) => void = (params) => {
         if (params.item.Path && params.item.Path !== params.content.ParentPath && params.item.Path !== params.content.Path && !params.content.IsAncestorOf(params.item)) {
             params.content.MoveTo(params.item.Path);
         }
     }
 
     @bindable
-    public OnDropContentList: (params: {event: DragEvent, contentList: Content[]}) => void = (params) => {
-        if (this.Scope.Path){
-            params.contentList.forEach(c => this.OnDropContent({content: c, event: params.event}));
+    public OnDropContentList: (params: { event: DragEvent, contentList: Content[] }) => void = (params) => {
+        if (this.Scope.Path) {
+            params.contentList.forEach(c => this.OnDropContent({ content: c, event: params.event }));
         }
     };
 
-    public OnDropFilesOnItem: (params: {files: FileList, item: Content, event: DragEvent, }) => void = (params) => {
+    public OnDropFilesOnItem: (params: { files: FileList, item: Content, event: DragEvent, }) => void = (params) => {
         console.log('Dropped files on item', params);
     };
-    
+
 
     @bindable
-    public OnDropContentListOnItem: (params: {contentList: Content[], item: Content, event: DragEvent, }) => void = (params) => {
-        if (this.Scope.Path){
-            params.contentList.forEach(c => this.OnDropContentOnItem({content: c, item: params.item, event: params.event}));
+    public OnDropContentListOnItem: (params: { contentList: Content[], item: Content, event: DragEvent, }) => void = (params) => {
+        if (this.Scope.Path) {
+            params.contentList.forEach(c => this.OnDropContentOnItem({ content: c, item: params.item, event: params.event }));
         }
-    };    
+    };
 
-    public triggerAction(event: MouseEvent, action: (item: Content) => void, item: Content) {
+    public triggerAction(event: MouseEvent, action: ActionModel, item: Content) {
         event.stopPropagation();
-        action(item);
+        this.OnAction({content: item, action});
     }
 
     @bindable
@@ -144,6 +153,14 @@ export class ContentList {
     @bindable
     EnableSelection: boolean = true;
 
+    @bindable()
+    LastSelectionIndex: number;
+
+    @bindable
+    public GetActions: (params: { content: Content }) => ActionModel[] = (params) => {
+        return [];
+    }
+
     activateItem(content: Content) {
         this.OnActivate && this.OnActivate({ content: content });
     }
@@ -154,6 +171,7 @@ export class ContentList {
             return;
         }
 
+        this.LastSelectionIndex = this.Items.indexOf(content);
         const selectionIndex = this.Selection.indexOf(content);
 
         if (this.MultiSelect && (event.ctrlKey || event.shiftKey)) {
@@ -164,7 +182,7 @@ export class ContentList {
             }
 
             // SHIFT+Click - Select Range
-            if (event.shiftKey){
+            if (event.shiftKey) {
                 const lastSelected = this.Selection[this.Selection.length - 1];
                 const selectedIndex1 = this.Items.indexOf(lastSelected) + 1;
                 const selectedIndex2 = this.Items.indexOf(content) + 1;
@@ -173,7 +191,7 @@ export class ContentList {
                 const maxSelected = Math.max(selectedIndex1, selectedIndex2);
 
                 this.Items.slice(minSelected, maxSelected).forEach(item => {
-                    if (selectionIndex === -1){
+                    if (selectionIndex === -1) {
                         this.Selection.push(item);
                     }
                 })
@@ -237,24 +255,39 @@ export class ContentList {
         this.IsLoading = false;
     }
 
-    ScopeChanged() {
+    ScopeChanged(newScope: Content, lastScope: Content) {
+        this.ScopeHistory.push(lastScope);
         this.Reinitialize();
     };
-    
-    QueryChanged(){
-         this.Reinitialize()
+
+    QueryChanged() {
+        this.Reinitialize()
     };
 
     @bindable
     public Items: Content[];
 
+
+    public ItemsChanged() {
+        const lastItem = this.ScopeHistory[this.ScopeHistory.length - 1];
+        const lastSelectedIndex = this.Items.indexOf(lastItem);
+        if (lastSelectedIndex !== -1) {
+            this.LastSelectionIndex = lastSelectedIndex;
+        } else {
+            this.LastSelectionIndex = this.hasParent ? -1 : 0;
+        }
+
+
+        this.bindingSignaler.signal(this.selectionChangedSignalKey);
+    }
+
     @bindable
     public ReloadOnContentChange: (change: Content | IContent) => boolean =
-    (content: Content | IContent) => {
-        return true;
-        // ToDo: check this based on scope and Query
-        // return (this.Query !== undefined)  || this.hasScope && ( isContent(content) && this.Scope.IsAncestorOf(content as Content)) || (content.Path && this.Scope.IsAncestorOf(content as any)) || false;
-    }
+        (content: Content | IContent) => {
+            return true;
+            // ToDo: check this based on scope and Query
+            // return (this.Query !== undefined)  || this.hasScope && ( isContent(content) && this.Scope.IsAncestorOf(content as Content)) || (content.Path && this.Scope.IsAncestorOf(content as any)) || false;
+        }
 
     handleContentChanges(...changes: (Content | IContent)[]) {
         changes.forEach(change => {
@@ -267,32 +300,118 @@ export class ContentList {
     }
 
     dropContent(event: DragEvent, stringifiedContent: string, stringifiedContentList?: string[], files?: FileList) {
-        if (stringifiedContent){
+        if (stringifiedContent) {
             const droppedContent = this.Repository.ParseContent(stringifiedContent);
-            this.OnDropContent({event, content: droppedContent});
+            this.OnDropContent({ event, content: droppedContent });
         }
-        if (stringifiedContentList){
+        if (stringifiedContentList) {
             const contentList = stringifiedContentList.map(c => this.Repository.ParseContent(c))
-            this.OnDropContentList({event, contentList});
+            this.OnDropContentList({ event, contentList });
         }
 
-        if (files){
-            this.OnDropFiles({event, files});
+        if (files) {
+            this.OnDropFiles({ event, files });
         }
     }
 
-    dropContentOnItem(event: DragEvent, item: Content, stringifiedContent?: string, stringifiedContentList?: string[], files?: FileList){
-        if (stringifiedContent){
+    dropContentOnItem(event: DragEvent, item: Content, stringifiedContent?: string, stringifiedContentList?: string[], files?: FileList) {
+        if (stringifiedContent) {
             const droppedContent = this.Repository.ParseContent(stringifiedContent);
-            this.OnDropContentOnItem({event, content: droppedContent, item});
+            this.OnDropContentOnItem({ event, content: droppedContent, item });
         }
-        if (stringifiedContentList){
+        if (stringifiedContentList) {
             const contentList = stringifiedContentList.map(c => this.Repository.ParseContent(c))
-            this.OnDropContentListOnItem({event, contentList, item});
+            this.OnDropContentListOnItem({ event, contentList, item });
         }
 
-        if (files){
-            this.OnDropFilesOnItem({event, files, item});
+        if (files) {
+            this.OnDropFilesOnItem({ event, files, item });
         }
+    }
+
+
+    isFocused(content: Content): boolean {
+        return this.LastSelectionIndex === this.Items.indexOf(content);
+    }
+
+    focusIn() {
+        console.log('Focused In');
+    }
+
+    focusOut() {
+        console.log('Focused out')
+    }
+
+    selectAll(){
+        this.Selection = this.Items;
+        this.bindingSignaler.signal(this.selectionChangedSignalKey);        
+    }
+
+    clearSelection(){
+        this.Selection = [];
+        this.bindingSignaler.signal(this.selectionChangedSignalKey);               
+    }
+
+    handleKeyPress(event: KeyboardEvent) {
+        switch (event.key) {
+            case 'ArrowUp':
+                if (this.hasParent && this.LastSelectionIndex > -1 || this.LastSelectionIndex > 0) {
+                    this.LastSelectionIndex--;
+                    this.bindingSignaler.signal(this.selectionChangedSignalKey);
+                }
+                break;
+            case 'Insert':
+                if (this.EnableSelection){
+                    const selectionIndex = this.Selection.indexOf(this.Items[this.LastSelectionIndex]);
+                    if (selectionIndex === -1) {
+                        this.Selection.push(this.Items[this.LastSelectionIndex])
+                    } else {
+                        this.Selection.splice(selectionIndex, 1);
+                    }
+                }
+            case 'ArrowDown':
+                if (this.LastSelectionIndex < this.Items.length - 1) {
+                    this.LastSelectionIndex++;
+                }
+                this.bindingSignaler.signal(this.selectionChangedSignalKey);                
+                break;
+            case 'Enter':
+                if (this.Items[this.LastSelectionIndex]) {
+                    this.activateItem(this.Items[this.LastSelectionIndex]);
+                } else {
+                    this.activateItem(this.Scope);
+                }
+                break;
+            case ' ': {
+                if (this.EnableSelection && this.Items[this.LastSelectionIndex])
+                this.toggleSelection(event as any, this.Items[this.LastSelectionIndex]);
+                this.bindingSignaler.signal(this.selectionChangedSignalKey);
+                break;
+            }
+            case 'Backspace':
+                this.hasParent && this.activateItem(this.Scope);
+                break;
+            case 'a':
+                if (event.ctrlKey){
+                    this.selectAll();
+                }
+                break;
+            case 'Escape':
+                this.clearSelection();
+                break;
+            case 'Home':
+                this.LastSelectionIndex = this.hasParent ? -1 : 0;
+                this.bindingSignaler.signal(this.selectionChangedSignalKey);
+                break;
+            case 'End':
+                this.LastSelectionIndex = this.Items.length - 1;
+                this.bindingSignaler.signal(this.selectionChangedSignalKey);
+                break;
+            default:
+                return true;
+        }
+        event.stopImmediatePropagation()
+        event.preventDefault();
+        return false;
     }
 }

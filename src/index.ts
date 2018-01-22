@@ -11,6 +11,7 @@ export * from './fieldcontrols';
 export * from './navigationcontrols';
 export * from './attributes';
 export * from './collectioncontrols';
+export * from './dialogs';
 export * from './services';
 export * from './viewcontrols';
 export * from './Enums';
@@ -28,6 +29,10 @@ export const modules = [
         './navigationcontrols/Tree',
         './navigationcontrols/Breadcrumbs',
         './collectioncontrols/ContentList',
+        './dialogs/AddContent',
+        './dialogs/DeleteContent',
+        './dialogs/EditContent',
+        './dialogs/SetPermissions',
         
         './fieldcontrols/Checkbox',
         './fieldcontrols/Choice',

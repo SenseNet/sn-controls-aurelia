@@ -24,6 +24,5 @@ export class DisplayName extends FieldBaseControl<string, FieldSettings.ShortTex
     attached(){
         this.mdcTextField = new MDCTextField(this.textfield);
     }
-
 }
 

@@ -5,7 +5,7 @@ import { Content, Authentication } from 'sn-client-js';
 import { ComponentTestBase } from '../component-test.base';
 import { ODataCollectionResponse } from 'sn-client-js/dist/src/ODataApi';
 import { LoginState } from 'sn-client-js/dist/src/Authentication';
-import { Task } from 'sn-client-js/dist/src/ContentTypes';
+import { Task } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
 
 @suite('Tree component')
 export class TreeTests extends ComponentTestBase<Tree> {

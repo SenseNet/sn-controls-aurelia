@@ -1,0 +1,18 @@
+.edit-content-wrapper {
+    .mdc-dialog__header {
+        icon {
+            margin-right: 1em;
+        }
+    }
+
+    // .mdc-dialog__body--scrollable{
+    //     content-list{
+
+    //     }
+    // }
+    
+    .mdc-dialog__body--scrollable{
+        max-height: 450px;
+        overflow: auto;
+    }
+}

@@ -7,7 +7,7 @@ import { bindable, autoinject } from 'aurelia-framework';
 import { ActionName } from 'sn-client-js';
 import { Content, ControlSchema, FieldSettings, ContentTypes } from 'sn-client-js';
 import { ControlMappingService, ControlNameResolverService } from '../services';
-import { GenericContent } from 'sn-client-js/dist/src/ContentTypes';
+import { GenericContent } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
 
 /**
  * A very top level View Control, works with a single Content and based on the AureliaControlMapper

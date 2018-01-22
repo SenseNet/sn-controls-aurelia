@@ -3,7 +3,7 @@ import { suite, test } from 'mocha-typescript';
 import { ContentTypes, FieldSettings, Mocks, ODataApi, Authentication } from 'sn-client-js';
 import { ContentListReference } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
-import { Group, User } from 'sn-client-js/dist/src/ContentTypes';
+import { Group, User } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
 
 @suite('ContentListReferenceField component')
 export class ContentListReferenceFieldests extends FieldControlBaseTest<ContentListReference> {

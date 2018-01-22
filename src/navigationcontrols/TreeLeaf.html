@@ -1,0 +1,15 @@
+<template>
+    <li class="mdc-list-item tree-leaf-item ${IsSelected ? 'mdc-permanent-drawer--selected' : ''}" click.delegate="Select()" style="padding-left: ${22 + NestingLevel * 12}px">
+        <a class="expand-collapse-icon ${IsExpanded ? 'expanded' : ''}" style="left: ${NestingLevel * 12}px;}" click.trigger="Toggle()">
+            <i if.bind='!IsLoading' class='material-icons'>keyboard_arrow_down</i>
+            <i if.bind='IsLoading' class='material-icons'>refresh</i>
+        </a>
+        <a class="mdc-list-item__start-detail material-icons" aria-hidden="true">
+            <icon content.bind="Content"></icon>
+        </a>
+
+        ${Content.SavedFields.DisplayName || Content.SavedFields.Name}
+    </li>
+    <tree if.bind="IsExpanded" style="height: auto;" if.bind="!IsLoading" content.bind="child" selection.two-way="Selection" repeat.for="child of Children"
+        nesting-level.bind="NestingLevel + 1"></tree>
+</template>

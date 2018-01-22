@@ -20,6 +20,9 @@ export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.Fiel
     @bindable
     actionName: ActionName;
 
+    @bindable
+    hasInitialValue: boolean;
+
     @computedFrom('settings', 'actionName')
     get readOnly(){
         return !this.settings || this.settings.ReadOnly || this.actionName === 'view';
@@ -49,6 +52,7 @@ export class FieldBaseControl<TValueType, TConfigType extends FieldSettings.Fiel
         this.controller = model.controller;
         this.actionName = model.actionName;
         this.value = this.content && this.settings && this.content[this.settings.Name] || this.settings.DefaultValue || '';
+        this.hasInitialValue = this.value && (this.value.toString().length > 0) || false;
     }
 
 }

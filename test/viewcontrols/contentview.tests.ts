@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { suite, test } from 'mocha-typescript';
 import { ComponentTestBase } from '../component-test.base';
 import { ContentView } from '../../src/viewcontrols';
-import { Task } from 'sn-client-js/dist/src/ContentTypes';
+import { Task } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
 
 @suite('ContentView component')
 export class ContentViewTests extends ComponentTestBase<ContentView> {

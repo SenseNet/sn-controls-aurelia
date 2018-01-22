@@ -1,0 +1,61 @@
+<template>
+    <require from="./SetPermissions.css"></require>
+
+    <aside ref="setPermissionsDialog" class="mdc-dialog set-permissions-modal-wrapper" role="alertdialog" aria-labelledby="my-mdc-dialog-label"
+        aria-describedby="my-mdc-dialog-description">
+        <div class="mdc-dialog__surface">
+            <header class="mdc-dialog__header">
+                <h2 class="mdc-dialog__header__title">
+                    Permissions
+                </h2>
+            </header>
+            <section class="mdc-dialog__body">
+                <div class="mdc-form-field">
+                    <div class="mdc-text-field">
+                        <content-reference readonly view-model.ref="ownerReferenceSchema"></content-reference>
+                    </div>
+
+                    <div class="mdc-switch mdc-switch--disabled">
+                        <input type="checkbox" id="another-basic-switch" class="mdc-switch__native-control" checked.bind="!permissions.inherits"
+                            disabled />
+                        <div class="mdc-switch__background">
+                            <div class="mdc-switch__knob"></div>
+                        </div>
+                    </div>
+                    <label for="another-basic-switch" class="mdc-switch-label">Break inheritance</label>
+                </div>
+
+                <div class="mdc-layout-grid">
+                    <div class="mdc-layout-grid__inner">
+                        <div class="mdc-layout-grid__cell--span-4">
+                            <content-list 
+                                view-type='List'
+                                multi-select.bind='false' 
+                                show-scope.bind='false' 
+                                get-items.call="getListItems(scope, query)"
+                                 view-model.ref="contentListReference" 
+                                 on-activate.call="selectEntry(content)"
+                                 get-actions.call="getPermissionEntryActions(content)"
+                                 on-action.call="onPermissionEntryAction(content, action)"
+                                 selection.two-way="selectedSecurityEntry">
+                                <div click="console.log(item)">Remove</div>
+                            </content-list>
+                        </div>
+                        <div class="mdc-layout-grid__cell--span-8 permission-table">
+                            <compose view="./SetPermissionsRoleDetails.html">
+                            </compose>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+            <footer class="mdc-dialog__footer">
+                <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--cancel">Cancel</button>
+                <button click.delegate="delete()" type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">
+                    Save
+                </button>
+            </footer>
+        </div>
+        <div class="mdc-dialog__backdrop"></div>
+    </aside>
+</template>

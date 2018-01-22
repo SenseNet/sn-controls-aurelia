@@ -6,7 +6,7 @@
 import { bindable, computedFrom } from 'aurelia-framework';
 import { FieldBaseControl } from './FieldBaseControl';
 import { FieldSettings, Content, ODataHelper } from 'sn-client-js';
-import { User } from 'sn-client-js/dist/src/ContentTypes';
+import { User } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
 
 
 /**
@@ -35,7 +35,17 @@ export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
         Device: 'devices',
         Domain: 'domain',
         Document: 'insert_drive_file', //???
-        trash: 'delete'
+        trash: 'delete',
+        remove: 'delete',
+        delete: 'delete',
+        copy: 'content_copy',
+        notification: 'mail',
+        security: 'security',
+        edit: 'create',
+        browse: 'explore',
+        download: 'get_app',
+        clear: 'clear',
+        editbinary: 'code'
     }
     
     @bindable
@@ -47,13 +57,22 @@ export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
     public IconImage: string;
 
 
-    @computedFrom('Content')
+    @computedFrom('IconName', 'fallback')
     public get MaterialIconName(): string {
-        return this.content && this.content.Icon && this.iconNames[this.content.Icon] || 'folder';
+        return this.IconName && this.iconNames[this.IconName] || this.iconNames[this.fallback];
     }
 
-    public ContentChanged(){
-        this.TryLoadAvatar();
+    @bindable
+    public IconName: string;
+
+    
+    @bindable
+    public fallback: string = 'Folder';
+
+    public contentChanged(){
+        if (this.content.Icon){
+            this.IconName = this.content.Icon;
+        }
     }
 
 
@@ -62,7 +81,6 @@ export class Icon extends FieldBaseControl<string, FieldSettings.FieldSetting> {
             if (this.content.ImageData && this.content.ImageData.__mediaresource.media_src){
                 this.IconImage = ODataHelper.joinPaths(this.content.GetRepository().Config.RepositoryUrl, this.content.ImageData.__mediaresource.media_src);
             }
-   
         }
     }
 }

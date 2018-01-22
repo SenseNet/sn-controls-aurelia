@@ -19,6 +19,9 @@ import { Observable } from 'rxjs/Observable';
 export class Tree {
 
 
+    @bindable
+    childrenContainer: HTMLElement;
+
     Subscriptions: Subscription[] = [];
 
     @computedFrom('Content')
@@ -103,12 +106,13 @@ export class Tree {
                 orderby: ['DisplayName', 'Name'],
                 filter: 'IsFolder'
             }).subscribe(children => {
-                setTimeout(() => {
-                    this.Children = children;
-                    this.ReorderChildren();
-                    resolve();
-                }, 200)
+                this.Children = children;
+                this.ReorderChildren();
+                resolve();
                 this.IsLoading = false;
+                setTimeout(() => {
+                    this.childrenContainer.style.maxHeight = 'none';
+                }, 200);
             }, (err) => {
                 this.IsLoading = false;
                 reject(err);
@@ -120,7 +124,14 @@ export class Tree {
      * Triggers a Collapse operation (hide children)
      */
     Collapse() {
-        this.IsExpanded = false;
+        this.childrenContainer.style.removeProperty('max-height');
+
+        if (this.Selection.IsChildOf(this.Content)){
+            this.Selection = this.Content;
+        }
+        setTimeout(() => {
+            this.IsExpanded = false;
+        }, 10);
     }
 
     /**

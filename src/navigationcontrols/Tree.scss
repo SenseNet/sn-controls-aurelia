@@ -8,7 +8,8 @@
         overflow: hidden;
 
         &.selected {
-            font-weight: bolder;
+            color: #3f51b5;
+            color: var(--mdc-theme-primary, #3f51b5);
         }
 
         md-progress {
@@ -57,10 +58,31 @@
             margin-right: .6rem;
         }
 
-        opacity: .65;
-
         &.selected {
             background-color: rgba(0, 0, 0, 0.1);
+
+            icon {
+                color: #3f51b5;
+                color: var(--mdc-theme-primary, #3f51b5);
+            }
+        }
+    }
+
+    .children-list {
+        transition: all 650ms ease-out;
+
+        &.collapsed{
+            max-height: 0;
+            opacity: 0;
+            filter: blur(3px) brightness(0.1);
+            transition: all 650ms ease-in;
+            overflow: hidden;
+        }
+
+        &.expanded{
+            max-height: 640px;
+            opacity: 1;
+            filter: none;
         }
     }
 }

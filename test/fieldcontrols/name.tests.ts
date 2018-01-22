@@ -3,7 +3,7 @@ import { suite, test } from 'mocha-typescript';
 import { FieldSettings } from 'sn-client-js';
 import { NameField } from '../../src/fieldcontrols';
 import { FieldControlBaseTest } from './fieldcontrol-base.tests';
-import { User } from 'sn-client-js/dist/src/ContentTypes';
+import { User } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
 
 @suite('NameField component')
 export class NameTests extends FieldControlBaseTest<NameField> {

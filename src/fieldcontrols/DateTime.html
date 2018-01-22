@@ -1,11 +1,11 @@
 <template>
     <require from="./DateTime.css"></require>
-    <label class="mdc-text-field datetime-wrapper" title.one-time="settings.Description" ref="datefield">
+    <label class="mdc-text-field datetime-wrapper mdc-text-field--upgraded" title.one-time="settings.Description" ref="datefield">
         <input type="datetime-local" class="mdc-text-field__input" value.two-way="parsedValue" 
             disabled.bind="readOnly"
             settings-validation.bind="settings"
             placeholder.bind="settings.Description"
         />
-        <span class="mdc-text-field__label">${settings.DisplayName}</span>
+        <span class="mdc-text-field__label mdc-text-field__label--float-above">${settings.DisplayName}</span>
       </label>
 </template>
