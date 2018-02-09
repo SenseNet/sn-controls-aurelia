@@ -64,3 +64,14 @@ new ModuleDependenciesPlugin({
     ]
 }),
 ```
+
+Please also add these into your HTML template's ```<head>``` section:
+```html
+<head>
+  
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+  
+</head>
+```
