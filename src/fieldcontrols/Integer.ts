@@ -1,29 +1,28 @@
 /**
  * @module FieldControls
- * 
+ *
  */ /** */
 
-import { FieldBaseControl } from './FieldBaseControl';
-import { FieldSettings } from 'sn-client-js';
-import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
-import { customElement } from 'aurelia-framework';
-
+import { MDCTextField } from "@material/textfield/dist/mdc.textfield";
+import { IntegerFieldSetting } from "@sensenet/default-content-types";
+import { customElement } from "aurelia-framework";
+import { FieldBaseControl } from "./FieldBaseControl";
 
 /**
  * Field control for integer (whole number) fields.
  * Usage:
- * 
+ *
  * ``` html
  * <integer-field content.bind="content" settings.bind="myIntegerFieldSetting"></integer-field>
  * ```
  */
-@customElement('integer-field')
-export class Integer extends FieldBaseControl<number, FieldSettings.IntegerFieldSetting> {
+@customElement("integer-field")
+export class Integer extends FieldBaseControl<number, IntegerFieldSetting> {
 
-    textfield: HTMLElement;
-    mdcTextField: MDCTextField;
+    public textfield!: HTMLElement;
+    public mdcTextField: MDCTextField;
 
-    attached(){
+    public attached() {
         this.mdcTextField = new MDCTextField(this.textfield);
     }
 }

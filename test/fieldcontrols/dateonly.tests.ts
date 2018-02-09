@@ -1,71 +1,66 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
-import { FieldSettings } from 'sn-client-js';
-import { DateOnly } from '../../src/fieldcontrols';
+import { IDisposable } from "@sensenet/client-utils";
+import { DateTimeFieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { DateOnly } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('DateField component')
-export class DateFieldTests extends FieldControlBaseTest<DateOnly> {
-    
-    constructor() {
-        super(DateOnly, 'date-only');
-    }
+export const dateOnlyFieldTests = describe("DateField component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<DateOnly>("<date-only></date-only>", "date-only");
 
-    @test
-    public async 'Can be constructed'() {     
-        const viewModel = await this.createFieldViewModel();
+    let viewModel: DateOnly & IDisposable;
+
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
+
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
         expect(viewModel).to.be.instanceof(DateOnly);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-
-        const viewModel = await this.createFieldViewModel();
+    it("Can not be modified if is read only", () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.DateTimeFieldSetting;
+            ReadOnly: true,
+        } as DateTimeFieldSetting;
 
-        const contentViewElement = document.querySelector('date-only input') as HTMLInputElement;        
+        const contentViewElement = document.querySelector("date-only input") as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
+    });
 
-    }
-
-    @test
-    public async 'Required rule is added if complusory'() {
-        const viewModel = await this.createFieldViewModel();
+    it("Required rule is added if complusory", () => {
         viewModel.settings = {
-            Compulsory: true
-        } as FieldSettings.DateTimeFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12387, Path: 'asd', Name: ''});
-        viewModel.actionName = 'new';
+            Compulsory: true,
+        } as DateTimeFieldSetting;
+        viewModel.content = {Id: 12387, Path: "asd", Name: "", Type: "User"};
+        viewModel.actionName = "new";
 
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
 
-    @test
-    public async 'Setting Value should update super\'s Value'(){
-        const viewModel = await this.createFieldViewModel();
+    it("Setting Value should update super's Value", () => {
         viewModel.settings = {
             Compulsory: true,
-            DefaultValue: '1985-09-25T00:00:00Z'
-        } as FieldSettings.DateTimeFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1387, Path: 'asd', Name: ''});
-        viewModel.dateValue = '2017-01-01T11:11:11Z';
+            DefaultValue: "1985-09-25T00:00:00Z",
+        } as DateTimeFieldSetting;
+        viewModel.content = {Id: 1387, Path: "asd", Name: "", Type: "User"};
+        viewModel.dateValue = "2017-01-01T11:11:11Z";
         viewModel.dateValueChanged(viewModel.dateValue);
-        expect(viewModel.value).to.be.eq('2017-01-01T00:00:00Z');
-    }
+        expect(viewModel.value).to.be.eq("2017-01-01T00:00:00Z");
+    });
 
-    @test
-    public async 'Setting Content Value should update component\'s value'(){
-        const viewModel = await this.createFieldViewModel();
+    it("Setting Content Value should update component's value", () => {
         viewModel.settings = {
             Compulsory: true,
-            DefaultValue: '1985-09-25T00:00:00Z'
-        } as FieldSettings.DateTimeFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1237, Path: 'asd', Name: ''});
-        viewModel.value = '2017-01-01T11:11:11Z';
+            DefaultValue: "1985-09-25T00:00:00Z",
+        } as DateTimeFieldSetting;
+        viewModel.content = {Id: 1237, Path: "asd", Name: "", Type: "User"};
+        viewModel.value = "2017-01-01T11:11:11Z";
         viewModel.valueChanged(viewModel.value);
-        expect(viewModel.dateValue).to.be.eq('2017-01-01');
-    }    
-}
+        expect(viewModel.dateValue).to.be.eq("2017-01-01");
+    });
+
+});

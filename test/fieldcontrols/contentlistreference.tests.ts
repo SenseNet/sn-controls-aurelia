@@ -1,156 +1,144 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { ContentTypes, FieldSettings, Mocks, ODataApi, Authentication } from 'sn-client-js';
-import { ContentListReference } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
-import { Group, User } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
+import { Repository } from "@sensenet/client-core";
+import { IODataCollectionResponse } from "@sensenet/client-core";
+import { IDisposable } from "@sensenet/client-utils";
+import { Group, ReferenceFieldSetting, Task, User } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { ContentListReference } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('ContentListReferenceField component')
-export class ContentListReferenceFieldests extends FieldControlBaseTest<ContentListReference> {
+export const contentListReferenceFieldTests = describe("ContentListReferenceField", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<ContentListReference>("<contentlist-reference></contentlist-reference>", "contentlist-reference");
 
-    constructor() {
-        super(ContentListReference, 'contentlist-reference');
-    }
+    let viewModel: ContentListReference & IDisposable;
 
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+        (global as any).window.fetch = async (...args: any[]) => {
+            return {
+                ok: true,
+                json: async () => ({
+                    d: {
+                        __count: 1,
+                        results: [{
+                            Id: 4,
+                            Name: "alma",
+                            Path: "Root/Test",
+                        }],
+                    },
+                } as IODataCollectionResponse<User>),
+            } as any;
+        };
+    });
+
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
+        const a = document.querySelector("contentlist-reference");
         expect(viewModel).to.be.instanceof(ContentListReference);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-        const viewModel = await this.createFieldViewModel();
+    it("Can not be modified if is read only", () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.ReferenceFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12387, Path: 'asd', Name: ''});
-        const contentViewElement = document.querySelector('content-reference .search-box');
-        expect(contentViewElement).to.be.null;
-    }
+            ReadOnly: true,
+        } as ReferenceFieldSetting;
+        viewModel.content = { Id: 12387, Path: "asd", Name: "", Type: "" };
+        const contentViewElement = document.querySelector("content-reference .search-box");
+        expect(contentViewElement).to.be.eq(null);
+    });
 
-    @test
-    public async 'Required rule is added if complusory'() {
-        const viewModel = await this.createFieldViewModel();
-        const content = this.mockRepo.HandleLoadedContent({Id: 123827, Path: 'asd', Name: 'Test'}, ContentTypes.Task);
+    it("Required rule is added if complusory", () => {
+        const content = { Id: 123827, Path: "Root/Example/Test", Name: "Test", Type: "Task" };
         const settings = {
-            Compulsory: true
-        } as FieldSettings.ReferenceFieldSetting;
-        viewModel.activate({content, settings})        
+            Compulsory: true,
+            Name: "Example",
+        } as ReferenceFieldSetting;
+        viewModel.activate({ content, settings });
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
 
-    @test
-    public 'searchStringChanged should trigger an OData call'(done: MochaDone) {
+    it("searchStringChanged should trigger an OData call", (done: MochaDone) => {
 
-        const mockRepo = new Mocks.MockRepository();
+        const mockRepo = new Repository();
 
-        this.createFieldViewModel().then(viewModel => {
-            const content = mockRepo.HandleLoadedContent({Name: 'TestGroup', Id: 1238756, Path: 'Root/Example/TestGroup'}, Group);
-            const settings = {
-                Compulsory: true,
-                Name: 'Members'
-            } as FieldSettings.ReferenceFieldSetting;
-            mockRepo.Authentication.StateSubject.next(Authentication.LoginState.Authenticated);
-            viewModel.activate({ content, settings });
-
-            setTimeout(() => {                
-            mockRepo.HttpProviderRef
-            .AddResponse(<ODataApi.ODataCollectionResponse<ContentTypes.User>>{
-                d: {
-                    __count: 1,
-                    results: [{
-                        Id: 4,
-                        Name: 'alma',
-                        Path: 'Root/Test'
-                    }]
-                },
-            });
-
-            viewModel.searchStringChanged('alma').subscribe(r => {
-                expect(r.Count).to.be.eq(1);
-                expect(r.Result[0].Name).to.be.eq('alma');
-                done();
-            }, done);
-        }, 200);
+        const content = { Name: "TestGroup", Id: 1238756, Path: "Root/Example/TestGroup", Type: "Group" };
+        const settings = {
+            Compulsory: true,
+            Name: "Members",
+        } as ReferenceFieldSetting;
+        viewModel.activate({ content, settings });
+        viewModel.repository = mockRepo;
+        viewModel.searchStringChanged("alma").then((r) => {
+            expect(r.d.__count).to.be.eq(1);
+            expect(r.d.results[0].Name).to.be.eq("alma");
+            done();
         }, done);
-    }
+    });
 
-    @test
-    public async 'FocusIn'(){
-        const viewModel = await this.createFieldViewModel();
+    it("FocusIn", () => {
         let isFocused = false;
-        viewModel.searchInput = { focus: () => {isFocused = true; }} as any;
-        
+        viewModel.searchInput = { focus: () => { isFocused = true; } } as any;
+        viewModel.content = {Id: 123865, Path: "Root/Example", Name: "", Type: "User"};
         viewModel.isFocused = false;
         viewModel.isOpened = false;
-        viewModel.focusIn()
-        expect(viewModel.isFocused).to.be.true;
-        expect(viewModel.isOpened).to.be.false;
-        expect(isFocused).to.be.true;
+        viewModel.focusIn();
+        expect(viewModel.isFocused).to.be.eq(true);
+        expect(viewModel.isOpened).to.be.eq(false);
+        expect(isFocused).to.be.eq(true);
 
-        viewModel.searchString = 'asd';
-        viewModel.focusIn()
-        expect(viewModel.isOpened).to.be.true;
-    }
+        viewModel.searchString = "asd";
+        viewModel.focusIn();
+        expect(viewModel.isOpened).to.be.eq(true);
+    });
 
-
-    @test
-    public async 'FocusOut'(){
-        const viewModel = await this.createFieldViewModel();
-
-        viewModel.controller = {validate: () => {}} as any;
+    it("FocusOut", () => {
+        viewModel.controller = { validate: () => { /**/ } } as any;
         viewModel.settings = {
-            Compulsory: true
-        } as FieldSettings.ReferenceFieldSetting
+            Compulsory: true,
+            Name: "Example",
+        } as ReferenceFieldSetting;
 
         viewModel.isFocused = true;
         viewModel.isOpened = true;
-        viewModel.focusOut()
-        expect(viewModel.isFocused).to.be.false;
-        expect(viewModel.isOpened).to.be.false;
-    }
+        viewModel.focusOut();
+        expect(viewModel.isFocused).to.be.eq(false);
+        expect(viewModel.isOpened).to.be.eq(false);
+    });
 
-    @test
-    public async 'PickValue'() {
-        const viewModel = await this.createFieldViewModel();
-        const content = this.mockRepo.HandleLoadedContent<Group>({Type: 'Group', Id: 12845, Path: 'root/groups', Name: 'Group1'});
+    it("PickValue", () => {
+        const content: Group = { Type: "Group", Id: 12845, Path: "root/groups", Name: "Group1" };
 
         viewModel.content = content;
-        viewModel.controller = { validate: () => { } } as any;
+        viewModel.controller = { validate: () => { /** */ } } as any;
         viewModel.settings = {
             Compulsory: true,
-            Name: 'Members'
-        } as FieldSettings.ReferenceFieldSetting;
+            Name: "Members",
+        } as ReferenceFieldSetting;
 
-
-        const c1 = this.mockRepo.HandleLoadedContent<User>({ Id: 123, Path: 'Root/Content1', Name: 'Usr' });
-        viewModel.Items = [];
+        const c1: User = { Id: 123, Path: "Root/Content1", Name: "Usr", Type: "User" };
+        viewModel.items = [];
 
         viewModel.pickValue(c1);
-        expect(viewModel.Items[0]).to.be.eq(c1);
-        expect(viewModel.value['_contentReferences'][0]).to.be.eq(c1);
-    }
+        expect(viewModel.items[0]).to.be.eq(c1);
+    });
 
-    @test
-    public async 'removeItem'() {
-        const viewModel = await this.createFieldViewModel();
-        const content = this.mockRepo.HandleLoadedContent<Group>({Type: 'Group', Id: 12845, Path: 'root/groups', Name: 'Group1'});
+    it("removeItem", () => {
+        const content: Group = { Type: "Group", Id: 12845, Path: "root/groups", Name: "Group1" };
 
         viewModel.content = content;
-        viewModel.controller = { validate: () => { } } as any;
+        viewModel.controller = { validate: () => { /** */ } } as any;
         viewModel.settings = {
             Compulsory: true,
-            Name: 'Members'
-        } as FieldSettings.ReferenceFieldSetting;
+            Name: "Members",
+        } as ReferenceFieldSetting;
 
-
-        const c1 = this.mockRepo.HandleLoadedContent<User>({ Id: 123, Path: 'Root/Content1', Name: 'Usr' });
-        viewModel.Items = [c1];
+        const c1: User = { Id: 123, Path: "Root/Content1", Name: "Usr", Type: "User" };
+        viewModel.items = [c1];
 
         viewModel.removeReference(c1);
-        expect(viewModel.Items).to.be.empty;
-        expect(viewModel.value['_contentReferences']).to.be.empty;
-    }
-}
+        expect(viewModel.items).to.be.deep.eq([]);
+    });
+
+});

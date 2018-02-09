@@ -1,55 +1,46 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { ComponentTestBase } from '../component-test.base';
-import { ContentView } from '../../src/viewcontrols';
-import { Task } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
+import { expect } from "chai";
+import { ContentView } from "../../src/viewcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('ContentView component')
-export class ContentViewTests extends ComponentTestBase<ContentView> {
+export const contentViewTests = describe("Content view tests", () => {
+    const createComponent = () => ComponentTestHelper.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: "new", content: {}});
 
-    @test
-    public async 'Can be constructed'() {
-        const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: 'new', content: this.mockRepo.CreateContent({}, Task) });
-        const contentViewElement = document.querySelector('content-view');
+    it("Can be constructed", async () => {
+        const component = await createComponent();
+        const contentViewElement = document.querySelector("content-view");
         expect(contentViewElement).to.be.instanceOf(HTMLElement);
-        expect(component).to.be.instanceof(Object);        
-    }
+        expect(component).to.be.instanceof(Object);
+    });
 
-    @test
-    public async 'Content can be Bound'() {
-        const testTask = this.mockRepo.HandleLoadedContent({ 
+    it("Content can be Bound", async () => {
+        const testTask = {
             Id: 234,
-            Path: 'Root/Test',
-            DueDate: '2017-01-01T11:11:11Z',
-            Name: '' });
-        const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { 
-            actionName: 'edit',
-            content: testTask
+            Path: "Root/Test",
+            DueDate: "2017-01-01T11:11:11Z",
+            Name: "",
+            Type: "Task",
+        };
+        const component = await ComponentTestHelper.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', {
+            actionName: "edit",
+            content: testTask,
         });
-        const contentViewElement = document.querySelector('content-view');
+        const contentViewElement = document.querySelector("content-view");
         expect(contentViewElement).to.be.instanceOf(HTMLElement);
         expect(component).to.be.instanceof(Object);
-    }
+    });
 
-    @test
-    public async 'actionName should be View when no content has been assigned'() {
-        const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: 'view', content: undefined });
-        const contentViewElement = document.querySelector('content-view') as any;
+    it("actionName should be View when no content has been assigned", async () => {
+        const viewModel = await ComponentTestHelper.createAndGetViewModel<ContentView>("<content-view></content-view>", "content-view");
+        expect(viewModel.actionName).to.be.eq("view");
+    });
+
+    it( "actionName should be View by default on saved contents", async () => {
+        const content = {};
+        const component = await ComponentTestHelper.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: "view", content });
+        const contentViewElement = document.querySelector("content-view") as any;
         const contentViewModel = contentViewElement.au.controller.viewModel as ContentView;
-        expect(contentViewModel.actionName).to.be.eq('view');
+        contentViewModel.content = content as any;
+        expect(contentViewModel.actionName).to.be.eq("view");
         expect(component).to.be.instanceof(Object);
-    }
-
-    @test
-    public async 'actionName should be View by default on saved contents'() {
-        const content = this.mockRepo.HandleLoadedContent({} as any);
-        const component = await this.createComponentAsync('<content-view content.bind="content" action-name.bind="actionName"></content-view>', { actionName: 'view', content: content });
-        const contentViewElement = document.querySelector('content-view') as any;
-        const contentViewModel = contentViewElement.au.controller.viewModel as ContentView;
-        contentViewModel.content = content;       
-        expect(contentViewModel.actionName).to.be.eq('view');
-        expect(component).to.be.instanceof(Object);
-
-    }
-        
-}
+    });
+});

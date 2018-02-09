@@ -1,15 +1,15 @@
 <template>
-    <li class="mdc-list-item tree-leaf-item ${IsSelected ? 'mdc-permanent-drawer--selected' : ''}" click.delegate="Select()" style="padding-left: ${22 + NestingLevel * 12}px">
-        <a class="expand-collapse-icon ${IsExpanded ? 'expanded' : ''}" style="left: ${NestingLevel * 12}px;}" click.trigger="Toggle()">
-            <i if.bind='!IsLoading' class='material-icons'>keyboard_arrow_down</i>
-            <i if.bind='IsLoading' class='material-icons'>refresh</i>
+    <li class="mdc-list-item tree-leaf-item ${isSelected ? 'mdc-permanent-drawer--selected' : ''}" click.delegate="select()" style="padding-left: ${22 + nestingLevel * 12}px">
+        <a class="expand-collapse-icon ${isExpanded ? 'expanded' : ''}" style="left: ${nestingLevel * 12}px;}" click.trigger="toggle()">
+            <i if.bind='!isLoading' class='material-icons'>keyboard_arrow_down</i>
+            <i if.bind='isLoading' class='material-icons'>refresh</i>
         </a>
         <a class="mdc-list-item__start-detail material-icons" aria-hidden="true">
-            <icon content.bind="Content"></icon>
+            <icon content.bind="content"></icon>
         </a>
 
-        ${Content.SavedFields.DisplayName || Content.SavedFields.Name}
+        ${content.DisplayName || content.Name}
     </li>
-    <tree if.bind="IsExpanded" style="height: auto;" if.bind="!IsLoading" content.bind="child" selection.two-way="Selection" repeat.for="child of Children"
+    <tree if.bind="isExpanded" style="height: auto;" if.bind="!isLoading" content.bind="child" selection.two-way="selection" repeat.for="child of children"
         nesting-level.bind="NestingLevel + 1"></tree>
 </template>

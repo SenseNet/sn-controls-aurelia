@@ -1,19 +1,13 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { Icon } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { expect } from "chai";
+import { Icon } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('DumpField component')
-export class IconTests extends FieldControlBaseTest<Icon> {
+export const iconComponentTests = describe("Icon Component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<Icon>("<icon></icon>", "icon");
 
-    constructor() {
-        super(Icon, 'icon');
-    }
-
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    it("Can be constructed", async () => {
+        const viewModel = await createFieldViewModel();
         expect(viewModel).to.be.instanceof(Icon);
-    }
-
-}
+        viewModel.dispose();
+    });
+});

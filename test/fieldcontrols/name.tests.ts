@@ -1,66 +1,56 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldSettings } from 'sn-client-js';
-import { NameField } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
-import { User } from 'sn-client-js/dist/src/Content/DefaultContentTypes';
+import { IDisposable } from "@sensenet/client-utils";
+import { ShortTextFieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { NameField } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('NameField component')
-export class NameTests extends FieldControlBaseTest<NameField> {
+export const nameFieldTests = describe("NameField component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<NameField>("<name-field></name-field>", "name-field");
 
-    /**
-     *
-     */
-    constructor() {
-        super(NameField, 'name-field');
+    let viewModel: NameField & IDisposable;
 
-    }
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
 
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
         expect(viewModel).to.be.instanceof(NameField);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-        const viewModel = await this.createFieldViewModel();
+    it("Can not be modified if is read only", () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.ShortTextFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
-
-        const contentViewElement = document.querySelector('name-field input') as HTMLInputElement;
-
+            ReadOnly: true,
+        } as ShortTextFieldSetting;
+        viewModel.content = {Id: 1285, Path: "root/path", Name: "", Type: "User"};
+        const contentViewElement = document.querySelector("name-field input") as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
+    });
 
-    }
-
-    @test
-    public async 'Required rule is added if complusory'() {
-        const viewModel = await this.createFieldViewModel();
+    it("Required rule is added if complusory", () => {
         viewModel.settings = {
-            Compulsory: true
-        } as FieldSettings.ShortTextFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
+            Compulsory: true,
+        } as ShortTextFieldSetting;
+        viewModel.content = {Id: 1285, Path: "root/path", Name: "", Type: "User"};
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
 
-    @test
-    public async 'ParentPath is set based on Content'(){
-        const viewModel = await this.createFieldViewModel();
+    it("ParentPath is set based on Content", () => {
         // No content
-        expect(viewModel.parentPath).to.be.empty;
+        expect(viewModel.parentPath).to.be.eq("");
 
         // Unsaved - Content Path
-        viewModel.content = this.mockRepo.CreateContent({Path: 'root/content'}, User);
-        expect(viewModel.parentPath).to.be.eq('root/content');
+        viewModel.content = {Path: "root/content", Name: "", Type: ""} as any;
+        expect(viewModel.parentPath).to.be.eq("root/content");
 
         // Saved - Parent Path from Content
-        viewModel.content = this.mockRepo.HandleLoadedContent<User>({Path: 'root/content', Id: 123} as any);
-        expect(viewModel.parentPath).to.be.eq('root');
+        viewModel.content = {Path: "root/content", Id: 123, Name: "", Type: ""};
+        expect(viewModel.parentPath).to.be.eq("root");
 
+    });
 
-    }
-}
+});

@@ -1,66 +1,62 @@
-/**
- * @module Dialogs
- * *//** */
-
-import { customElement, bindable } from 'aurelia-framework';
-import { Content, ContentInternal } from 'sn-client-js';
-import { dialog } from 'material-components-web/dist/material-components-web';
+import { IContent, Repository } from "@sensenet/client-core";
+import { bindable, customElement } from "aurelia-framework";
+import { dialog } from "material-components-web/dist/material-components-web";
 
 /**
  * Dialog control that can be used for creating content.
  * Usage example:
- * 
+ *
  * ``` html
  *      <edit-content-dialog view-model.ref="editContentDialog" edited-content.bind="Scope"></add-content-dialog>
  * ```
- * 
+ *
  * ``` ts
  *     editContent(content: Content) {
  *       this.editContentDialog.open(content);
  *     }
  * ```
  */
-@customElement('edit-content-dialog')
+@customElement("edit-content-dialog")
 export class EditContentDialog {
 
     @bindable
-    isLoading: boolean;
+    public isLoading!: boolean;
 
     @bindable
-    parent: Content;
+    public parent!: IContent;
 
-    editContentDialog: HTMLElement;
+    public editContentDialog!: HTMLElement;
 
-    editContentMDCDialog: dialog.MDCDialog;
+    public editContentMDCDialog: dialog.MDCDialog;
 
-    constructor() {
+    constructor(private repository: Repository) {
     }
 
-    attached() {
+    public attached() {
         this.editContentMDCDialog = new dialog.MDCDialog(this.editContentDialog);
     }
 
     @bindable
-    EditedContent: ContentInternal;
-    async open(content: ContentInternal) {
+    public editedContent!: IContent;
+    public async open(content: IContent) {
         this.isLoading = true;
         this.editContentMDCDialog.show();
-        this.EditedContent = content;
-        await this.EditedContent.Reload('edit').toPromise();
+        this.editedContent = content;
+        await this.repository.load({idOrPath: this.editedContent.Id});
         this.isLoading = false;
     }
 
-    save() {
+    public save() {
         this.isLoading = true;
-        this.EditedContent.Save().subscribe(c => {
+        try {
             this.editContentMDCDialog.close();
             this.isLoading = false;
-        }, err => {
+        } catch (error) {
             this.isLoading = false;
-        });
+        }
     }
 
-    cancel() {
+    public cancel() {
         this.editContentMDCDialog.close();
     }
 }

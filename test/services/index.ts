@@ -1,2 +1,2 @@
-export * from './control-mapping-service.tests';
-export * from './controlnameresolverservice.tests';
+export * from "./control-mapping-service.tests";
+export * from "./controlnameresolverservice.tests";

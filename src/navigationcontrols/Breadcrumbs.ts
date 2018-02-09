@@ -1,35 +1,31 @@
 /**
  * @module NavigationControls
- * 
+ *
  */ /** */
 
-import { bindable, customElement, computedFrom } from 'aurelia-framework';
-import { Content } from 'sn-client-js';
+import { IContent } from "@sensenet/client-core";
+import { bindable, computedFrom, customElement } from "aurelia-framework";
 
-
-@customElement('breadcrumbs')
+@customElement("breadcrumbs")
 export class Breadcrumbs {
     @bindable
-    public Selection: Content;
+    public selection!: IContent;
 
     @bindable
-    PathChange: ({path: string}) => void;
+    public pathChange!: (change: {path: string}) => void;
 
-
-
-
-    @computedFrom('Selection')
-    public get Segments(): {name: string, path: string}[]{
-        if (!this.Selection || !this.Selection.Path){
+    @computedFrom("selection")
+    public get segments(): Array<{name: string, path: string}> {
+        if (!this.selection || !this.selection.Path) {
             return [];
         }
-        const returns: {name: string, path: string}[] = [];
+        const returns: Array<{name: string, path: string}> = [];
 
-        this.Selection.Path.split('/').filter(s => s.length > 0).forEach((segment, index, array) => {
-            const segmentPath = '/' + array.slice(0, index + 1).join('/');
+        this.selection.Path.split("/").filter((s) => s.length > 0).forEach((segment, index, array) => {
+            const segmentPath = "/" + array.slice(0, index + 1).join("/");
             returns.push({
                 name: segment,
-                path: segmentPath
+                path: segmentPath,
             });
         });
 

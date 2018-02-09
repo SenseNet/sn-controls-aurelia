@@ -4,10 +4,10 @@
     <aside ref="createContentDialog" class="mdc-dialog edit-content-wrapper" role="alertdialog" aria-labelledby="my-mdc-dialog-label" aria-describedby="my-mdc-dialog-description">
         <div class="mdc-dialog__surface">
             <header class="mdc-dialog__header">
-                <icon content.bind="SelectedSchema"></icon>
+                <icon content.bind="selectedSchema"></icon>
    
                 <h2 class="mdc-dialog__header__title">
-                    Create new ${ SelectedSchema && SelectedSchema.DisplayName || 'Content' }
+                    Create new ${ selectedSchema && selectedSchema.DisplayName || 'Content' }
                 </h2>
             </header>
             <section class="mdc-dialog__body--scrollable">
@@ -21,28 +21,28 @@
 
                     <div if.bind="!errorMessage">
 
-                        <div if.bind="!SelectedSchema">
+                        <div if.bind="!selectedSchema">
                             <content-list 
-                                items.bind="AvailableSchemas"
+                                items.bind="availableSchemas"
                                 enable-selection.bind="false"
                                 on-activate.call="selectSchema(content)"
                                 show-scope.bind="false"
                                 view-type="List"></content-list>
                         </div>
 
-                        <div if.bind="SelectedSchema && NewContent">
-                            <content-view content.bind="NewContent" action-name="new"></content-view>
+                        <div if.bind="selectedSchema && newContent">
+                            <content-view content.bind="newContent" action-name="new"></content-view>
                         </div>
                     </div>
                 </div>
             </section>
             <footer class="mdc-dialog__footer">
 
-                <button if.bind="SelectedSchema" click.delegate="SelectedSchema = null" type="button" class="mdc-button mdc-dialog__footer__button">
+                <button if.bind="selectedSchema" click.delegate="selectedSchema = null" type="button" class="mdc-button mdc-dialog__footer__button">
                     Back
                 </button>
                 
-                <button if.bind="SelectedSchema" click.delegate="create()" type="button" class="mdc-button mdc-dialog__footer__button">
+                <button if.bind="selectedSchema" click.delegate="create()" type="button" class="mdc-button mdc-dialog__footer__button">
                     Create
                 </button>
 

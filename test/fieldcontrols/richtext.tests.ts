@@ -1,90 +1,77 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldSettings } from 'sn-client-js';
-import { RichText } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { IDisposable } from "@sensenet/client-utils";
+import { LongTextFieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { RichText } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('RichText Field component')
-export class RichTextFieldests extends FieldControlBaseTest<RichText> {
+export const richTextFieldTests = describe("RichText Field component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<RichText>("<rich-text></rich-text>", "rich-text");
 
-    constructor() {
-        super(RichText, 'rich-text');
-    }
+    let viewModel: RichText & IDisposable;
 
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
 
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
         expect(viewModel).to.be.instanceof(RichText);
-    }
+    });
 
-    @test
-    public async 'Quill can be initialized'() {
-        const rt = new RichText();
-        document.body.innerHTML = "<div class='quillTest'></div>";
-        rt.quillElementRef = document.querySelector('.quillTest') as HTMLDivElement;
+    it("Quill can be initialized", async () => {
+        viewModel.quillElementRef = document.querySelector(".quillTest") as HTMLDivElement;
         // await rt.initializeQuill();
-    }    
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-        const viewModel = await this.createFieldViewModel();
-        expect(viewModel)
-    }
-
-    @test
-    public async 'Required rule is added if complusory'() {
+    it("Required rule is added if complusory", async () => {
         const settings = {
-            Compulsory: true
-        } as FieldSettings.LongTextFieldSetting;
-        const content = this.mockRepo.HandleLoadedContent({Id: 265, Path: 'root/path', Name: 'ContentName'});
+            Compulsory: true,
+        } as LongTextFieldSetting;
+        const content = { Id: 265, Path: "root/path", Name: "ContentName", Type: "User" };
 
-        const viewModel = await this.createFieldViewModel();
         viewModel.activate({
-            settings: settings,
-            content: content,
+            settings,
+            content,
             controller: null as any,
-            actionName: 'new'
+            actionName: "new",
         });
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
 
-    @test
-    public async 'onQuillSelectionChange should update isSelected property'(){
-        const viewModel = await this.createFieldViewModel();
+    it("onQuillSelectionChange should update isSelected property", async () => {
 
         viewModel.isSelected = false;
-        (window as any).getSelection = () => {return {baseNode: null}};
+        (window as any).getSelection = () => ({ baseNode: null });
         viewModel.onQuillSelectionChange(null, null, null);
         expect(viewModel.isSelected).to.be.eq(false);
 
-        (window as any).getSelection = () => {return {baseNode: {}}};
+        (window as any).getSelection = () => ({ baseNode: {} });
         viewModel.onQuillSelectionChange(null, null, null);
         expect(viewModel.isSelected).to.be.eq(false);
 
-        viewModel.onQuillSelectionChange(1, null, null);
+        viewModel.onQuillSelectionChange({index: 0, length: 1}, null, null);
         expect(viewModel.isSelected).to.be.eq(true);
 
-        (window as any).getSelection = () => {return {baseNode: viewModel.containerRef}};
+        (window as any).getSelection = () => ({ baseNode: viewModel.containerRef });
         viewModel.onQuillSelectionChange(null, null, null);
         expect(viewModel.isSelected).to.be.eq(true);
-    }
-    
-    @test
-    public async 'onQuillTextChange should update value'(){
-        
-        const viewModel = await this.createFieldViewModel();
-        viewModel.settings =  {
-            Compulsory: true
-        } as FieldSettings.LongTextFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 265, Path: 'root/path', Name: 'ContentName'});
-        // await viewModel.initializeQuill();
+    });
 
-        viewModel.textValue = 'test value';
-        viewModel.value = '<p>test value</p>';
-        (viewModel.quill as any).root.innerHTML = '<p>modified value</p>'
+    it("onQuillTextChange should update value", async () => {
+
+        viewModel.settings = {
+            Compulsory: true,
+        } as LongTextFieldSetting;
+        viewModel.content = { Id: 265, Path: "root/path", Name: "ContentName", Type: "Task" };
+        viewModel.textValue = "test value";
+        viewModel.value = "<p>test value</p>";
+        (viewModel.quill as any).root.innerHTML = "<p>modified value</p>";
         viewModel.onQuillTextChange();
-        expect(viewModel.value).to.be.eq('<p>modified value</p>');
-    }
-}
+        expect(viewModel.value).to.be.eq("<p>modified value</p>");
+    });
+
+});

@@ -1,98 +1,105 @@
-/**
- * @module Dialogs
- * *//** */
-
-import { customElement, bindable } from 'aurelia-framework';
-import { Content } from 'sn-client-js';
-import { Schemas, ContentTypes, Repository } from 'sn-client-js';
-import { dialog } from 'material-components-web/dist/material-components-web';
+import { IContent, Repository } from "@sensenet/client-core";
+import { GenericContent, Schema } from "@sensenet/default-content-types";
+import { bindable, customElement } from "aurelia-framework";
+import { dialog } from "material-components-web/dist/material-components-web";
 
 /**
  * Dialog control that can be used for creating content.
  * Usage example:
- * 
+ *
  * ``` html
  *      <add-content-dialog view-model.ref="addContentDialog" parent.bind="Scope"></add-content-dialog>
  * ```
- * 
+ *
  * ``` ts
  *     addContent() {
  *       this.addContentDialog.open();
  *     }
  * ```
  */
-@customElement('add-content-dialog')
+@customElement("add-content-dialog")
 export class AddContentDialog {
     @bindable
-    errorMessage: string;
+    public errorMessage!: string;
 
     @bindable
-    isLoading: boolean;
+    public isLoading!: boolean;
 
     @bindable
-    parent: Content;
+    public parent!: IContent;
 
-    createContentDialog: HTMLElement;
+    public createContentDialog!: HTMLElement;
 
-    createContentMDCDialog: dialog.MDCDialog;
+    public createContentMDCDialog: dialog.MDCDialog;
 
-    constructor(private snService: Repository.BaseRepository) {
+    constructor(private repository: Repository) {
     }
 
-    attached() {
+    public attached() {
         this.createContentMDCDialog = new dialog.MDCDialog(this.createContentDialog);
-    }    
+    }
 
-    parentChanged() {
-        this.AvailableSchemas = [];
+    public parentChanged() {
+        this.availableSchemas = [];
     }
 
     @bindable
-    SelectedSchema: Schemas.Schema;
+    public selectedSchema!: Schema;
 
     @bindable
-    NewContent: Content;
+    public newContent!: IContent;
 
     @bindable
-    AvailableSchemas = []
+    public availableSchemas: Schema[] = [];
 
-    selectSchema(newSchema: Schemas.Schema) {
-        this.SelectedSchema = newSchema;
-        this.NewContent = this.snService.CreateContent({
-            Path: this.parent.Path,
-        }, ContentTypes[newSchema.ContentTypeName]);
+    public selectSchema(newSchema: Schema) {
+        this.selectedSchema = newSchema;
+        this.newContent = {} as any;
+        for (const setting of this.selectedSchema.FieldSettings) {
+            if (setting.DefaultValue) {
+                this.newContent[setting.Name] = setting.DefaultValue;
+            }
+        }
     }
 
-
-    open: () => void = () => {
+    public async open() {
         // ToDo
         this.createContentMDCDialog.show();
         // this.SelectedSchema = null;
         this.isLoading = true;
         // this.errorMessage = null;
-        this.NewContent = null;
+        this.newContent = null as any;
 
-        this.parent.GetEffectiveAllowedChildTypes({
-            select: ['Name']
-        }).subscribe(cts => {
+        try {
+            const parent = await this.repository.load<GenericContent>({
+                idOrPath: this.parent.Id,
+                oDataOptions: {
+                    expand: ["EffectiveAllowedChildTypes"],
+                    select: ["EffectiveAllowedChildTypes"],
+                },
+            });
             this.isLoading = false;
-            this.AvailableSchemas = cts.map(ct => {
-                return ContentTypes[ct.Name] && this.snService.GetSchema(ContentTypes[ct.Name]);
-            }).filter(ct => ct != null);
-        }, (err) => {
+            this.availableSchemas = (parent.d.EffectiveAllowedChildTypes as GenericContent[]).map((ct) => {
+                    return this.repository.schemas.getSchemaByName(ct.Name as string);
+                }); // .filter((ct) => ct != null);
+        } catch (error) {
             this.isLoading = false;
-            this.errorMessage = 'There was an error loading the allowed content types.' + err
-            this.AvailableSchemas = [];
-        });
+            this.errorMessage = "There was an error loading the allowed content types." + error;
+            this.availableSchemas = [];
+        }
     }
 
-    create(){
-        this.NewContent.Save().subscribe(c => {
-            this.createContentMDCDialog.close();
+    public async create() {
+        this.newContent.Path = undefined as any;
+        const created = await this.repository.post({
+            parentPath: this.parent.Path,
+            content: this.newContent,
+            contentType: this.newContent.Type,
         });
+        this.createContentMDCDialog.close();
     }
 
-    cancel(){
+    public cancel() {
         this.createContentMDCDialog.close();
     }
 }

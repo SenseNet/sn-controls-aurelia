@@ -1,77 +1,71 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { Repository, Mocks, ContentInternal } from 'sn-client-js';
-import { ContentDragCustomAttribute } from '../../src/attributes';
-import { DragTypes } from '../../src/Enums';
-import { MockDragEvent } from '../mocks';
+import { IContent } from "@sensenet/client-core";
+import { expect } from "chai";
+import { ContentDragCustomAttribute } from "../../src/attributes";
+import { DragTypes } from "../../src/Enums";
+import { MockDragEvent } from "../mocks";
 
+export const contentDragTests = describe("ContentDrag custom attribute", () => {
+    let element: HTMLElement;
+    let attribute: ContentDragCustomAttribute;
 
-@suite('ContentDrag custom attribute')
-export class ContentDragTests {
+    beforeEach(() => {
+        element = document.createElement("input");
+        attribute = new ContentDragCustomAttribute(element);
+    });
 
-    private element: HTMLElement;
-    private attribute: ContentDragCustomAttribute;
+    it("Can be constructed", () => {
+        expect(attribute).to.be.instanceof(ContentDragCustomAttribute);
+    });
 
-    private repo: Repository.BaseRepository;
-    before() {
-        this.repo = new Mocks.MockRepository();
-        this.element = document.createElement('input');
-        this.attribute = new ContentDragCustomAttribute(this.element);
-    }
-
-    @test
-    public async 'Can be constructed'() {
-        expect(this.attribute).to.be.instanceof(ContentDragCustomAttribute);
-    }
-
-    @test
-    public async 'Content can be bound'() {
-        this.attribute.content = [this.repo.HandleLoadedContent({
+    it("Content can be bound", () => {
+        const content: IContent = {
             Id: 123456,
-            Path: '/Root/Example',
-            Name: 'C1'
-        })];
-        expect(this.attribute.content[0]).to.be.instanceof(ContentInternal);
-    }
+            Path: "/Root/Example",
+            Name: "C1",
+            Type: "User",
+        };
+        attribute.content = [content];
+        expect(attribute.content[0]).to.be.eq(content);
+    });
 
-    @test
-    public async 'dragStart event is bound and simple content dragged'() {
-        this.attribute.content = [this.repo.HandleLoadedContent({
+    it("dragStart event is bound and simple content dragged", () => {
+        attribute.content = [{
             Id: 123456,
-            Path: '/Root/Example',
-            Name: 'C2'
-        })];
+            Path: "/Root/Example",
+            Name: "C2",
+            Type: "User",
+        }];
         const ev = new MockDragEvent();
-        ev.type = 'dragstart';
-        const handeld = this.attribute.dragStart(ev);
-        expect(handeld).to.be.true;
-        const dragged = ev.dataTransfer.getData(DragTypes.Content)
-        const parsed = this.repo.ParseContent(dragged);
-        expect(parsed.Id).to.be.eq(this.attribute.content[0].Id);
-    }
+        ev.type = "dragstart";
+        const handeld = attribute.dragStart(ev);
+        expect(handeld).to.be.eq(true);
+        const dragged = ev.dataTransfer.getData(DragTypes.Content);
+        const parsed = JSON.parse(dragged);
+        expect(parsed.Id).to.be.eq(attribute.content[0].Id);
+    });
 
-
-    @test
-    public async 'dragStart event is bound and multiple content dragged'() {
-        this.attribute.content = [
-            this.repo.HandleLoadedContent({
+    it("dragStart event is bound and multiple content dragged", () => {
+        attribute.content = [
+            {
                 Id: 123456,
-                Path: '/Root/Example',
-                Name: 'C1'
-            }),
-            this.repo.HandleLoadedContent({
+                Path: "/Root/Example",
+                Name: "C1",
+                Type: "User",
+            },
+            {
                 Id: 654321,
-                Path: '/Root/Example2',
-                Name: 'C2'
-            })];
+                Path: "/Root/Example2",
+                Name: "C2",
+                Type: "Task",
+            }];
         const ev = new MockDragEvent();
-        ev.type = 'dragstart';
-        const handeld = this.attribute.dragStart(ev);
-        expect(handeld).to.be.true;
+        ev.type = "dragstart";
+        const handeld = attribute.dragStart(ev);
+        expect(handeld).to.be.eq(true);
 
+        const serializedContentList = JSON.parse(ev.dataTransfer.getData(DragTypes.ContentList)).map((c) => JSON.parse(c));
+        expect(serializedContentList[0].Id).to.be.eq(attribute.content[0].Id);
+        expect(serializedContentList[1].Id).to.be.eq(attribute.content[1].Id);
+    });
 
-        const serializedContentList = JSON.parse(ev.dataTransfer.getData(DragTypes.ContentList)).map(c => this.repo.ParseContent(c));
-        expect(serializedContentList[0].Id).to.be.eq(this.attribute.content[0].Id);
-        expect(serializedContentList[1].Id).to.be.eq(this.attribute.content[1].Id);
-    }
-}
+});

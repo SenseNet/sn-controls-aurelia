@@ -1,81 +1,68 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { Repository, Mocks } from 'sn-client-js';
-import { ContentDropCustomAttribute } from '../../src/attributes';
-import { MockDragEvent } from '../index';
-import { DragTypes } from '../../src'
+import { expect } from "chai";
+import { DragTypes } from "../../src";
+import { ContentDropCustomAttribute } from "../../src/attributes";
+import { MockDragEvent } from "../index";
 
+export const contentDropTests = describe("Content Drop tests", () => {
+    let element: HTMLElement;
+    let attribute: ContentDropCustomAttribute;
 
-@suite('ContentDrop custom attribute')
-export class ContentDropTests {
+    beforeEach(() => {
+        element = document.createElement("input");
+        attribute = new ContentDropCustomAttribute(element);
+    });
 
-    private element: HTMLElement;
-    private attribute: ContentDropCustomAttribute;
+    it("Can be constructed", () => {
+        expect(attribute).to.be.instanceof(ContentDropCustomAttribute);
+    });
 
-    private repo: Repository.BaseRepository;
-    before() {
-        this.repo = new Mocks.MockRepository();
-        this.element = document.createElement('input');
-        this.attribute = new ContentDropCustomAttribute(this.element);
-    }
-
-    @test
-    public async 'Can be constructed'() {
-        expect(this.attribute).to.be.instanceof(ContentDropCustomAttribute);
-    }
-
-    @test
-    public async 'dragEnd should be handled'() {
+    it("dragEnd should be handled", () => {
         const ev = new MockDragEvent();
-        this.attribute.dragEnd(ev);
-        expect(ev.defaultPrevented).to.be.true;
-        expect(ev.propagationStopped).to.be.true;
-    }
+        attribute.dragEnd(ev);
+        expect(ev.defaultPrevented).to.be.eq(true);
+        expect(ev.propagationStopped).to.be.eq(true);
+    });
 
-    @test
-    public async 'dragEnter should be handled'() {
+    it("dragEnter should be handled", () => {
         const ev = new MockDragEvent();
-        this.attribute.dragEnter(ev);
-        expect(ev.defaultPrevented).to.be.true;
-        expect(ev.propagationStopped).to.be.true;
-    }
+        attribute.dragEnter(ev);
+        expect(ev.defaultPrevented).to.be.eq(true);
+        expect(ev.propagationStopped).to.be.eq(true);
+    });
 
-    @test
-    public async 'dragOver should be handled'() {
+    it("dragOver should be handled", () => {
         const ev = new MockDragEvent();
-        this.attribute.dragOver(ev);
-        expect(ev.defaultPrevented).to.be.true;
-        expect(ev.propagationStopped).to.be.true;
-    }
+        attribute.dragOver(ev);
+        expect(ev.defaultPrevented).to.be.eq(true);
+        expect(ev.propagationStopped).to.be.eq(true);
+    });
 
-    @test
-    public 'dragDrop should be handled and single content should be received'(done: MochaDone) {
+    it("dragDrop should be handled and single content should be received", (done: MochaDone) => {
         const handler: ({ stringifiedContent, stringifiedContentList }: { stringifiedContent?: string, stringifiedContentList?: string[] }) => void =
             (content) => {
-                expect(content.stringifiedContent).to.be.string;
-                const parsedContent = content.stringifiedContent && this.repo.ParseContent(content.stringifiedContent);
+                expect(typeof content.stringifiedContent).to.be.eq("string");
+                const parsedContent = content.stringifiedContent && JSON.parse(content.stringifiedContent);
                 expect(parsedContent && parsedContent.Id).to.be.eq(123);
                 done();
             };
         const ev = new MockDragEvent();
-        ev.dataTransfer.setData(DragTypes.Content, this.repo.HandleLoadedContent({
+        ev.dataTransfer.setData(DragTypes.Content, JSON.stringify({
             Id: 123,
-            Path: 'Root/Example',
-            Name: 'C1'
-        }).Stringify());
-        this.attribute.handler = handler;
-        this.attribute.dragDrop(ev);
-        expect(ev.defaultPrevented).to.be.true;
-        expect(ev.propagationStopped).to.be.true;
-    }
+            Path: "Root/Example",
+            Name: "C1",
+        }));
+        attribute.handler = handler;
+        attribute.dragDrop(ev);
+        expect(ev.defaultPrevented).to.be.eq(true);
+        expect(ev.propagationStopped).to.be.eq(true);
+    });
 
-    @test
-    public 'dragDrop should be handled and content list should be received'(done: MochaDone) {
+    it("dragDrop should be handled and content list should be received", (done: MochaDone) => {
         const handler: ({ stringifiedContent, stringifiedContentList }: { stringifiedContent?: string, stringifiedContentList?: string[] }) => void =
             (content) => {
-                
+
                 expect(content.stringifiedContentList).to.be.instanceOf(Array);
-                const contentList = content.stringifiedContentList && content.stringifiedContentList.map(s => this.repo.ParseContent(s));
+                const contentList = content.stringifiedContentList && content.stringifiedContentList.map((s) => JSON.parse(s));
 
                 expect(contentList).to.be.instanceof(Array);
                 expect(contentList).to.be.length(2);
@@ -86,21 +73,20 @@ export class ContentDropTests {
             };
         const ev = new MockDragEvent();
         ev.dataTransfer.setData(DragTypes.ContentList, JSON.stringify([
-            this.repo.HandleLoadedContent({
+            JSON.stringify({
                 Id: 123,
-                Path: 'Root/Example',
-                Name: 'C1'
-            }).Stringify(),
-            this.repo.HandleLoadedContent({
+                Path: "Root/Example",
+                Name: "C1",
+            }),
+            JSON.stringify({
                 Id: 321,
-                Path: 'Root/Example2',
-                Name: 'C2'
-            }).Stringify()
+                Path: "Root/Example2",
+                Name: "C2",
+            }),
         ]));
-        this.attribute.handler = handler;
-        this.attribute.dragDrop(ev);
-        expect(ev.defaultPrevented).to.be.true;
-        expect(ev.propagationStopped).to.be.true;
-    }
-
-}
+        attribute.handler = handler;
+        attribute.dragDrop(ev);
+        expect(ev.defaultPrevented).to.be.eq(true);
+        expect(ev.propagationStopped).to.be.eq(true);
+    });
+});

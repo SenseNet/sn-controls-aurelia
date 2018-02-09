@@ -1,45 +1,46 @@
 /**
  * @module Services
- * 
+ *
  */ /** */
 
- import { PLATFORM } from 'aurelia-framework';
- 
+ import { PLATFORM } from "aurelia-framework";
+
  /**
   * Helper class that resolves content names to be able to use in Composition, based on their Control classes
   * Usage:
-  * 
+  *
   * ``` ts
-  * import { ContentTypes } from 'sn-client-js';
-  * const resolvedControlName = ControlNameResolver.getNameForControl(ContentTypes.Task);
-  * 
+  * const resolvedControlName = ControlNameResolver.getNameForControl(Task);
+  *
   * ```
   */
  export class ControlNameResolverService {
-     private nameCache: string[] = [];
-     public getNameForControl(control: {new(...args: any[])} | {name: string}, eachModule: (callback: (key: string, value: Object) => boolean) => void = PLATFORM.eachModule){
+     private nameCache: Map<string, string | null> = new Map();
+     public getNameForControl(control: {new(...args: any[]): any} | {name: string}, eachModule: (callback: (key: string, value: object) => boolean) => void = PLATFORM.eachModule): string | null {
          let found: string | null = null;
-         if (!control || !control.name || !control.name.length){
+         if (!control || !control.name || !control.name.length) {
              return null;
          }
-         if (this.nameCache[control.name] !== undefined){
-             return this.nameCache[control.name];
+         if (this.nameCache.has(control.name)) {
+             return this.nameCache.get(control.name) || null;
          }
-         eachModule((m, v) => {
-             if (v[control.name] === control)
+         eachModule((m, v: any) => {
+             if (v[control.name] === control) {
                  found = m;
+             }
              return true;
          });
 
-         if (!found){
-            eachModule((m, v) => {
-                if (v[control.name] && v[control.name].name === control.name)
+         if (!found) {
+            eachModule((m, v: any) => {
+                if (v[control.name] && v[control.name].name === control.name) {
                     found = m;
+                }
                 return true;
-            }); 
+            });
          }
 
-         this.nameCache[control.name] = found;
+         this.nameCache.set(control.name, found);
          return found;
      }
  }

@@ -1,47 +1,42 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldSettings } from 'sn-client-js';
-import { ShortText } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { IDisposable } from "@sensenet/client-utils";
+import { ShortTextFieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { ShortText } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('ShortText component')
-export class ShortTextTests extends FieldControlBaseTest<ShortText> {
+export const shortTextTests = describe("ShortText component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<ShortText>("<short-text></short-text>", "short-text");
 
-    /**
-     *
-     */
-    constructor() {
-        super(ShortText, 'short-text');
-        
-    }
-    
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    let viewModel: ShortText & IDisposable;
+
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
+
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
         expect(viewModel).to.be.instanceof(ShortText);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-        const viewModel = await this.createFieldViewModel();       
+    it("Can not be modified if is read only", () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.ShortTextFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12385, Path: 'root/path', Name: 'example'});
-        const contentViewElement = document.querySelector('short-text input') as HTMLInputElement;
+            ReadOnly: true,
+        } as ShortTextFieldSetting;
+        viewModel.content = { Id: 12385, Path: "root/path", Name: "example", Type: "User" };
+        const contentViewElement = document.querySelector("short-text input") as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
+    });
 
-    }
-
-    @test
-    public async 'Required rule is added if complusory'() {
-        const viewModel = await this.createFieldViewModel();       
+    it("Required rule is added if complusory", () => {
         viewModel.settings = {
-            Compulsory: true
-        } as FieldSettings.ShortTextFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12385, Path: 'root/path', Name: 'example'});
-
+            Compulsory: true,
+        } as ShortTextFieldSetting;
+        viewModel.content = { Id: 12385, Path: "root/path", Name: "example", Type: "User" };
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
-}
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
+
+});

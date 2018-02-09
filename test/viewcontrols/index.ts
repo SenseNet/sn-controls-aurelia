@@ -1,2 +1,2 @@
-export * from './contentview.tests';
-export * from './genericview.tests';
+export * from "./contentview.tests";
+export * from "./genericview.tests";

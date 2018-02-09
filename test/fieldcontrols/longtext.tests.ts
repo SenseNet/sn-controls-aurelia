@@ -1,44 +1,42 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldSettings } from 'sn-client-js';
-import { LongText } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { IDisposable } from "@sensenet/client-utils";
+import { LongTextFieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { LongText } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('LongText component')
-export class LongTextTests extends FieldControlBaseTest<LongText> {
-    constructor() {
-        super(LongText, 'long-text');
-        
-    }
+export const longTextTests = describe("LongText field component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<LongText>("<long-text></long-text>", "long-text");
 
+    let viewModel: LongText & IDisposable;
 
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
+
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
         expect(viewModel).to.be.instanceof(LongText);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-        const viewModel = await this.createFieldViewModel();
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''});
+    it("Can not be modified if is read only", () => {
+        viewModel.content = {Id: 1285, Path: "root/path", Name: "", Type: "User"};
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.ChoiceFieldSetting;
-
-        const contentViewElement = document.querySelector('long-text') as any;
+            ReadOnly: true,
+        } as LongTextFieldSetting;
+        const contentViewElement = document.querySelector("long-text") as any;
         expect(contentViewElement.au.controller.viewModel.readOnly).to.be.eq(true);
+    });
 
-    }
-
-    @test
-    public async 'Required rule is added if complusory'() {
-        const viewModel = await this.createFieldViewModel();
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''});
+    it("Required rule is added if complusory", () => {
+        viewModel.content = {Id: 1285, Path: "root/path", Name: "", Type: "User"};
         viewModel.settings = {
-            Compulsory: true
-        } as FieldSettings.ChoiceFieldSetting;
+            Compulsory: true,
+        } as LongTextFieldSetting;
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
-}
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
+
+});

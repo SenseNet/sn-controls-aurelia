@@ -1,28 +1,28 @@
 /**
  * @module FieldControls
- * 
+ *
  */ /** */
 
-import { FieldBaseControl } from './FieldBaseControl';
-import { FieldSettings } from 'sn-client-js';
-import { customElement } from 'aurelia-framework';
-import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
+import { MDCTextField } from "@material/textfield/dist/mdc.textfield";
+import { NumberFieldSetting } from "@sensenet/default-content-types";
+import { customElement } from "aurelia-framework";
+import { FieldBaseControl } from "./FieldBaseControl";
 
 /**
  * Field control for number fields.
  * Usage:
- * 
+ *
  * ``` html
  * <number-field content.bind="content" settings.bind="myNumberFieldSetting"></number-field>
  * ```
  */
-@customElement('number-field')
-export class Number  extends FieldBaseControl<number, FieldSettings.NumberFieldSetting> {
+@customElement("number-field")
+export class Number  extends FieldBaseControl<number, NumberFieldSetting> {
 
-    textfield: HTMLElement;
-    mdcTextField: MDCTextField;
+    public textfield!: HTMLElement;
+    public mdcTextField: MDCTextField;
 
-    attached(){
+    public attached() {
         this.mdcTextField = new MDCTextField(this.textfield);
     }
 }

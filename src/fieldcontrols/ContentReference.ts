@@ -1,72 +1,96 @@
 /**
  * @module FieldControls
- * 
+ *
  */ /** */
 
-import { FieldBaseControl } from './FieldBaseControl';
-import { FieldSettings, ContentReferenceField, SavedContent, QueryResult, IContent } from 'sn-client-js';
-import { customElement, bindable } from 'aurelia-framework';
-import { Observable } from 'rxjs/Observable';
+import { IContent, Repository } from "@sensenet/client-core";
+import { IODataCollectionResponse } from "@sensenet/client-core/dist/Models/IODataCollectionResponse";
+import { PathHelper } from "@sensenet/client-utils";
+import { ContentReferenceField, ReferenceFieldSetting } from "@sensenet/default-content-types";
+import { Query } from "@sensenet/query";
+import { bindable, customElement } from "aurelia-framework";
+import { FieldBaseControl } from "./FieldBaseControl";
 
-@customElement('content-reference')
-export class ContentReference extends FieldBaseControl<ContentReferenceField<IContent>, FieldSettings.ReferenceFieldSetting> {
-
-    @bindable
-    Item: SavedContent;
-
-    @bindable
-    public availableValues: SavedContent[] = [];
-
+@customElement("content-reference")
+export class ContentReference extends FieldBaseControl<ContentReferenceField<IContent>, ReferenceFieldSetting> {
 
     @bindable
-    public searchString: string = '';
+    public item!: IContent;
 
     @bindable
-    isOpened: boolean = false;
+    public availableValues: IContent[] = [];
 
     @bindable
-    isFocused: boolean = false;
-
-    searchInput: HTMLInputElement;
-
+    public searchString: string = "";
 
     @bindable
-    selectionIndex: number = 0;
+    public isOpened: boolean = false;
 
-    searchStringChanged(newValue: string): Observable<QueryResult> {
-        const req = newValue && this.value && this.value.Search(newValue, 10, 0, { select: 'all' })
-            .Exec();
-        req && req.subscribe(res => {
-            this.availableValues = res.Result.filter(a => a !== this.content);
-            this.isOpened = true;
-            this.selectionIndex = 0;
-        }, err => {
-        }) || (this.availableValues = []);
-        return req || Observable.of<QueryResult>({Count: 0, Result: []});
+    @bindable
+    public isFocused: boolean = false;
+
+    public searchInput!: HTMLInputElement;
+
+    @bindable
+    public selectionIndex: number = 0;
+
+    /**
+     *
+     */
+    constructor(public repository: Repository) {
+        super();
+
     }
 
-    activate(model) {
-        super.activate(model);
-        this.value && this.value.GetContent && this.value.GetContent({
-            select: 'all'
-        }).subscribe(c => {
-            this.Item = c;
+    public async searchStringChanged(newValue: string): Promise<IODataCollectionResponse<IContent>> {
+        // ToDo: Allowed types, typeroots, etc...
+        const query = new Query((q) => q.term(newValue)).toString();
+
+        const req = await this.repository.loadCollection({
+            path: "Root",
+            oDataOptions: {
+                query,
+                select: "all",
+            },
         });
+        this.availableValues = req.d.results.filter((a) => this.item && this.item.Id !== a.Id && a.Id !== this.content.Id);
+        this.isOpened = true;
+        this.selectionIndex = 0;
+        return req;
     }
 
-    pickValue(content: SavedContent) {
-        this.Item = content;
+    public async activate(model) {
+        super.activate(model);
 
-        this.searchString = '';
+        super.activate(model);
+        const loadPath = PathHelper.joinPaths(PathHelper.getContentUrl(this.content.Path), "/", this.settings.Name);
+        try {
+            const references = await this.repository.load({
+                idOrPath: loadPath,
+                oDataOptions: {
+                    select: "all",
+                },
+            });
+            this.item = references.d as any;
+        } catch (error) {
+            /**  */
+        }
+    }
+
+    public pickValue(content: IContent) {
+        this.item = content;
+
+        this.searchString = "";
         this.isOpened = false;
         this.isFocused = false;
-        if (this.rules.length)
+        if (this.rules.length) {
             this.controller.validate();
+        }
 
-        this.value.SetContent(this.Item);
+        this.value = this.item.Id;
     }
 
-    focusIn() {
+    public focusIn() {
         if (this.searchString.length > 0) {
             this.isOpened = true;
         }
@@ -74,20 +98,21 @@ export class ContentReference extends FieldBaseControl<ContentReferenceField<ICo
         this.searchInput.focus();
     }
 
-    focusOut() {
+    public focusOut() {
         this.isOpened = false;
-        if (this.rules.length)
+        if (this.rules.length) {
             this.controller.validate();
+        }
 
         this.isFocused = false;
     }
 
-    removeItem(){
-        this.Item = null as any;
-        this.value.SetContent(null as any);
+    public removeItem() {
+        this.item = null as any;
+        this.value = null as any;
     }
 
-    handleSearchKeyUp($event: KeyboardEvent) {
+    public handleSearchKeyUp($event: KeyboardEvent) {
         switch ($event.keyCode) {
             case 38: {
                 this.selectionIndex = Math.max(this.selectionIndex - 1, 0);
@@ -99,7 +124,7 @@ export class ContentReference extends FieldBaseControl<ContentReferenceField<ICo
             }
             case 13: {
                 if (this.availableValues[this.selectionIndex]) {
-                    this.pickValue(this.availableValues[this.selectionIndex])
+                    this.pickValue(this.availableValues[this.selectionIndex]);
                     $event.preventDefault();
                     $event.stopPropagation();
                 }

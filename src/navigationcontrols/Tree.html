@@ -1,17 +1,17 @@
 <template>
     <require from='./Tree.css'></require>
-    <div if.bind="hasValidContent" class="tree-wrapper" title="${Content.SavedFields.DisplayName || Content.SavedFields.Name}">
-        <div class="current-level ${IsSelected ? 'selected' : ''}" click.delegate="Select()" css="padding-left: ${NestingLevel * 0.7}rem"
+    <div if.bind="hasValidContent" class="tree-wrapper" title="${content.DisplayName || content.Name}">
+        <div class="current-level ${isSelected ? 'selected' : ''}" click.delegate="select()" css="padding-left: ${nestingLevel * 0.7}rem"
             content-drop.call="dropContent(event, stringifiedContent, stringifiedContentList, files)">
-            <i class="expand-icon material-icons ${IsExpanded ? 'expanded' : 'collapsed'} ${!HasChildren ? 'no-children' : ''} ${IsLoading ? 'loading' : ''}"
-                click.delegate="Toggle()">keyboard_arrow_down</i>
+            <i class="expand-icon material-icons ${isExpanded ? 'expanded' : 'collapsed'} ${!hasChildren ? 'no-children' : ''} ${isLoading ? 'loading' : ''}"
+                click.delegate="toggle()">keyboard_arrow_down</i>
 
-            <icon class="${IsSelected ? 'selected' : ''}" content.bind="Content"></icon>
-            <span class="tree-item-name ${IsSelected ? 'selected' : ''}" content-drag.bind="[Content]">
-                    ${Content.SavedFields.DisplayName || Content.SavedFields.Name}
+            <icon class="${isSelected ? 'selected' : ''}" content.bind="content"></icon>
+            <span class="tree-item-name ${isSelected ? 'selected' : ''}" content-drag.bind="[content]">
+                    ${Content.DisplayName || content.Name}
             </span>
         </div>
-        <div if.bind="IsLoading & throttle: 200" role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate">
+        <div if.bind="isLoading & throttle: 200" role="progressbar" class="mdc-linear-progress mdc-linear-progress--indeterminate">
             <div class="mdc-linear-progress__buffering-dots"></div>
             <div class="mdc-linear-progress__buffer"></div>
             <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
@@ -21,8 +21,8 @@
                 <span class="mdc-linear-progress__bar-inner"></span>
             </div>
         </div>
-        <div class="children-list ${childTreeMeasured ? '' : 'measure'} ${IsExpanded ? 'expanded' : 'collapsed'}" ref='childrenContainer'>
-            <tree if.bind="!IsLoading" content.bind="child" selection.two-way="Selection" repeat.for="child of Children" nesting-level.bind="NestingLevel + 1"></tree>
+        <div class="children-list ${childTreeMeasured ? '' : 'measure'} ${isExpanded ? 'expanded' : 'collapsed'}" ref='childrenContainer'>
+            <tree if.bind="!isLoading" content.bind="child" selection.two-way="selection" repeat.for="child of children" nesting-level.bind="nestingLevel + 1"></tree>
         </div>
     </div>
 </template>

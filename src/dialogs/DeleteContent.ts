@@ -1,40 +1,41 @@
-import { customElement, bindable } from 'aurelia-framework';
-import { SavedContent } from 'sn-client-js';
-import { dialog } from 'material-components-web/dist/material-components-web';
+import { IContent, Repository } from "@sensenet/client-core";
+import { bindable, customElement } from "aurelia-framework";
+import { dialog } from "material-components-web/dist/material-components-web";
 
-@customElement('delete-content-dialog')
-export class DeleteContent{
+@customElement("delete-content-dialog")
+export class DeleteContent {
     @bindable
-    contents: SavedContent[];
+    public contents!: IContent[];
 
     @bindable
-    permanently: boolean = false;
+    public permanently: boolean = false;
 
-    deleteContentDialog: HTMLElement;
-    deleteContentMDCDialog: dialog.MDCDialog;
+    public deleteContentDialog!: HTMLElement;
+    public deleteContentMDCDialog: dialog.MDCDialog;
 
-    constructor(){
-        
+    constructor(private repository: Repository) {
+
     }
 
-    attached(){
+    public attached() {
         this.deleteContentMDCDialog = new dialog.MDCDialog(this.deleteContentDialog);
     }
 
-
-    open(contents: SavedContent[]){
+    public open(contents: IContent[]) {
         this.contents = contents;
         this.permanently = false;
         this.deleteContentMDCDialog.show();
     }
 
-    cancel(){
+    public cancel() {
         this.deleteContentMDCDialog.close();
     }
 
-
-    async delete(){
+    public async delete() {
         this.deleteContentMDCDialog.close();
-        await this.contents[0].GetRepository().DeleteBatch(this.contents, this.permanently).toPromise()
+        await this.repository.delete({
+            idOrPath: this.contents.map((a) => a.Path),
+            permanent: this.permanently,
+        });
     }
 }

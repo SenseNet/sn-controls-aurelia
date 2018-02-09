@@ -4,11 +4,11 @@
         <form submit.delegate="save()">
           <header class="mdc-dialog__header">
             <h2 class="mdc-dialog__header__title">
-              ${EditedContent.DisplayName || EditedContent.Name}
+              ${editedContent.DisplayName || editedContent.Name}
             </h2>
           </header>
-          <section class="mdc-dialog__body mdc-dialog__body--scrollable" if.bind="EditedContent && !isLoading">
-            <content-view content.bind='EditedContent' action-name='edit'></content-view>
+          <section class="mdc-dialog__body mdc-dialog__body--scrollable" if.bind="editedContent && !isLoading">
+            <content-view content.bind='editedContent' action-name='edit'></content-view>
           </section>
           <footer class="mdc-dialog__footer">
             <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--cancel">Cancel</button>

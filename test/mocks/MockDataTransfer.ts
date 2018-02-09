@@ -1,26 +1,27 @@
-export class MockDataTransfer implements DataTransfer{
-    
-    
-    private _items = []
-    
-    dropEffect: string;
-    effectAllowed: string;
-    files: FileList;
-    items: DataTransferItemList;
-    types: string[] = [];
-    clearData(format?: string): boolean {
-        throw new Error('Method not implemented.');
+// tslint:disable
+export class MockDataTransfer implements DataTransfer {
+
+    // tslint
+    private _items: Map<string, string> = new Map();
+
+    public dropEffect!: string;
+    public effectAllowed!: string;
+    public files!: FileList;
+    public items!: DataTransferItemList;
+    public types: string[] = [];
+    public clearData(format?: string): boolean {
+        throw new Error("Method not implemented.");
     }
-    getData(format: string): string {
-        return this._items[format];
+    public getData(format: string): string {
+        return this._items.get(format) || "";
     }
-    setData(format: string, data: string): boolean {
-        this._items[format] = data;
+    public setData(format: string, data: string): boolean {
+        this._items.set(format, data);
         this.types.push(format);
         return true;
     }
-    setDragImage(image: Element, x: number, y: number): void {
-        throw new Error('Method not implemented.');
+    public setDragImage(image: Element, x: number, y: number): void {
+        throw new Error("Method not implemented.");
     }
 
 }

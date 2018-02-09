@@ -1,39 +1,37 @@
 /**
  * @module FieldControls
- * 
+ *
  */ /** */
 
-import { FieldSettings } from 'sn-client-js';
-import { autoinject, computedFrom } from 'aurelia-framework';
-import { FieldBaseControl } from './FieldBaseControl';
-import { customElement } from 'aurelia-templating';
-import { MDCTextField } from '@material/textfield/dist/mdc.textfield';
-
+import { MDCTextField } from "@material/textfield/dist/mdc.textfield";
+import { PathHelper } from "@sensenet/client-utils";
+import { ShortTextFieldSetting } from "@sensenet/default-content-types";
+import { autoinject, computedFrom } from "aurelia-framework";
+import { customElement } from "aurelia-templating";
+import { FieldBaseControl } from "./FieldBaseControl";
 
 /**
  * Field control for Content name.
  * Usage:
- * 
+ *
  * ``` html
  * <name-field content.bind="content" settings.bind="myShortTextFieldSettings"></name-field>
  * ```
  */
 @autoinject
-@customElement('name-field')
-export class NameField extends FieldBaseControl<string, FieldSettings.ShortTextFieldSetting> {
+@customElement("name-field")
+export class NameField extends FieldBaseControl<string, ShortTextFieldSetting> {
 
-    textfield: HTMLElement;
-    mdcTextField: MDCTextField;
+    public textfield!: HTMLElement;
+    public mdcTextField: MDCTextField;
 
-    @computedFrom('content')
-    get parentPath(): string{
-        return this.content && (this.content.IsSaved ? this.content.ParentPath : this.content.Path) || '';
+    @computedFrom("content")
+    get parentPath(): string {
+        return (this.content && this.content.Path) ? (this.content.Id) ? PathHelper.getParentPath(this.content.Path) : this.content.Path : "";
     }
 
-    attached() {
+    public attached() {
         this.mdcTextField = new MDCTextField(this.textfield);
     }
 
-
 }
-

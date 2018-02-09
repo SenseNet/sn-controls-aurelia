@@ -1,69 +1,68 @@
 /**
  * @module Services
- * 
+ *
  */ /** */
-import { ControlMapper, FieldSettings, ContentTypes } from 'sn-client-js';
-import { Choice, DisplayName, DumpField, DateOnly, DateTime, Password, Percentage, Integer, LongText, NameField, Number as NumberField, RichText, ShortText, Checkbox, ContentReference, ContentListReference } from '../fieldcontrols';
-import { BaseRepository } from 'sn-client-js/dist/src/Repository';
-import { GenericView } from '../index';
+import { Repository } from "@sensenet/client-core";
+import { ControlMapper } from "@sensenet/control-mapper";
+import { ChoiceFieldSetting, DateTimeFieldSetting, DateTimeMode, FieldSetting, IntegerFieldSetting, LongTextFieldSetting, NumberFieldSetting, PasswordFieldSetting, ReferenceFieldSetting, ShortTextFieldSetting, TextType, User, Workspace } from "@sensenet/default-content-types";
+import { Checkbox, Choice, ContentListReference, ContentReference, DateOnly, DateTime, DisplayName, DumpField, Integer, LongText, NameField, Number as NumberField, Password, Percentage, RichText, ShortText } from "../fieldcontrols";
+import { GenericView } from "../index";
 
-export class ControlMappingService{
+export class ControlMappingService {
 
-    private _mappings: ControlMapper<Object, FieldSettings.FieldSetting>;
+    private mappings!: ControlMapper<object, FieldSetting>;
 
-    private initMappings(repo: BaseRepository) {
-        this._mappings = new ControlMapper(repo, Object, (s) => s, GenericView, DumpField)
-        .SetupFieldSettingDefault(FieldSettings.ShortTextFieldSetting, (setting) => {
+    private initMappings(repo: Repository) {
+        this.mappings = new ControlMapper(repo, Object, (s) => s, GenericView, DumpField)
+        .setupFieldSettingDefault(ShortTextFieldSetting, (setting) => {
             switch (setting.Name) {
-                case 'Name':
+                case "Name":
                     return NameField;
-                case 'DisplayName':
+                case "DisplayName":
                     return DisplayName;
                 default:
                     break;
             }
             return ShortText;
         })
-        .SetupFieldSettingDefault(FieldSettings.LongTextFieldSetting, (setting) => {
-            if (setting.TextType && setting.TextType === FieldSettings.TextType.RichText){
+        .setupFieldSettingDefault(LongTextFieldSetting, (setting) => {
+            if (setting.TextType && setting.TextType === TextType.RichText) {
                 return RichText;
             }
             return LongText;
         })
-        .SetupFieldSettingDefault(FieldSettings.DateTimeFieldSetting, (setting) => {
-            if (setting.DateTimeMode === FieldSettings.DateTimeMode.DateAndTime){
+        .setupFieldSettingDefault(DateTimeFieldSetting, (setting) => {
+            if (setting.DateTimeMode === DateTimeMode.DateAndTime) {
                 return DateTime;
             }
             return DateOnly;
         })
-        .SetupFieldSettingDefault(FieldSettings.NumberFieldSetting, setting => NumberField)
-        .SetupFieldSettingDefault(FieldSettings.PasswordFieldSetting, setting => Password)
-        .SetupFieldSettingDefault(FieldSettings.ChoiceFieldSetting, settings => {
+        .setupFieldSettingDefault(NumberFieldSetting, (setting) => NumberField)
+        .setupFieldSettingDefault(PasswordFieldSetting, (setting) => Password)
+        .setupFieldSettingDefault(ChoiceFieldSetting, (settings) => {
             return Choice;
         })
-        .SetupFieldSettingDefault(FieldSettings.IntegerFieldSetting, (setting) => {
+        .setupFieldSettingDefault(IntegerFieldSetting, (setting) => {
             if (setting.ShowAsPercentage) {
                 return Percentage;
             }
             return Integer;
         })
-        .SetupFieldSettingDefault(FieldSettings.ReferenceFieldSetting, (setting) => {
-            if (setting.AllowMultiple){
+        .setupFieldSettingDefault(ReferenceFieldSetting, (setting) => {
+            if (setting.AllowMultiple) {
                 return ContentListReference;
             }
             return ContentReference;
         })
-        .SetupFieldSettingForControl(ContentTypes.User, 'Enabled', () => { return Checkbox; })
-        .SetupFieldSettingForControl(ContentTypes.Workspace, 'IsWallContainer', () => { return Checkbox; })
-        .SetupFieldSettingForControl(ContentTypes.Workspace, 'IsActive', () => { return Checkbox; })
+        .setupFieldSettingForControl(User, "Enabled", () => Checkbox)
+        .setupFieldSettingForControl(Workspace, "IsWallContainer", () => Checkbox)
+        .setupFieldSettingForControl(Workspace, "IsActive", () => Checkbox);
     }
 
-
-
-    public GetMappings(repo: BaseRepository){
-        if (!this._mappings){
+    public GetMappings(repo: Repository) {
+        if (!this.mappings) {
             this.initMappings(repo);
         }
-        return this._mappings;
-    } 
+        return this.mappings;
+    }
 }

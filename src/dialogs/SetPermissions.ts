@@ -1,104 +1,105 @@
-import { customElement, bindable } from 'aurelia-framework';
-import { dialog } from 'material-components-web/dist/material-components-web';
-import { ContentInternal, SavedContent, Content } from 'sn-client-js';
-import { PermissionLevel, IdentityKind } from 'sn-client-js/dist/src/Security';
-import { ContentReference, ContentList } from '../index';
-import { ReferenceFieldSetting } from 'sn-client-js/dist/src/FieldSettings';
-import { PermissionResponseModel, PermissionEntry } from 'sn-client-js/dist/src/Repository/PermissionModel';
-import { ActionModel } from 'sn-client-js/dist/src/Repository';
+import { IContent, IPermissionEntry, IPermissionResponseModel, Repository } from "@sensenet/client-core";
+import { IActionModel, IdentityKind, PermissionLevel, ReferenceFieldSetting } from "@sensenet/default-content-types";
+import { bindable, customElement } from "aurelia-framework";
+import { dialog } from "material-components-web/dist/material-components-web";
+import { ContentList, ContentReference } from "../index";
 
-
-@customElement('set-permissions-dialog')
+@customElement("set-permissions-dialog")
 export class SetPermissionsDialog {
-    setPermissionsDialog: HTMLElement;
-    setPermissionsMDCDialog: dialog.MDCDialog;
+    public setPermissionsDialog!: HTMLElement;
+    public setPermissionsMDCDialog: dialog.MDCDialog;
 
-    attached(){
+    public attached() {
         this.setPermissionsMDCDialog = new dialog.MDCDialog(this.setPermissionsDialog);
     }
 
     @bindable
-    public ownerReferenceSchema: ContentReference;
+    public ownerReferenceSchema!: ContentReference;
 
     @bindable
-    public contentListReference: ContentList;
+    public contentListReference!: ContentList;
 
     @bindable
-    permissions: PermissionResponseModel;
+    public permissions!: IPermissionResponseModel;
 
     @bindable
-    relatedIdentities: Content[] = [];
+    public relatedIdentities: IContent[] = [];
 
+    constructor(private repository: Repository) {
 
+    }
 
-    async getListItems(): Promise<SavedContent[]>{
+    public async getListItems(): Promise<IContent[]> {
         return this.relatedIdentities;
     }
 
-    async open(content: ContentInternal){
+    public async open(content: IContent) {
 
-        content.GetActions()
-       
-        const ownerSettings = content.GetSchema().FieldSettings.find(s => s.Name === 'Owner');
-        (ownerSettings as ReferenceFieldSetting).AllowedTypes = ['User'];
+        const ownerSettings = this.repository.schemas.getSchemaByName(content.Type).FieldSettings.find((s) => s.Name === "Owner");
+        (ownerSettings as ReferenceFieldSetting).AllowedTypes = ["User"];
 
         this.ownerReferenceSchema.activate({
             settings: ownerSettings,
             content,
-            actionName: 'edit'
-        })
+            actionName: "edit",
+        });
 
         const [relatedIdentities, permissions] = await Promise.all([
-            content.GetRelatedIdentities(PermissionLevel.AllowedOrDenied, IdentityKind.All).toPromise(), 
-            content.GetPermissions().toPromise()]);
+            this.repository.security.getRelatedIdentities({
+                contentIdOrPath: content.Id,
+                level: PermissionLevel.AllowedOrDenied,
+                kind: IdentityKind.All,
+            }),
+            this.repository.security.getAllPermissions(content.Id)]);
         this.permissions = permissions;
 
-        const contentEntries: SavedContent[] = []
+        const contentEntries: IContent[] = [];
 
-        relatedIdentities.d.results.forEach(r => {
-            if (this.permissions.entries.findIndex(e => e.identity.path === r.Path && e.propagates) > -1)
-            contentEntries.push(content.GetRepository().HandleLoadedContent(r))
+        relatedIdentities.d.results.forEach((r) => {
+            if (this.permissions.entries.findIndex((e) => e.identity.path === r.Path && e.propagates) > -1) {
+            contentEntries.push(r);
+            }
         });
         this.relatedIdentities = contentEntries;
 
-        this.contentListReference.Scope = content;
+        this.contentListReference.scope = content;
 
         this.setPermissionsMDCDialog.show();
     }
 
     @bindable
-    selectedSecurityEntry: Content[]
+    public selectedSecurityEntry!: IContent[];
 
     @bindable
-    selectedPermissionEntry: PermissionEntry;
+    public selectedPermissionEntry!: IPermissionEntry;
 
     @bindable
-    selectedPermissionEntryKeys: string[] = []
+    public selectedPermissionEntryKeys: string[] = [];
 
-    selectedSecurityEntryChanged(){
-        const newEntry: Content = this.selectedSecurityEntry[0];
-        if (newEntry){
-            console.log('Selected security entry changed. New one: ', newEntry);
-            this.selectedPermissionEntry = this.permissions.entries.find(p => p.identity.path === newEntry.Path) as PermissionEntry;
+    public selectedSecurityEntryChanged() {
+        const newEntry: IContent = this.selectedSecurityEntry[0];
+        if (newEntry) {
+            // console.log("Selected security entry changed. New one: ", newEntry);
+            this.selectedPermissionEntry = this.permissions.entries.find((p) => p.identity.path === newEntry.Path) as IPermissionEntry;
             this.selectedPermissionEntryKeys = Object.keys(this.selectedPermissionEntry.permissions);
         }
     }
 
-    getPermissionEntryActions(content: Content): ActionModel[]{
+    public getPermissionEntryActions(content: IContent): IActionModel[] {
         return [{
             ClientAction: false,
-            DisplayName: 'Remove permission entry',
-            Icon: 'clear',
-            Name: 'RemovePermissionEntry',
+            DisplayName: "Remove permission entry",
+            Icon: "clear",
+            Name: "RemovePermissionEntry",
             Forbidden: false,
-            Url: '',
+            Url: "",
             IncludeBackUrl: 0,
-            Index: 0
-        }]
+            Index: 0,
+        }];
     }
 
-    onPermissionEntryAction(content: Content, action: ActionModel){
-        if (action.Name === 'RemovePermissionEntry'){
+    public onPermissionEntryAction(content: IContent, action: IActionModel) {
+        if (action.Name === "RemovePermissionEntry") {
             this.relatedIdentities.splice(this.relatedIdentities.indexOf(content), 1);
         }
     }

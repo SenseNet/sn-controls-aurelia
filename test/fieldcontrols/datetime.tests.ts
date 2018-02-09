@@ -1,49 +1,47 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldSettings } from 'sn-client-js';
-import { DateTime } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { IDisposable } from "@sensenet/client-utils";
+import { DateTimeFieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { DateTime } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('DateTime field component')
-export class DateTimeTests extends FieldControlBaseTest<DateTime> {
-    
-    constructor() {
-        super(DateTime, 'date-time');
-    }
+export const dateTimeTests = describe("DateTime Field component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<DateTime>("<date-time></date-time>", "date-time");
 
+    let viewModel: DateTime & IDisposable;
 
-    @test
-    public async 'Can be constructed'() {     
-        const viewModel = await this.createFieldViewModel();
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
+
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
         expect(viewModel).to.be.instanceof(DateTime);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-
-        const viewModel = await this.createFieldViewModel();
+    it("Can not be modified if is read only", () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.DateTimeFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
+            ReadOnly: true,
+        } as DateTimeFieldSetting;
+        viewModel.content = {Id: 1285, Path: "root/path", Name: "", Type: "User"};
 
-        const contentViewElement = document.querySelector('date-time input') as HTMLInputElement;
+        const contentViewElement = document.querySelector("date-time input") as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
-    }
+    });
 
-    @test
-    public async 'Required rule is added if complusory'() {
-        
-
-        const viewModel = await this.createFieldViewModel();
+    it("Required rule is added if complusory", () => {
         viewModel.settings = {
-            Compulsory: true
-        } as FieldSettings.DateTimeFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
+            Compulsory: true,
+        } as DateTimeFieldSetting;
+        viewModel.content = {Id: 1285, Path: "root/path", Name: "", Type: "User"};
 
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
+
+});
 
     // @test
     // public async 'Date value and Time value is concatenated as an UTC value'(){
@@ -68,7 +66,6 @@ export class DateTimeTests extends FieldControlBaseTest<DateTime> {
     // @test
     // public async 'Value should be splitted and converted to local date and time'(){
 
-
     //     const viewModel = await this.createFieldViewModel();
     //     viewModel.settings = new FieldSettings.DateTimeFieldSetting({
     //         compulsory: true
@@ -76,7 +73,7 @@ export class DateTimeTests extends FieldControlBaseTest<DateTime> {
     //     viewModel.content = new ContentTypes.Task({} as any, this.mockRepo);
 
     //     viewModel.value = '2017-01-01T09:00:00.000Z';
-    //     viewModel.localeService.Timezone = 'Europe/Budapest';        
+    //     viewModel.localeService.Timezone = 'Europe/Budapest';
     //     viewModel.valueChanged();
 
     //     expect(viewModel.valueTime).to.be.eq('10:00:00');
@@ -119,4 +116,4 @@ export class DateTimeTests extends FieldControlBaseTest<DateTime> {
     //     expect(viewModel.valueDate).to.be.eq(undefined);
     //     expect(viewModel.valueTime).to.be.eq(undefined);
     // }
-}
+// }
