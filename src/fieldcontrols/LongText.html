@@ -1,6 +1,6 @@
 <template>
     <require from="./LongText.css"></require>
-    <label class="mdc-text-field mdc-text-field--multiline longtext-wrapper" title.bind="settings.Description" ref="textfield">
+    <label class="mdc-text-field mdc-text-field--multiline longtext-wrapper ${hasInitialValue ? 'mdc-text-field--upgraded' : ''}" title.bind="settings.Description" ref="textfield">
         <textarea type="text" 
             class="mdc-text-field__input" 
             value.bind="value" 
@@ -8,6 +8,6 @@
             rows="8"
             settings-validation.bind="settings"
             cols="40"></textarea>
-        <span class="mdc-text-field__label">${settings.DisplayName}</span>
+        <span class="mdc-text-field__label ${hasInitialValue ? 'mdc-text-field__label--float-above' : ''}">${settings.DisplayName}</span>
       </label>    
 </template>

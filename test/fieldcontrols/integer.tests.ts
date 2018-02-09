@@ -1,44 +1,43 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldSettings } from 'sn-client-js';
-import { Integer } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { IDisposable } from "@sensenet/client-utils";
+import { IntegerFieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { Integer } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('IntegerField component')
-export class IntegerFieldTests extends FieldControlBaseTest<Integer> {
+export const integerFieldTests = describe("Integer field component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<Integer>("<integer-field></integer-field>", "integer-field");
 
-    constructor() {
-        super(Integer, 'integer-field');
-    }
+    let viewModel: Integer & IDisposable;
 
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
+
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
         expect(viewModel).to.be.instanceof(Integer);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-
-        const viewModel = await this.createFieldViewModel();
+    it("Can not be modified if is read only", () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.ChoiceFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
-        const contentViewElement = document.querySelector('integer-field input') as HTMLInputElement;
+            ReadOnly: true,
+        } as IntegerFieldSetting;
+        viewModel.content = {Id: 1285, Path: "root/path", Name: "", Type: "User"};
+        const contentViewElement = document.querySelector("integer-field input") as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
+    });
 
-    }
-
-    @test
-    public async 'Required rule is added if complusory'() {
-        const viewModel = await this.createFieldViewModel();
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 1285, Path: 'root/path', Name: ''})
+    it("Required rule is added if complusory", () => {
+        viewModel.content = {Id: 1285, Path: "root/path", Name: "", Type: "User"};
         viewModel.settings = {
-            Compulsory: true
-        } as FieldSettings.ChoiceFieldSetting;
+            Compulsory: true,
+        } as IntegerFieldSetting;
 
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
-}
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
+
+});

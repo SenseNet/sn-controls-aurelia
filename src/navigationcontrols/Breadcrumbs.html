@@ -1,6 +1,6 @@
 <template>
     <require from='./Breadcrumbs.css'></require>
     <div class="breadcrumbs-container">
-        <a repeat.for="segment of Segments" class="path-breadcrumb" click.delegate='PathChange && PathChange({path: segment.path})'>${segment.name}</a>
+        <a repeat.for="segment of segments" class="path-breadcrumb" click.delegate='pathChange && pathChange({path: segment.path})'>${segment.name}</a>
     </div>
 </template>

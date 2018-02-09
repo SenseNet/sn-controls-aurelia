@@ -1,42 +1,43 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldSettings } from 'sn-client-js';
-import { Checkbox } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { IDisposable } from "@sensenet/client-utils/dist/Disposable";
+import { FieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { Checkbox } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('Checkbox component')
-export class CheckboxFieldests extends FieldControlBaseTest<Checkbox> {
+export const checkBoxTests = describe("Checkbox Tests", () => {
 
-    constructor() {
-        super(Checkbox, 'checkbox');
-    }
+    const createFieldViewModel = async () => {
+        return await ComponentTestHelper.createAndGetViewModel<Checkbox>("<checkbox></checkbox>", "checkbox");
+    };
+    let viewModel: Checkbox & IDisposable;
 
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
+
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", async () => {
         expect(viewModel).to.be.instanceof(Checkbox);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-        const viewModel = await this.createFieldViewModel();
+    it("Can not be modified if is read only", async () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.FieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12387, Path: 'asd', Name: ''});
-        const contentViewElement = document.querySelector('checkbox input') as HTMLInputElement;
+            ReadOnly: true,
+        } as FieldSetting;
+        viewModel.content = {Id: 12387, Path: "asd", Name: "", Type: ""};
+        const contentViewElement = document.querySelector("checkbox input") as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
-    }
+    });
 
-    @test
-    public async 'Required rule is added if complusory'() {
-
-        const viewModel = await this.createFieldViewModel();
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 123387, Path: 'asd', Name: ''});
+    it("Required rule is added if complusory", async () => {
+        viewModel.content = {Id: 123387, Path: "asd", Name: "", Type: "User"};
         viewModel.settings = {
-            Compulsory: true
-        }  as FieldSettings.FieldSetting;
+            Compulsory: true,
+        }  as FieldSetting;
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
-}
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
+});

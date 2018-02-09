@@ -1,0 +1,35 @@
+<template>
+    <require from="./DeleteContent.css"></require>
+
+    <aside ref="deleteContentDialog" class="mdc-dialog delete-modal-wrapper" role="alertdialog" aria-labelledby="my-mdc-dialog-label" aria-describedby="my-mdc-dialog-description">
+        <div class="mdc-dialog__surface">
+            <header class="mdc-dialog__header">
+                <h2 class="mdc-dialog__header__title">
+                    Delete content?
+                </h2>
+            </header>
+            <section class="mdc-dialog__body--scrollable">
+                <content-list items.bind="contents" enable-selection.bind="false" show-scope.bind="false" view-type="List"></content-list>
+            </section>
+            <footer class="mdc-dialog__footer">
+                <div class="permanently-checkbox mdc-form-field">
+                    <div class="mdc-checkbox">
+                        <input type="checkbox" class="mdc-checkbox__native-control" checked.bind="permanently" id="permanently-checkbox" />
+                        <div class="mdc-checkbox__background">
+                            <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+                                <path class="mdc-checkbox__checkmark__path" fill="none" stroke="white" d="M1.73,12.91 8.1,19.28 22.79,4.59" />
+                            </svg>
+                            <div class="mdc-checkbox__mixedmark"></div>
+                        </div>
+                    </div>
+                    <label for="permanently-checkbox">Permanently</label>
+                </div>
+                <button type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--cancel">Cancel</button>
+                <button click.delegate="delete()" type="button" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--accept">
+                    ${permanently ? 'Delete permanently' : 'Move to Trash'}
+                </button>
+            </footer>
+        </div>
+        <div class="mdc-dialog__backdrop"></div>
+    </aside>
+</template>

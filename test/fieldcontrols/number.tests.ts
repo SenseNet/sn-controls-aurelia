@@ -1,42 +1,42 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { FieldSettings } from 'sn-client-js';
-import { Number } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { IDisposable } from "@sensenet/client-utils";
+import { IntegerFieldSetting } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { Number as NumberField } from "../../src/fieldcontrols";
+import { ComponentTestHelper} from "../component-test-helper";
 
-@suite('NumberField component')
-export class NumberFieldTests extends FieldControlBaseTest<Number> {
+export const numberTests = describe("NumberField component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<NumberField>("<number-field></number-field>", "number-field");
 
-    constructor() {
-        super(Number, 'number-field');
-    }
+    let viewModel: NumberField & IDisposable;
 
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
-        expect(viewModel).to.be.instanceof(Number);
-    }
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-        const viewModel = await this.createFieldViewModel();
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", async () => {
+        expect (viewModel).to.be.instanceof(NumberField);
+    });
+
+    it("Can not be modified if is read only", async () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.IntegerFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12487, Path: 'root/path', Name: 'C1'});
-        const contentViewElement = document.querySelector('number-field input') as HTMLInputElement;
+            ReadOnly: true,
+            Name: "Example",
+        } as IntegerFieldSetting;
+        viewModel.content = {Id: 12487, Path: "root/path", Name: "C1", Type: "User"};
+        const contentViewElement = document.querySelector("number-field input") as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
+    });
 
-    }
-
-    @test
-    public async 'Required rule is added if complusory'() {
-        const viewModel = await this.createFieldViewModel();
+    it("Required rule is added if complusory", async () => {
         viewModel.settings = {
-            Compulsory: true
-        } as FieldSettings.IntegerFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12487, Path: 'root/path', Name: 'C1'});
+            Compulsory: true,
+        } as IntegerFieldSetting;
+        viewModel.content = {Id: 12487, Path: "root/path", Name: "C1", Type: "User"};
         const rules = viewModel.rules;
-        expect(rules[0][0].messageKey).to.be.eq('required');
-    }
-}
+        expect(rules[0][0].messageKey).to.be.eq("required");
+    });
+});

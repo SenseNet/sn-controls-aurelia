@@ -1,19 +1,14 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { DumpField } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { expect } from "chai";
+import { DumpField } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('DumpField component')
-export class DumpFieldTests extends FieldControlBaseTest<DumpField> {
+export const dumpFieldTests = describe("DumpField component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<DumpField>("<dump-field></dump-field>", "dump-field");
 
-    constructor() {
-        super(DumpField, 'dump-field');
-        
-    }
-
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+    it("Can be constructed", async () => {
+        const viewModel = await createFieldViewModel();
         expect(viewModel).to.be.instanceof(DumpField);
-    }
-}
+        viewModel.dispose();
+    });
+
+});

@@ -3,8 +3,11 @@
 
     <div class="generic-view-wrapper mdc-layout-grid">
         <div class="mdc-layout-grid__inner">
-            <compose repeat.for="mapping of schema.FieldMappings" class="mdc-form-field mdc-layout-grid__cell" view-model.bind="mapping.ControlTypeName"
-                model.bind="{settings: mapping.FieldSettings, content: content, actionName: actionName}"></compose>
+            <compose 
+                class="mdc-form-field mdc-layout-grid__cell"
+                repeat.for="mapping of schema.fieldMappings"
+                view-model.bind="mapping.ControlTypeName"
+                model.bind="{settings: mapping.fieldSettings, content, actionName}"></compose>
             <slot></slot>
         </div>
     </div>

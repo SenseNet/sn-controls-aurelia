@@ -1,4 +1,4 @@
-export enum DragTypes{
-    Content = 'sensenet/content',
-    ContentList = 'sensenet/contentlist'
+export enum DragTypes {
+    Content = "sensenet/content",
+    ContentList = "sensenet/contentlist",
 }

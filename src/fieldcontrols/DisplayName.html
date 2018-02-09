@@ -1,10 +1,10 @@
 <template>
-    <label class="mdc-text-field" title.bind="settings.Description" ref="textfield">
+    <label class="mdc-text-field ${hasInitialValue ? 'mdc-text-field--upgraded' : ''}" title.bind="settings.Description" ref="textfield">
         <input type="text" class="mdc-text-field__input"
             value.bind="value"
             settings-validation.bind="settings"
             disabled.bind="readOnly"
             required.bind="settings.Compulsory">
-        <span class="mdc-text-field__label">${settings.DisplayName}</span>
+        <span class="mdc-text-field__label ${hasInitialValue ? 'mdc-text-field__label--float-above' : ''}">${settings.DisplayName}</span>
       </label>
 </template>

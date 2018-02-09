@@ -1,45 +1,49 @@
 // ToDo: Refactor to TestInit module
-import 'aurelia-polyfills';
-import * as Path from 'path';
-import { initialize, globalize } from 'aurelia-pal-nodejs';
-import { Options, ExtensionHandlers } from 'aurelia-loader-nodejs';
-import { MockCanvasRenderingContext2D } from './mocks';
+import { ExtensionHandlers, Options } from "aurelia-loader-nodejs";
+import { globalize, initialize } from "aurelia-pal-nodejs";
+import "aurelia-polyfills";
+import * as Path from "path";
+import { MockCanvasRenderingContext2D } from "./mocks";
 
 initialize();
 globalize();
 
-ExtensionHandlers['.css'] = (params: any) => {
-    return Promise.resolve(' ');
-}
+ExtensionHandlers[".css"] = (params: any) => {
+    return Promise.resolve(" ");
+};
 
 (global as any).Node = (window as any).Node;
 (global as any).navigator = {};
 (global as any).getComputedStyle = window.getComputedStyle;
 (global as any).Text = class { };
-(global as any).MutationObserver = class { observe() { }; takeRecords() { return []; } };
+// tslint:disable-next-line:max-classes-per-file
+(global as any).MutationObserver = class { public observe() { /** */ } public takeRecords() { return []; } };
 
 (global as any).HTMLCanvasElement = HTMLElement;
 
-document.getSelection = () => { 
+(global as any).window.fetch = async (...args: any[]) => ({ok: true, json: async () => ({})});
+
+document.getSelection = () => {
     return {
-        getRangeAt: () => {return 1; }
+        getRangeAt: () => 1,
     } as any;
-}
+};
 
+Options.relativeToDir = Path.join(process.cwd(), "temp", "src");
 
-Options.relativeToDir = Path.join(process.cwd(), 'dist', 'src');
+(window as any).HTMLCanvasElement.prototype.getContext = () => new MockCanvasRenderingContext2D();
+(window as any).requestAnimationFrame = (callback: (...args: any[]) => void) => callback(1);
 
-(window as any).HTMLCanvasElement.prototype.getContext = () => { return new MockCanvasRenderingContext2D() }
-(window as any).requestAnimationFrame = (callback: (...args) => void) => { return callback(1); }
+import "quill";
+import "reflect-metadata";
 
-import 'reflect-metadata';
-import 'quill';
+export * from "../src";
 
-export * from './mocks';
-
-export * from './attributes';
-export * from './collectioncontrols';
-export * from './fieldcontrols';
-export * from './navigationcontrols';
-export * from './services';
-export * from './viewcontrols';
+export * from "./mocks";
+export * from "./attributes";
+export * from "./collectioncontrols";
+export * from "./dialogs";
+export * from "./fieldcontrols";
+export * from "./navigationcontrols";
+export * from "./services";
+export * from "./viewcontrols";

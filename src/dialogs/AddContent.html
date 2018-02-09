@@ -1,0 +1,57 @@
+<template>
+    <require from="./EditContent.css"></require>
+
+    <aside ref="createContentDialog" class="mdc-dialog edit-content-wrapper" role="alertdialog" aria-labelledby="my-mdc-dialog-label" aria-describedby="my-mdc-dialog-description">
+        <div class="mdc-dialog__surface">
+            <header class="mdc-dialog__header">
+                <icon content.bind="selectedSchema"></icon>
+   
+                <h2 class="mdc-dialog__header__title">
+                    Create new ${ selectedSchema && selectedSchema.DisplayName || 'Content' }
+                </h2>
+            </header>
+            <section class="mdc-dialog__body--scrollable">
+                <md-progress if.bind="isLoading"></md-progress>
+
+                <div if.bind="!isLoading">
+
+                    <div if.bind="errorMessage && errorMessage.length" class="load-error">
+                        ${errorMessage}
+                    </div>
+
+                    <div if.bind="!errorMessage">
+
+                        <div if.bind="!selectedSchema">
+                            <content-list 
+                                items.bind="availableSchemas"
+                                enable-selection.bind="false"
+                                on-activate.call="selectSchema(content)"
+                                show-scope.bind="false"
+                                view-type="List"></content-list>
+                        </div>
+
+                        <div if.bind="selectedSchema && newContent">
+                            <content-view content.bind="newContent" action-name="new"></content-view>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="mdc-dialog__footer">
+
+                <button if.bind="selectedSchema" click.delegate="selectedSchema = null" type="button" class="mdc-button mdc-dialog__footer__button">
+                    Back
+                </button>
+                
+                <button if.bind="selectedSchema" click.delegate="create()" type="button" class="mdc-button mdc-dialog__footer__button">
+                    Create
+                </button>
+
+                <button click.delegate="cancel()" type="button" class="mdc-button mdc-dialog__footer__button">
+                    Cancel
+                </button>
+    
+            </footer>
+        </div>
+        <div class="mdc-dialog__backdrop"></div>
+    </aside>
+</template>

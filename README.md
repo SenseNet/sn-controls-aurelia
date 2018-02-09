@@ -15,20 +15,20 @@
 
 This package contains a collection of UI components and controls for [sensenet ECM](https://www.sensenet.com/), written in [Aurelia Framewok](http://aurelia.io/)
 
-[![Sense/Net Services](https://img.shields.io/badge/sensenet-7.0.0--beta3%20tested-green.svg)](https://github.com/SenseNet/sensenet/releases/tag/v7.0.0-beta3)
+[![Sense/Net Services](https://img.shields.io/badge/sensenet-7.0.0%20tested-green.svg)](https://github.com/SenseNet/sensenet/releases/tag/v7.0.0)
 
 ## Usage and installation
 
 You can install the latest version from NPM
 
 ```
-npm install --save sn-controls-aurelia
+npm install --save @sensenet/controls-aurelia
 ```
 
 You can import into your Aurelia application's entry point
 
 ```ts
-import { Repository } from 'sn-client-js';
+import { Repository } from '@sensenet/client-core';
 // ... your other imports
 
 export async function configure(aurelia: Aurelia) {
@@ -39,12 +39,11 @@ export async function configure(aurelia: Aurelia) {
     .plugin(PLATFORM.moduleName('aurelia-validation'))
     .plugin(PLATFORM.moduleName('sn-controls-aurelia'));
 
-    aurelia.container.registerSingleton(Repository.BaseRepository, () => {
-        const repo = new Repository.SnRepository(
+    aurelia.container.registerSingleton(Repository, () => {
+        const repo = new Repository(
         {
-            RepositoryUrl: 'https://my-sn7-instance',
+            repositoryUrl: 'https://my-sn7-instance',
         });
-
         return repo;
     });
 

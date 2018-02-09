@@ -1,26 +1,27 @@
+// tslint:disable
 export class MockCanvasRenderingContext2D {
-    canvas: HTMLCanvasElement;
-    fillStyle: string | CanvasGradient | CanvasPattern;
-    font: string;
-    globalAlpha: number;
-    globalCompositeOperation: string;
-    imageSmoothingEnabled: boolean;
-    lineCap: string;
-    lineDashOffset: number;
-    lineJoin: string;
-    lineWidth: number;
-    miterLimit: number;
-    msFillRule: CanvasFillRule;
-    shadowBlur: number;
-    shadowColor: string;
-    shadowOffsetX: number;
-    shadowOffsetY: number;
-    strokeStyle: string | CanvasGradient | CanvasPattern;
-    textAlign: string;
-    textBaseline: string;
-    mozImageSmoothingEnabled: boolean;
-    webkitImageSmoothingEnabled: boolean;
-    oImageSmoothingEnabled: boolean;
+    canvas!: HTMLCanvasElement;
+    fillStyle!: string | CanvasGradient | CanvasPattern;
+    font!: string;
+    globalAlpha!: number;
+    globalCompositeOperation!: string;
+    imageSmoothingEnabled!: boolean;
+    lineCap!: string;
+    lineDashOffset!: number;
+    lineJoin!: string;
+    lineWidth!: number;
+    miterLimit!: number;
+    msFillRule!: CanvasFillRule;
+    shadowBlur!: number;
+    shadowColor!: string;
+    shadowOffsetX!: number;
+    shadowOffsetY!: number;
+    strokeStyle!: string | CanvasGradient | CanvasPattern;
+    textAlign!: string;
+    textBaseline!: string;
+    mozImageSmoothingEnabled!: boolean;
+    webkitImageSmoothingEnabled!: boolean;
+    oImageSmoothingEnabled!: boolean;
     beginPath(): void {
         throw new Error('Method not implemented.');
     }
@@ -124,7 +125,7 @@ export class MockCanvasRenderingContext2D {
         throw new Error('Method not implemented.');
     }
 
-    should: Chai.Assertion;
+    should!: Chai.Assertion;
     arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void {
         throw new Error('Method not implemented.');
     }

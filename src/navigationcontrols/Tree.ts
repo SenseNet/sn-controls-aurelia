@@ -1,16 +1,17 @@
 /**
  * @module NavigationControls
- * 
+ *
  */ /** */
 
-import { bindable, computedFrom, autoinject } from 'aurelia-framework';
-import { Content, Repository } from 'sn-client-js';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { IContent, Repository } from "@sensenet/client-core";
+import { IDisposable, PathHelper, ValueObserver } from "@sensenet/client-utils";
+import { GenericContent } from "@sensenet/default-content-types";
+import { EventHub, IContentMoved, ICreated, IDeleted, IModified } from "@sensenet/repository-events";
+import { autoinject, bindable, computedFrom } from "aurelia-framework";
 
 /**
- * A tree with bindable Root content and Selection.
- * Usage example: 
+ * A tree with bindable Root Content and Selection.
+ * Usage example:
  * ``` html
  * <tree content.bind="RootContent" selection.two-way="SelectionContent"></tree>
  * ```
@@ -18,243 +19,276 @@ import { Observable } from 'rxjs/Observable';
 @autoinject
 export class Tree {
 
+    @bindable
+    public childrenContainer!: HTMLElement;
 
-    Subscriptions: Subscription[] = [];
-
-    @computedFrom('Content')
-    get Repository(): Repository.BaseRepository {
-        return this.Content.GetRepository();
-    };
+    public observers: IDisposable[] = [];
 
     @bindable
-    public NestingLevel: number = 0;
+    public nestingLevel: number = 0;
 
     /**
      * Property that represents if the tree is expanded or not
      */
     @bindable
-    IsExpanded: boolean = false;
+    public isExpanded: boolean = false;
 
     /**
-     * Property that represents if the tree is currently loading it's child content
+     * Property that represents if the tree is currently loading it's child IContent
      */
     @bindable
-    IsLoading: boolean = false;
+    public isLoading: boolean = false;
 
     /**
      * Property that represents of the tree has children or not
      */
 
     @bindable
-    HasChildren: boolean = true;
+    public hasChildren: boolean = true;
 
     /**
-     * The root level Content instance of the tree
+     * The root level IContent instance of the tree
      */
 
     @bindable
-    Content: Content;
+    public content!: IContent;
 
     /**
-     * List of the child content (will be reloaded on each expand)
+     * List of the child IContent (will be reloaded on each expand)
      */
     @bindable
-    Children: Content[] = [];
-
+    public children: GenericContent[] = [];
 
     /**
-     * An optional Content that represents the current Selection for the Tree. Used for auto-expand and Selection binding
+     * An optional IContent that represents the current Selection for the Tree. Used for auto-expand and Selection binding
      */
     @bindable
-    Selection: Content;
+    public selection!: IContent;
+
+    private readonly eventHub: EventHub;
+
+    constructor(public repository: Repository) {
+        this.eventHub = new EventHub(this.repository);
+    }
 
     /**
-     * indicates if the current level Content is selected in the Tree. This getter is also used for auto-expand
+     * indicates if the current level IContent is selected in the Tree. This getter is also used for auto-expand
      */
-    @computedFrom('Selection', 'Content')
-    get IsSelected() {
-        if (this.Selection && this.Selection.Path && this.Content && this.Content.Path) {
-            if (!this.IsExpanded && this.Selection.Path.indexOf(this.Content.Path + '/') === 0 && this.Selection.Path !== this.Content.Path) {
-                this.Expand();
+    @computedFrom("selection", "content")
+    get isSelected() {
+        if (this.selection && this.selection.Path && this.content && this.content.Path) {
+            if (!this.isExpanded && this.selection.Path.indexOf(this.content.Path + "/") === 0 && this.selection.Path !== this.content.Path) {
+                this.expand();
             }
-            return this.Selection.Path === this.Content.Path;
+            return this.selection.Path === this.content.Path;
         }
         return false;
     }
 
-    @computedFrom('Content')
+    @computedFrom("content")
     get hasValidContent(): boolean {
-        return this.Content && this.Content.SavedFields && Object.keys(this.Content.SavedFields).length > 0;
+        return this.content ? true : false;
     }
 
     /**
-     * Triggers an Expand on the current level (also used to load Children content)
+     * Triggers an Expand on the current level (also used to load Children IContent)
      */
     @bindable
-    Expand: () => Promise<void> = () => {
-        return new Promise<void>((resolve, reject) => {
-            this.IsExpanded = true;
-            this.IsLoading = true;
-
-            this.Content.Children({
-                metadata: 'no',
-                expand: ['Workspace'],
-                select: ['Path', 'Id', 'Name', 'DisplayName', 'Icon', 'IsFolder'],
-                orderby: ['DisplayName', 'Name'],
-                filter: 'IsFolder'
-            }).subscribe(children => {
-                setTimeout(() => {
-                    this.Children = children;
-                    this.ReorderChildren();
-                    resolve();
-                }, 200)
-                this.IsLoading = false;
-            }, (err) => {
-                this.IsLoading = false;
-                reject(err);
+    public expand = async () => {
+        this.isExpanded = true;
+        this.isLoading = true;
+        try {
+            const children = await this.repository.loadCollection<GenericContent>({
+                path: this.content.Path,
+                oDataOptions: {
+                    metadata: "no",
+                    expand: ["Workspace"],
+                    select: ["Path", "Id", "Name", "DisplayName", "Icon", "IsFolder"],
+                    orderby: ["DisplayName", "Name"],
+                    filter: "IsFolder",
+                },
             });
-        });
+            this.children = children.d.results;
+        } catch {
+            this.children = [];
+        } finally {
+            this.isLoading = false;
+            this.reorderChildren();
+
+            setTimeout(() => {
+                if (this.childrenContainer) {
+                    this.childrenContainer.style.maxHeight = "none";
+                }
+            }, 200);
+
+        }
     }
 
     /**
      * Triggers a Collapse operation (hide children)
      */
-    Collapse() {
-        this.IsExpanded = false;
+    public collapse() {
+        if (this.childrenContainer) {
+            this.childrenContainer.style.removeProperty("max-height");
+        }
+        if (PathHelper.getParentPath(this.selection.Path) === this.content.Path) {
+            this.selection = this.content;
+        }
+        setTimeout(() => {
+            this.isExpanded = false;
+        }, 10);
     }
 
     /**
      * Toggles between Expand / Collapse
      */
-    Toggle() {
-        !this.IsLoading && (!this.IsExpanded ? this.Expand() : this.Collapse());
+    public toggle() {
+        !this.isLoading && (!this.isExpanded ? this.expand() : this.collapse());
     }
 
     /**
-     * Sets the Selection to the current level Content
+     * Sets the Selection to the current level IContent
      */
-    Select() {
-        this.Selection = this.Content;
+    public select() {
+        this.selection = this.content;
     }
 
-    ReorderChildren() {
-        this.Children = this.Children.sort((a, b) => {
-            let x: string = a['DisplayName'] || a['Name'] || '';
-            let y: string = b['DisplayName'] || b['Name'] || '';
+    public reorderChildren() {
+        this.children = this.children.sort((a, b) => {
+            const x: string = a.DisplayName || a.Name || "";
+            const y: string = b.DisplayName || b.Name || "";
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
-        this.HasChildren = this.Children.length > 0;
+        this.hasChildren = this.children.length > 0;
     }
 
-    ContentChanged() {
-        this.clearSubscriptions();
+    public contentChanged() {
+        this.disposeObservers();
 
         if (!this.hasValidContent) {
             return;
         }
-
-        this.Subscriptions.push(this.Repository.Events.OnContentCreated.subscribe(created => this.handleContentCreated(created)));
-        this.Subscriptions.push(this.Repository.Events.OnContentDeleted.subscribe(deleted => this.handleContentDeleted(deleted)));
-        this.Subscriptions.push(this.Repository.Events.OnContentModified.subscribe(mod => this.handleContentModified(mod)));
-        this.Subscriptions.push(this.Repository.Events.OnContentMoved.subscribe(move => this.handleContentMoved(move)));
+        this.observers.push(this.eventHub.onContentCreated.subscribe((created) => this.handleContentCreated(created)));
+        this.observers.push(this.eventHub.onContentDeleted.subscribe((deleted) => this.handleContentDeleted(deleted)));
+        this.observers.push(this.eventHub.onContentModified.subscribe((mod) => this.handleContentModified(mod)));
+        this.observers.push(this.eventHub.onContentMoved.subscribe((move) => this.handleContentMoved(move)));
 
     }
 
-    handleContentCreated(created: Repository.EventModels.Created) {
-        if (this.IsExpanded && !this.IsLoading && created.Content.IsChildOf(this.Content)) {
-            this.Children.push(created.Content)
-            this.ReorderChildren();
+    public handleContentCreated(created: ICreated) {
+        if (this.isExpanded && !this.isLoading && PathHelper.getParentPath(created.content.Path) === this.content.Path) {
+            this.children.push(created.content);
+            this.reorderChildren();
         }
     }
 
-    handleContentDeleted(deleted: Repository.EventModels.Deleted) {
-        const child = this.Children.find(c => c.Id === deleted.ContentData.Id);
-        if (this.IsExpanded && !this.IsLoading && child) {
-            this.Children = this.Children.filter(c => c !== child);
+    public handleContentDeleted(deleted: IDeleted) {
+        const child = this.children.find((c) => c.Id === deleted.contentData.Id);
+        if (this.isExpanded && !this.isLoading && child) {
+            this.children = this.children.filter((c) => c !== child);
         }
     }
 
-    handleContentModified(modified: Repository.EventModels.Modified) {
-        if (this.IsExpanded && !this.IsLoading && this.Children.find(c => c != null && c.Id === modified.Content.Id)) {
-            this.ReorderChildren();
+    public handleContentModified(modified: IModified) {
+        if (this.isExpanded && !this.isLoading && this.children.find((c) => c != null && c.Id === modified.content.Id)) {
+            this.reorderChildren();
         }
     }
 
-    handleContentMoved(moved: Repository.EventModels.ContentMoved): Observable<Content> {
-        const child = this.Children.find(c => c.Id === moved.Content.Id);
+    public async handleContentMoved(moved: IContentMoved) {
+        const child = this.children.find((c) => c.Id === moved.content.Id);
 
-        if (this.IsExpanded && child) {
-            this.Children = this.Children.filter(c => c !== child);
-            return Observable.of(child);
+        if (this.isExpanded && child) {
+            this.children = this.children.filter((c) => c !== child);
+            return child;
         }
 
-        if (moved.To === this.Content.Path) {
-            if (this.IsExpanded) {
-                this.IsLoading = true;
-                const request = this.Repository.Load(moved.Content.Id || moved.Content.Path || '', { select: 'all' });
-                request.subscribe(c => {
-                    if (c.IsFolder){
-                        this.Children.push(c);
+        if (moved.content.Path.indexOf(this.content.Path) === 0) {
+            if (this.isExpanded) {
+                this.isLoading = true;
+                try {
+                    const request = await this.repository.load<GenericContent>({
+                        idOrPath: moved.content.Id || moved.content.Path || "",
+                        oDataOptions: { select: "all" },
+                    });
+                    if (request.d.IsFolder) {
+                        this.children.push(request.d);
                     }
-                    this.IsLoading = false;
-                    this.ReorderChildren();
-                }, err => {
-                    this.IsLoading = false;
-                })
 
-                return request;
+                    return request.d;
+                } finally {
+                    this.isLoading = false;
+                    this.reorderChildren();
+                }
+
             }
         }
-        return Observable.of(moved.Content);
+        return moved.content;
     }
 
-    clearSubscriptions() {
-        this.Subscriptions.forEach(subscription => {
-            subscription.unsubscribe();
+    public disposeObservers() {
+        this.observers.forEach((observer) => {
+            observer.dispose();
         });
-        this.Subscriptions = [];
+        this.observers = [];
     }
 
-    detached() {
-        this.clearSubscriptions();
+    public detached() {
+        this.disposeObservers();
     }
 
-    @bindable 
-    public OnDropContent: (params: {event: DragEvent, content: Content}) => void = (params: {content: Content}) => {
-        if (this.Content.Path && this.Content.Path !== params.content.ParentPath && this.Content.Path !== params.content.Path && !params.content.IsAncestorOf(this.Content)) {
-            params.content.MoveTo(this.Content.Path);
+    @bindable
+    public onDropContent: (params: {event: DragEvent, content: IContent}) => Promise<any> = async (params: {content: IContent, event: DragEvent}) => {
+        if (this.content.Path && this.content.Path !== PathHelper.getParentPath(params.content.Path)
+        && this.content.Path !== params.content.Path && !PathHelper.isAncestorOf(this.content.Path, params.content.Path)) {
+            this.isLoading = true;
+            try {
+                await this.repository.move({
+                    targetPath: this.content.Path,
+                    idOrPath: params.content.Id || params.content.Path,
+                });
+            } finally {
+                this.isLoading = false;
+            }
         }
     }
 
     @bindable
-    public OnDropContentList: (params: {event: DragEvent, contentList: Content[]}) => void = (params) => {
-        if (this.Content.Path){
-            if (params.event.ctrlKey){
-                this.Repository.CopyBatch(params.contentList, this.Content.Path);
+    public onDropContentList: (params: {event: DragEvent, contentList: IContent[]}) => Promise<void> = async (params) => {
+        if (this.content.Path) {
+            if (params.event.ctrlKey) {
+                await this.repository.copy({
+                    idOrPath: params.contentList.map((a) => a.Id || a.Path),
+                    targetPath: this.content.Path,
+                });
             } else {
-                this.Repository.MoveBatch(params.contentList, this.Content.Path);
+                await this.repository.move({
+                    idOrPath: params.contentList.map((a) => a.Id || a.Path),
+                    targetPath: this.content.Path,
+                });
+
             }
         }
-    };
+    }
 
-    @bindable 
-    public OnDropFiles: (params: {event: DragEvent, files: FileList}) => void = (params) => {
+    @bindable
+    public onDropFiles: (params: {event: DragEvent, files: FileList}) => Promise<void> = async (params) => {
+        /** */
+    }
 
-    };    
+    public async dropContent(event: DragEvent, stringifiedContent: string, stringifiedContentList?: string[], files?: FileList) {
 
-    async dropContent(event: DragEvent, stringifiedContent: string, stringifiedContentList?: string[], files?: FileList) {
-
-        if (stringifiedContent){
-            const droppedContent = this.Repository.ParseContent(stringifiedContent);
-            this.OnDropContent({event, content: droppedContent});
+        if (stringifiedContent) {
+            const droppedContent = JSON.parse(stringifiedContent);
+            await this.onDropContent({event, content: droppedContent});
         }
-        if (stringifiedContentList){
-            const contentList = stringifiedContentList.map(c => this.Repository.ParseContent(c))
-            this.OnDropContentList({event, contentList});
+        if (stringifiedContentList) {
+            const droppedContentList = stringifiedContentList.map((c) => JSON.parse(c));
+            await this.onDropContentList({event, contentList: droppedContentList});
         }
 
-        if (files){
-            this.OnDropFiles({event, files});
+        if (files) {
+            await this.onDropFiles({event, files});
         }
     }
 }

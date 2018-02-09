@@ -1,1 +1,1 @@
-export * from './contentlist.tests'
+export * from "./contentlist.tests";

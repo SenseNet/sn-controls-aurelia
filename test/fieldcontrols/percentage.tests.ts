@@ -1,54 +1,53 @@
-import { expect } from 'chai';
-import { suite, test } from 'mocha-typescript';
-import { ContentTypes, FieldSettings } from 'sn-client-js';
-import { Percentage } from '../../src/fieldcontrols';
-import { FieldControlBaseTest } from './fieldcontrol-base.tests';
+import { IDisposable } from "@sensenet/client-utils";
+import { NumberFieldSetting, Task } from "@sensenet/default-content-types";
+import { expect } from "chai";
+import { Percentage } from "../../src/fieldcontrols";
+import { ComponentTestHelper } from "../component-test-helper";
 
-@suite('Percentage component')
-export class PercentageTests extends FieldControlBaseTest<Percentage> {
-    constructor() {
-        super(Percentage, 'percentage');
-        
-    }
-    
-    @test
-    public async 'Can be constructed'() {
-        const viewModel = await this.createFieldViewModel();
+export const percentageComponentTests = describe("Percentage component", () => {
+    const createFieldViewModel = () => ComponentTestHelper.createAndGetViewModel<Percentage>("<percentage></percentage>", "percentage");
+
+    let viewModel: Percentage & IDisposable;
+
+    beforeEach(async () => {
+        viewModel = await createFieldViewModel();
+    });
+
+    afterEach(() => {
+        viewModel.dispose();
+    });
+
+    it("Can be constructed", () => {
         expect(viewModel).to.be.instanceof(Percentage);
-    }
+    });
 
-    @test
-    public async 'Can not be modified if is read only'() {
-        const viewModel = await this.createFieldViewModel();       
+    it("Can not be modified if is read only", () => {
         viewModel.settings = {
-            ReadOnly: true
-        } as FieldSettings.NumberFieldSetting;
-        viewModel.content = this.mockRepo.HandleLoadedContent({Id: 12487, Path: 'root/path', Name: 'C1'}); ;
-        const contentViewElement = document.querySelector('percentage .mdc-slider') as HTMLInputElement;
-        expect(contentViewElement.getAttribute('aria-disabled')).to.be.eq('true');
-    }
+            ReadOnly: true,
+        } as NumberFieldSetting;
+        viewModel.content = {Id: 12487, Path: "root/path", Name: "C1", Type: "User"};
+        const contentViewElement = document.querySelector("percentage .mdc-slider") as HTMLInputElement;
+        expect(contentViewElement.getAttribute("aria-disabled")).to.be.eq("true");
+    });
 
-    @test
-    public async 'Value will be bound back on change'() {
-        const viewModel = await this.createFieldViewModel();       
-        
-        const content = this.mockRepo.HandleLoadedContent<ContentTypes.Task>({
+    it("Value will be bound back on change", () => {
+        const content: Task = {
             Id: 12976,
-            Path: 'root/path',
-            Name: 'TestTask',
-            TaskCompletion: 5
-        }) as any;
-        
+            Path: "root/path",
+            Name: "TestTask",
+            TaskCompletion: 5,
+            Type: "Task",
+        };
 
         const settings = {
             ReadOnly: true,
-            Name: 'TaskCompletion'
-        } as FieldSettings.NumberFieldSetting;
-        viewModel.activate({content, settings, controller: null as any, actionName: 'edit' });
+            Name: "TaskCompletion",
+        } as NumberFieldSetting;
+        viewModel.activate({content, settings, controller: null as any, actionName: "edit" });
 
         viewModel.mdcSlider.stepUp(6);
-        viewModel.mdcSlider.emit('MDCSlider:change');
+        viewModel.mdcSlider.emit("MDCSlider:change");
         expect(viewModel.value).to.be.eq(6);
-    }
+    });
 
-}
+});
