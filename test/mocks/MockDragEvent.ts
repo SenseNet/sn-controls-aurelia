@@ -1,6 +1,7 @@
 import { MockDataTransfer } from "./MockDataTransfer";
 // tslint:disable
 export class MockDragEvent implements DragEvent {
+    NONE: number = 0;
     public propagationStopped: boolean = false;
     public immediatePropagationStopped: boolean = false;
     public dataTransfer: MockDataTransfer = new MockDataTransfer();

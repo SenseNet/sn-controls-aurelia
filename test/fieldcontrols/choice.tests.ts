@@ -7,9 +7,10 @@ import { ComponentTestHelper } from "../component-test-helper";
 
 export const choiceFieldTests = describe("", () => {
 
-    const createFieldViewModel = async () => {
-        return await ComponentTestHelper.createAndGetViewModel<Choice>("<choice></choice>", "choice");
-    };
+    const createFieldViewModel = async () =>
+        await ComponentTestHelper.createAndGetViewModel<Choice>("<choice></choice>", "choice", {
+            content: {} as any,
+        });
 
     let viewModel: Choice & IDisposable;
 
@@ -29,13 +30,13 @@ export const choiceFieldTests = describe("", () => {
         viewModel.settings = {
             ReadOnly: true,
         } as ChoiceFieldSetting;
-        viewModel.content = {Id: 12387, Path: "asd", Name: "", Type: "User"};
-        const contentViewElement = document.querySelector("choice input") as HTMLInputElement;
+        viewModel.content = { Id: 12387, Path: "asd", Name: "", Type: "User" };
+        const contentViewElement = document.querySelector("choice select") as HTMLInputElement;
         expect(contentViewElement.disabled).to.be.eq(true);
     });
 
     it("Writes back value when changed", async () => {
-        const content: IContent = {Id: 1237, Path: "asd", Name: "", Type: ""};
+        const content: IContent = { Id: 1237, Path: "asd", Name: "", Type: "" };
         expect(viewModel.value).to.be.eq(undefined);
         const settings = {
             Compulsory: true,

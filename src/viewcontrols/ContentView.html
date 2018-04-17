@@ -1,5 +1,5 @@
 <template>
-    <div class="content-view-wrapper">
+    <div class="content-view-wrapper" if.bind="controlName && controlName.length ? true : false">
         <compose view-model.bind="controlName" model.bind="model"></compose>
     </div>
 </template>

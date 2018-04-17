@@ -5,7 +5,7 @@ import { expect } from "chai";
 import { EditContentDialog } from "..";
 import { ComponentTestHelper } from "../component-test-helper";
 
-export const editContentTests = describe("Add Content dialog tests", () => {
+export const editContentTests = describe("Edit Content dialog tests", () => {
 
     const createFieldViewModel = async () => {
         return await ComponentTestHelper.createAndGetViewModel<EditContentDialog>("<edit-content-dialog></edit-content-dialog>", "edit-content-dialog");

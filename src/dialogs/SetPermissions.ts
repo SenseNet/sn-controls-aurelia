@@ -55,7 +55,7 @@ export class SetPermissionsDialog {
 
         const contentEntries: IContent[] = [];
 
-        relatedIdentities.d.results.forEach((r) => {
+        relatedIdentities && relatedIdentities.d && relatedIdentities.d.results.forEach((r) => {
             if (this.permissions.entries.findIndex((e) => e.identity.path === r.Path && e.propagates) > -1) {
             contentEntries.push(r);
             }

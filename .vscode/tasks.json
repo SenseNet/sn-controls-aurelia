@@ -7,7 +7,9 @@
             "type": "npm",
             "script": "build:test",
             "identifier": "build:test",
-            "problemMatcher": []
+            "problemMatcher": [
+                "$tsc"
+            ]
         }
     ]
 }
