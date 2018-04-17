@@ -12,10 +12,9 @@ import { FieldBaseControl } from "./FieldBaseControl";
  * Usage:
  *
  * ``` html
- * <choice content.bind="content" settings.bind="myChoiceFieldSettings"></choice>
+ * <checkbox content.bind="content" settings.bind="myChoiceFieldSettings"></checkbox>
  * ```
  */
 @customElement("checkbox")
 export class Checkbox extends FieldBaseControl<object, ChoiceFieldSetting> {
-
 }
