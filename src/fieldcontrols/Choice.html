@@ -1,18 +1,13 @@
 <template>
     <require from="./Choice.css"></require>
 
-    <div ref="select" class="mdc-select ${readOnly ? 'mdc-select--disabled' : ''} choice-wrapper" role="listbox" tabindex="0">
-        <label class="mdc-text-field ${ settings.Complusory && !value ? 'mdc-text-field--invalid' : ''}">
-            <span class="mdc-text-field__label mdc-text-field__label--float-above">${settings.DisplayName}${settings.Compulsory ? '*' : '' }</span>
-        </label>
-        <span class="mdc-select__selected-text" id="${value}">${DefaultText}</span>
-        <input type="hidden" required.bind="settings.Compulsory" value.one-way="value" disabled.bind="readOnly" />
-        <div class="mdc-simple-menu mdc-select__menu">
-            <ul class="mdc-list mdc-simple-menu__items">
-                <li repeat.for="option of settings.Options" class="mdc-list-item" role="option" id="${option.Value}" aria-disabled.bind="readOnly">
-                    ${option.Text}
-                </li>
-            </ul>
-        </div>
-    </div>
+    <div class="mdc-select ${readOnly ? 'mdc-select--disabled' : ''} choice-wrapper" ref="select" >
+        <select class="mdc-select__native-control" disabled.bind="readOnly">
+          <option repeat.for="option of settings.Options" value="${option.Value}" selected>
+            ${option.Text}
+          </option>
+        </select>
+        <div class="mdc-select__label mdc-select__label--float-above">${settings.DisplayName}${settings.Compulsory ? '*' : '' }</div>
+        <div class="mdc-select__bottom-line"></div>
+      </div>
 </template>

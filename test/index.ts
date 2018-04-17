@@ -2,6 +2,7 @@
 import { ExtensionHandlers, Options } from "aurelia-loader-nodejs";
 import { globalize, initialize } from "aurelia-pal-nodejs";
 import "aurelia-polyfills";
+import "aurelia-templating-resources";
 import * as Path from "path";
 import { MockCanvasRenderingContext2D } from "./mocks";
 
