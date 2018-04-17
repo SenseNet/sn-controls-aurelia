@@ -13,7 +13,7 @@
 
 
 
-This package contains a collection of UI components and controls for [sensenet ECM](https://www.sensenet.com/), written in [Aurelia Framewok](http://aurelia.io/)
+This package contains a collection of UI components and controls for [sensenet](https://www.sensenet.com/), written in [Aurelia Framewok](http://aurelia.io/)
 
 [![Sense/Net Services](https://img.shields.io/badge/sensenet-7.0.0%20tested-green.svg)](https://github.com/SenseNet/sensenet/releases/tag/v7.0.0)
 
