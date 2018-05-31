@@ -2,7 +2,7 @@
     <require from='./ContentReference.css'></require>
     <div class="content-reference-wrapper ${isFocused ? 'focused' : ''}" click.delegate="focusIn()">
         <label class="mdc-text-field ${isFocused ? 'mdc-text-field--focused' : ''}">
-            <span class="mdc-text-field__label mdc-text-field__label--float-above">${settings.DisplayName}</span>
+            <span class="mdc-text-field__label mdc-floating-label mdc-text-field__label--float-above">${settings.DisplayName}</span>
         </label>
         <div class="chips-container">
             <div class="chip"  if.bind="!isOpened && Item">

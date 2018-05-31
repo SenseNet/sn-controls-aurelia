@@ -5,6 +5,6 @@
             settings-validation.bind="settings"
             disabled.bind="readOnly"
             required.bind="settings.Compulsory">
-        <span class="mdc-text-field__label ${hasInitialValue ? 'mdc-text-field__label--float-above' : ''}">${settings.DisplayName}</span>
+        <span class="mdc-text-field__label mdc-floating-label ${hasInitialValue ? 'mdc-text-field__label--float-above' : ''}">${settings.DisplayName}</span>
       </label>
 </template>

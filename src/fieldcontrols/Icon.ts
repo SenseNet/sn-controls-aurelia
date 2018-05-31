@@ -46,6 +46,7 @@ export class Icon extends FieldBaseControl<string, FieldSetting> {
         download: "get_app",
         clear: "clear",
         editbinary: "code",
+        EditContent: "code",
     };
 
     @bindable
