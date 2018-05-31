@@ -6,7 +6,7 @@
             value.two-way="value" 
             disabled.bind="readOnly"
             settings-validation.bind="settings">
-        <span class="mdc-text-field__label  ${hasInitialValue ? 'mdc-text-field__label--float-above' : ''}">${settings.DisplayName}</span>
+        <span class="mdc-text-field__label mdc-floating-label ${hasInitialValue ? 'mdc-text-field__label--float-above' : ''}">${settings.DisplayName}</span>
       </label> <br />
         <span class="path-preview">
         ${parentPath}/${content.Name}

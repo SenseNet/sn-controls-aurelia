@@ -4,6 +4,7 @@
  *
  */ /** */
 import { IContent, Repository } from "@sensenet/client-core";
+import { IDisposable, Trace } from "@sensenet/client-utils";
 import { ActionName, ControlSchema } from "@sensenet/control-mapper";
 import { FieldSetting, GenericContent } from "@sensenet/default-content-types";
 import { autoinject, bindable } from "aurelia-framework";
@@ -19,11 +20,21 @@ import { ControlMappingService, ControlNameResolverService } from "../services";
  */
 @autoinject
  export class ContentView  {
+    public schemaTrace: IDisposable;
     constructor(
         private repository: Repository,
         private controlMappingService: ControlMappingService,
         private controlNameResolverService: ControlNameResolverService,
     ) {
+        this.schemaTrace = Trace.method({
+            object: this.repository,
+            method: this.repository.reloadSchema,
+            isAsync: true,
+            onFinished: () => {
+                this.controlMappingService.reinitMappings(this.repository);
+                this.contextChange();
+            },
+        });
     }
 
     /**
@@ -57,6 +68,10 @@ import { ControlMappingService, ControlNameResolverService } from "../services";
             content: this.content,
             actionName: this.actionName,
         };
+    }
+
+    public unbind() {
+        this.schemaTrace.dispose();
     }
 
     @bindable

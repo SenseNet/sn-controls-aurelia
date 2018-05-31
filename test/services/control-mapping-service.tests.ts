@@ -24,7 +24,7 @@ export const controlMapperTests = describe("AureliaControlMapper Tests", () => {
         expect(mapper.GetMappings(repo).getControlForContentField("User", "FullName", "new")).to.be.eq(ShortText);
     });
 
-    it( "Password should be assigned to Password field", () => {
+    it("Password should be assigned to Password field", () => {
         expect(mapper.GetMappings(repo).getControlForContentField("User", "Password", "new")).to.be.eq(Password);
     });
 
@@ -53,7 +53,7 @@ export const controlMapperTests = describe("AureliaControlMapper Tests", () => {
     });
 
     it("GenericContent RateAvg should return a NumberField", () => {
-        const genericContentSchema = SchemaStore.find((s) => s.ContentTypeName === "GenericContent");
+        const genericContentSchema = repo.schemas.getSchemaByName("GenericContent");
         if (genericContentSchema) {
             (genericContentSchema.FieldSettings.find((s) => s.Name === "RateAvg") as DateTimeFieldSetting).VisibleEdit = FieldVisibility.Show;
         }

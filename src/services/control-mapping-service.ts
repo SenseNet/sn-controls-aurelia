@@ -12,7 +12,7 @@ export class ControlMappingService {
 
     private mappings!: ControlMapper<object, FieldSetting>;
 
-    private initMappings(repo: Repository) {
+    public reinitMappings(repo: Repository) {
         this.mappings = new ControlMapper(repo, Object, (s) => s, GenericView, DumpField)
         .setupFieldSettingDefault(ShortTextFieldSetting, (setting) => {
             switch (setting.Name) {
@@ -61,7 +61,7 @@ export class ControlMappingService {
 
     public GetMappings(repo: Repository) {
         if (!this.mappings) {
-            this.initMappings(repo);
+            this.reinitMappings(repo);
         }
         return this.mappings;
     }
