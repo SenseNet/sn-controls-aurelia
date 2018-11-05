@@ -86,7 +86,7 @@
   },
   "dependencies": {
     "@sensenet/client-core": "^1.1.0",
-    "@sensenet/control-mapper": "^1.0.0",
+    "@sensenet/control-mapper": "^1.0.2",
     "@sensenet/repository-events": "^1.0.0",
     "aurelia-event-aggregator": "^1.0.1",
     "aurelia-framework": "^1.2.0",
